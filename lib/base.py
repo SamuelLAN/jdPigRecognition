@@ -226,13 +226,25 @@ class NN:
 
     @staticmethod
     def init_weight(shape):
+        if len(shape) == 4:
+            input_nodes = shape[1] * shape[2]
+        else:
+            input_nodes = shape[0]
+
         return tf.Variable(
             tf.truncated_normal(
                 shape,
-                stddev=1.0 / NN.CONV_WEIGHT_STDDEV,
+                stddev=1.0 / sqrt(float(input_nodes)),
             ),
             name='weight'
         )
+        # return tf.Variable(
+        #     tf.truncated_normal(
+        #         shape,
+        #         stddev=1.0 / NN.CONV_WEIGHT_STDDEV,
+        #     ),
+        #     name='weight'
+        # )
 
     ''' 初始化权重矩阵 '''
 
