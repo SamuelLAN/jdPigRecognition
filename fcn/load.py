@@ -10,10 +10,11 @@ import numpy as np
 from PIL import Image
 from six.moves.urllib.request import urlretrieve
 
-
 '''
     下载数据
 '''
+
+
 class Download:
     URL = 'http://www.lin-baobao.com/pig/data.zip'
     DATA_ROOT = r'data'
@@ -24,8 +25,8 @@ class Download:
     def __init__(self):
         pass
 
-
     ''' 将运行路径切换到当前文件所在路径 '''
+
     @staticmethod
     def __changDir():
         cur_dir_path = os.path.split(__file__)[0]
@@ -33,15 +34,15 @@ class Download:
             os.chdir(cur_dir_path)
             sys.path.append(cur_dir_path)
 
-
     ''' 下载进度 '''
+
     @staticmethod
     def __downloadProgressHook(count, block_size, total_size):
         sys.stdout.write('\r >> Downloading %.1f%%' % (float(count * block_size) / float(total_size) * 100.0))
         sys.stdout.flush()
 
-
     ''' 判断是否需要下载；若需，下载数据压缩包 '''
+
     @staticmethod
     def __maybeDownload(force=False):
         """Download a file if not present, and make sure it's the right size."""
@@ -49,16 +50,15 @@ class Download:
             os.mkdir(Download.DATA_ROOT)
         file_path = os.path.join(Download.DATA_ROOT, Download.FILE_NAME)
         if force or not os.path.exists(file_path):
-            print ('Attempting to download: %s' % Download.FILE_NAME)
+            print('Attempting to download: %s' % Download.FILE_NAME)
             filename, _ = urlretrieve(Download.URL, file_path, reporthook=Download.__downloadProgressHook)
-            print ('\nDownload Complete!')
+            print('\nDownload Complete!')
         stat_info = os.stat(file_path)
         if stat_info.st_size == Download.EXPECTED_BYTES:
-            print ('Found and verified %s' % file_path)
+            print('Found and verified %s' % file_path)
         else:
             raise Exception(
                 'Failed to verify ' + file_path + '. Can you get to it with a browser?')
-
 
     @staticmethod
     def __checkFileNum():
@@ -73,7 +73,6 @@ class Download:
             return False
         return True
 
-
     @staticmethod
     def __maybeExtract(force=False):
         file_path = os.path.join(Download.DATA_ROOT, Download.FILE_NAME)
@@ -82,29 +81,28 @@ class Download:
         for filename in zip_files.namelist():
             if '__MACOSX' in filename:
                 continue
-            print ('\t extracting %s ...' % filename)
+            print('\t extracting %s ...' % filename)
             data = zip_files.read(filename)
             with open(os.path.join(Download.DATA_ROOT, filename), 'wb') as f:
                 f.write(data)
 
-
     @staticmethod
     def run():
-        Download.__changDir()   # 将路径切换到当前路径
+        Download.__changDir()  # 将路径切换到当前路径
 
         if Download.__checkFileNum():
-            print ('data exist in %s' % Download.DATA_ROOT)
+            print('data exist in %s' % Download.DATA_ROOT)
             return
 
         Download.__maybeDownload()
 
-        print ('Extracting data ...')
+        print('Extracting data ...')
 
         Download.__maybeExtract()
 
-        print ('Finish Extracting')
+        print('Finish Extracting')
 
-        print ('done')
+        print('done')
 
 
 '''
@@ -113,12 +111,14 @@ class Download:
     get_size()
     next_batch()
 '''
+
+
 class Data:
     DATA_ROOT = r'data'
     IMAGE_SCALE = 2
     RESIZE_SIZE = [640, 360]
 
-    def __init__(self, start_ratio = 0.0, end_ratio = 1.0, name = '', sort_list = []):
+    def __init__(self, start_ratio=0.0, end_ratio=1.0, name='', sort_list=[]):
         # 初始化变量
         self.__name = name
         self.__data = []
@@ -153,8 +153,8 @@ class Data:
 
         self.__cur_index = 0
 
-
     ''' 加载数据 '''
+
     def __load(self):
         self.echo('Loading %s data ...' % self.__name)
         file_list = os.listdir(self.DATA_ROOT)
@@ -179,7 +179,7 @@ class Data:
 
                 image = Image.open(os.path.join(self.DATA_ROOT, file_name))
                 # np_image = np.array(image.resize( np.array(image.size) / Data.IMAGE_SCALE ))
-                np_image = np.array(image.resize( np.array(Data.RESIZE_SIZE) ))
+                np_image = np.array(image.resize(np.array(Data.RESIZE_SIZE)))
                 # self.__data.append([image, self.__y[y_file_name]])
 
                 self.__total_size += 1
@@ -188,49 +188,26 @@ class Data:
                     self.__data_dict[img_no] = []
                 self.__data_dict[img_no].append([np_image, self.__get_same_size_mask(image, y_file_name)])
 
-        iter_items = self.__data_dict.iteritems() if '2.7' in sys.version else self.__data_dict.items()
-        for img_no, data_list in iter_items:
+        for img_no, data_list in self.__data_dict.items():
             self.__data_list.append([int(img_no), data_list])
 
-        if '2.7' in sys.version:
-            self.__data_list.sort(self.__sort) # 按顺序排列
-        else:
-            self.__data_list.sort(key=lambda x: self.__sort_list.index(x[0]) if self.__sort_list else x[0])
+        self.__data_list.sort(key=lambda x: self.__sort_list.index(x[0]) if self.__sort_list else x[0])
 
         self.echo('\nFinish Loading\n')
 
-
-    def __sort(self, a, b):
-        if self.__sort_list:
-            index_a = self.__sort_list.index(a[0])
-            index_b = self.__sort_list.index(b[0])
-            if index_a < index_b:
-                return -1
-            elif index_a > index_b:
-                return 1
-            else:
-                return 0
-
-        if a[0] < b[0]:
-            return -1
-        elif a[0] > b[0]:
-            return 1
-        else:
-            return 0
-
-
     ''' 将 mask 图转为 0 1 像素 '''
+
     @staticmethod
     def __get_mask(file_name):
         mask = Image.open(os.path.join(Data.DATA_ROOT, file_name)).convert('L')
         return mask
 
-
     ''' 获取跟 image 相同 size 的 mask '''
+
     def __get_same_size_mask(self, image, y_file_name):
         mask = self.__y[y_file_name]
         # mask = np.array( mask.resize( np.array(image.size) / Data.IMAGE_SCALE ) )
-        mask = np.array( mask.resize( np.array(Data.RESIZE_SIZE) ) )
+        mask = np.array(mask.resize(np.array(Data.RESIZE_SIZE)))
 
         background = copy.deepcopy(mask)
         background[background != 255] = 0
@@ -240,9 +217,9 @@ class Data:
         mask[mask > 0] = 1
         return np.array([background, mask]).transpose([1, 2, 0])
 
-
     ''' 获取下个 batch '''
-    def next_batch(self, batch_size, loop = True):
+
+    def next_batch(self, batch_size, loop=True):
         if not loop and self.__cur_index >= self.__data_len:
             return None, None
 
@@ -279,26 +256,28 @@ class Data:
         self.__cur_index = end_index if end_index < self.__data_len else 0
         return np.array(X), np.array(y)
 
-
     ''' 获取数据集大小 '''
+
     def get_size(self):
         return self.__data_len
 
-
     ''' 重置当前 index 位置 '''
+
     def reset_cur_index(self):
         self.__cur_index = 0
 
-
     ''' 输出展示 '''
+
     @staticmethod
     def echo(msg, crlf=True):
         if crlf:
-            print (msg)
+            print(msg)
         else:
-            sys.stdout.write(msg)
-            sys.stdout.flush()
-
+            try:
+                sys.stdout.write(msg)
+                sys.stdout.flush()
+            except:
+                print (msg)
 
     @staticmethod
     def get_sort_list():
@@ -313,7 +292,6 @@ class Data:
         img_no_list = list(img_no_set)
         random.shuffle(img_no_list)
         return img_no_list
-
 
 # Download.run()
 
