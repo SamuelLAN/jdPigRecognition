@@ -212,12 +212,12 @@ class FCN(base.NN):
             'type': 'tr_conv',
             'shape': [VGG_MODEL['conv4_3'][0].shape[3], NUM_CLASSES],  # 对应 [ pool_4 层的 channel, NUM_CLASSES ]
             'k_size': [4, 4],
-            'output_shape_index': 13,  # 对应 pool_4 层的 shape
+            'output_shape_index': 'pool_4',  # 对应 pool_4 层的 shape
         },
         {
             'name': 'add_1',
             'type': 'add',
-            'layer_index': 13,  # 对应 pool_4 层
+            'layer_index': 'pool_4',  # 对应 pool_4 层
         },
         {
             'name': 'tr_conv_2',
@@ -225,12 +225,12 @@ class FCN(base.NN):
             'shape': [VGG_MODEL['conv3_3'][0].shape[3], VGG_MODEL['conv4_3'][0].shape[3]],
             # 对应 [ pool_3 层的 channel, pool_4 层的 channel ]
             'k_size': [4, 4],
-            'output_shape_index': 9,  # 对应 pool_3 层的 shape
+            'output_shape_index': 'pool_3',  # 对应 pool_3 层的 shape
         },
         {
             'name': 'add_2',
             'type': 'add',
-            'layer_index': 9,  # 对应 pool_3 层
+            'layer_index': 'pool_3',  # 对应 pool_3 层
         },
         {
             'name': 'tr_conv_3',
