@@ -31,7 +31,7 @@ class FCN(base.NN):
 
     ''' 参数的配置 '''
 
-    BATCH_SIZE = 56  # 迭代的 epoch 次数
+    BATCH_SIZE = 12  # 迭代的 epoch 次数
     EPOCH_TIMES = 100  # 随机梯度下降的 batch 大小
 
     NUM_CHANNEL = 3  # 输入图片为 3 通道，彩色
