@@ -3,6 +3,8 @@
 from __future__ import print_function
 import os
 import sys
+from PIL import Image
+import numpy as np
 
 # 将运行路径切换到当前文件所在路径
 cur_dir_path = os.path.split(__file__)[0]
@@ -10,20 +12,17 @@ if cur_dir_path:
     os.chdir(cur_dir_path)
     sys.path.append(cur_dir_path)
 
-from PIL import Image
-import numpy as np
 import fcn
 
 
 class GetImage:
-    IMG_DIR = r'../deep_id/data/TrainImg'
+    IMG_DIR = r'../data/TrainImg'
     RESIZE_SIZE = [640, 360]
 
     def __init__(self):
         self.__img_list = []
         self.__img_len = 0
         self.__o_fcn = fcn.FCN()
-
 
     def __get_image_list(self):
         for file_name in os.listdir(self.IMG_DIR):
@@ -32,10 +31,9 @@ class GetImage:
                     or 'MACOSX' in split_file_name[0]:
                 continue
 
-            self.__img_list.append([ split_file_name[0], os.path.join(self.IMG_DIR, file_name) ])
+            self.__img_list.append([split_file_name[0], os.path.join(self.IMG_DIR, file_name)])
 
         self.__img_len = len(self.__img_list)
-
 
     def __get_pig(self):
         for i, (file_name, img_path) in enumerate(self.__img_list):
@@ -47,18 +45,20 @@ class GetImage:
 
             np_pig = self.__o_fcn.use_model(image)
             im_pig = Image.fromarray(np_pig)
-            im_pig.save( os.path.join(self.IMG_DIR, '%s_pig.jpg' % file_name) )
-
+            im_pig.save(os.path.join(self.IMG_DIR, '%s_pig.jpg' % file_name))
 
     ''' 输出展示 '''
+
     @staticmethod
     def echo(msg, crlf=True):
         if crlf:
-            print (msg)
+            print(msg)
         else:
-            sys.stdout.write(msg)
-            sys.stdout.flush()
-
+            try:
+                sys.stdout.write(msg)
+                sys.stdout.flush()
+            except:
+                print(msg)
 
     def run(self):
         self.echo('\nGetting image list ...')
@@ -71,6 +71,6 @@ class GetImage:
 
         self.echo('\ndone')
 
+
 o_get_img = GetImage()
 o_get_img.run()
-
