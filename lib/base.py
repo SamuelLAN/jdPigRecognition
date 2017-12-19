@@ -814,6 +814,8 @@ class NN:
 
         self.echo('Finish building model ')
 
+        return a
+
     ''' 在已有 WList 以及 bList 的前提下 rebulid model '''
 
     def parse_model_rebuild(self, X):
