@@ -332,7 +332,7 @@ class FCN(base.NN):
 
             batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
 
-            feed_dict = {self.__image: batch_x, self.__mask: batch_y, self.keep_prob: 1.0}
+            feed_dict = {self.__image: batch_x, self.__mask: batch_y, self.keep_prob: 1.0, self.t_is_train: False}
             loss = self.sess.run(self.__loss, feed_dict)
             mean_loss += loss
 
@@ -464,7 +464,8 @@ class FCN(base.NN):
 
             # *********************************
 
-            feed_dict = {self.__image: batch_x, self.__mask: batch_y, self.keep_prob: self.KEEP_PROB}
+            feed_dict = {self.__image: batch_x, self.__mask: batch_y,
+                         self.keep_prob: self.KEEP_PROB, self.t_is_train: True}
             _, train_loss = self.sess.run([train_op, self.__loss], feed_dict)
 
             mean_loss += train_loss
@@ -487,7 +488,8 @@ class FCN(base.NN):
                 batch_val_x = (batch_org_val_x - self.mean_x) / (self.std_x + self.EPSILON)
 
                 feed_dict = {self.__image: batch_val_x, self.__mask: batch_val_y, self.keep_prob: 1.0,
-                             self.__loss_placeholder: mean_val_loss, self.__org_image: batch_org_val_x}
+                             self.__loss_placeholder: mean_val_loss, self.__org_image: batch_org_val_x,
+                             self.t_is_train: False}
                 self.add_summary_val(feed_dict, epoch)
 
                 if best_val_loss > mean_val_loss:
@@ -522,7 +524,7 @@ class FCN(base.NN):
 
         # show some val image result
         batch_x, batch_y = self.__val_set.next_batch(self.BATCH_SIZE)
-        feed_dict = {self.__image: batch_x, self.keep_prob: 1.0}
+        feed_dict = {self.__image: batch_x, self.keep_prob: 1.0, self.t_is_train: False}
         output_mask = self.sess.run(self.__output_mask, feed_dict)
 
         output_mask = np.expand_dims(output_mask, axis=3)
@@ -549,7 +551,7 @@ class FCN(base.NN):
 
         np_image = (np_org_image - self.mean_x) / (self.std_x + self.EPSILON)
 
-        feed_dict = {self.__image: np_image, self.keep_prob: 1.0}
+        feed_dict = {self.__image: np_image, self.keep_prob: 1.0, self.t_is_train: False}
         output_mask = self.sess.run(self.__output_mask, feed_dict)
 
         return self.__mask2img(output_mask[0], np_org_image[0])  # 将 mask 待人 image 并去掉外部的点点
