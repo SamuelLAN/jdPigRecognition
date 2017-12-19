@@ -50,6 +50,7 @@ class FCN(base.NN):
 
     ''' 类的配置 '''
 
+    USE_BN = True  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = True  # 输入是否使用 batch normalize
 
     SHOW_PROGRESS_FREQUENCY = 2  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
@@ -64,6 +65,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv1_1'][0],
             'b': VGG_MODEL['conv1_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -71,6 +73,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv1_2'][0],
             'b': VGG_MODEL['conv1_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -84,6 +87,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv2_1'][0],
             'b': VGG_MODEL['conv2_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -91,6 +95,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv2_2'][0],
             'b': VGG_MODEL['conv2_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -104,6 +109,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_1'][0],
             'b': VGG_MODEL['conv3_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -111,6 +117,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_2'][0],
             'b': VGG_MODEL['conv3_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -118,6 +125,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_3'][0],
             'b': VGG_MODEL['conv3_3'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -131,6 +139,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_1'][0],
             'b': VGG_MODEL['conv4_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -138,6 +147,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_2'][0],
             'b': VGG_MODEL['conv4_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -145,6 +155,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_3'][0],
             'b': VGG_MODEL['conv4_3'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -158,6 +169,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_1'][0],
             'b': VGG_MODEL['conv5_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -165,6 +177,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_2'][0],
             'b': VGG_MODEL['conv5_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -172,6 +185,7 @@ class FCN(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_3'][0],
             'b': VGG_MODEL['conv5_3'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -185,6 +199,7 @@ class FCN(base.NN):
             'type': 'conv',
             'shape': [VGG_MODEL['conv5_3'][0].shape[3], 4096],
             'k_size': [7, 7],
+            'bn': True,
         },
         {
             'name': 'dropout_6',
@@ -195,6 +210,7 @@ class FCN(base.NN):
             'type': 'conv',
             'shape': [4096, 4096],
             'k_size': [1, 1],
+            'bn': True,
         },
         {
             'name': 'dropout_7',
@@ -205,6 +221,7 @@ class FCN(base.NN):
             'type': 'conv',
             'shape': [4096, NUM_CLASSES],
             'k_size': [1, 1],
+            'bn': True,
             'activate': False,
         },
         {
