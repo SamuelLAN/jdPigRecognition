@@ -13,11 +13,13 @@ else:
     import queue
 
 # 将运行路径切换到当前文件所在路径
-cur_dir_path = os.path.split(__file__)[0]
+cur_dir_path = os.path.abspath( os.path.split(__file__)[0] )
 if cur_dir_path:
     os.chdir(cur_dir_path)
     sys.path.append(cur_dir_path)
     sys.path.append(os.path.split(cur_dir_path)[0])
+
+print sys.path
 
 import lib.base as base
 import load
@@ -555,6 +557,6 @@ class FCN(base.NN):
         return self.__mask2img(output_mask[0], np_org_image[0])  # 将 mask 待人 image 并去掉外部的点点
 
 
-o_fcn = FCN()
-o_fcn.run()
+# o_fcn = FCN()
+# o_fcn.run()
 # o_fcn.test_model()
