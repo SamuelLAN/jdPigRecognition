@@ -426,7 +426,7 @@ class FCN(base.NN):
         # TensorBoard merge summary
         self.merge_summary()
 
-        best_val_loss = 999999  # 校验集 loss 最好的情况
+        best_val_loss = 9.9999e12  # 校验集 loss 最好的情况
         increase_val_loss_times = 0  # 校验集 loss 连续上升次数
         mean_loss = 0
 
