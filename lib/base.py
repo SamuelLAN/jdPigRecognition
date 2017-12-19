@@ -156,7 +156,8 @@ class NN:
         self.t_is_train = tf.placeholder(tf.bool, name='is_train')
 
         # 程序运行的开始时间；用于 get_model_path 和 get_summary_path 时使用
-        self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
+        # self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
+        self.__start_time = '2017_12_19_17_28_19'
 
         # 初始化 model 路径
         self.__model_path = ''
@@ -164,7 +165,7 @@ class NN:
 
         # 初始化 tensorboard summary 的文件夹路径 并 开启 tensorboard
         self.__summaryPath = ''
-        self.get_summary_path()
+        # self.get_summary_path()
 
         # merge summary 时需要用到；判断是否已经初始化 summary writer
         self.__init_summary_writer = False
@@ -870,10 +871,12 @@ class NN:
             # 池化层
             elif _type == 'pool':
                 with tf.name_scope(name):
-                    if 'pool_type' not in config or config['pool_type'] == 'max':
-                        a = self.max_pool(a, config['k_size'])
-                    else:
-                        a = self.avg_pool(a, config['k_size'])
+                    k_size = [config['k_size'], config['k_size']]
+                stride = config['stride'] if 'stride' in config else None
+                if 'pool_type' not in config or config['pool_type'] == 'max':
+                    a = self.max_pool(a, k_size, stride)
+                else:
+                    a = self.avg_pool(a, k_size, stride)
 
             # 全连接层
             elif _type == 'fc':

@@ -522,6 +522,41 @@ class FCN(base.NN):
         return self.__mask2img(output_mask[0], np_image[0])  # 将 mask 待人 image 并去掉外部的点点
 
 
+    def test_model(self):
+        self.restore_model_w_b()  # 恢复模型
+        self.rebuild_model()  # 重建模型
+        self.get_loss()  # 重新 get loss
+
+        self.init_variables()  # 初始化所有变量
+
+        train_loss = self.__measure_loss(self.__train_set)
+        val_loss = self.__measure_loss(self.__val_set)
+        # test_loss = self.__measure_loss(self.__test_set)
+
+        self.echo('\ntrain mean loss: %.6f' % train_loss)
+        self.echo('validation mean loss: %.6f' % val_loss)
+        # self.echo('test mean loss: %.6f' % test_loss)
+
+        self.echo('\ndone')
+
+        # show some val image result
+        batch_x, batch_y = self.__val_set.next_batch(self.BATCH_SIZE)
+        feed_dict = {self.__image: batch_x, self.keep_prob: 1.0}
+        output_mask = self.sess.run(self.__output_mask, feed_dict)
+
+        output_mask = np.expand_dims(output_mask, axis=3)
+        for i in range(3):
+            mask = output_mask[i]
+            image = batch_x[i]
+            new_image = np.cast['uint8'](mask * image)
+
+            o_image = Image.fromarray(np.cast['uint8'](image))
+            o_image.show()
+
+            o_new_image = Image.fromarray(new_image)
+            o_new_image.show()
+
+
 o_fcn = FCN()
-o_fcn.run()
-# o_fcn.test_model()
+# o_fcn.run()
+o_fcn.test_model()
