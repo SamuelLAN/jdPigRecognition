@@ -21,7 +21,7 @@ if cur_dir_path:
 
 import lib.base as base
 import load
-import vgg
+import model.vgg as vgg
 
 ''' 全卷积神经网络 '''
 
