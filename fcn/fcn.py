@@ -17,6 +17,7 @@ cur_dir_path = os.path.split(__file__)[0]
 if cur_dir_path:
     os.chdir(cur_dir_path)
     sys.path.append(cur_dir_path)
+    sys.path.append(os.path.split(cur_dir_path)[0])
 
 import lib.base as base
 import load
