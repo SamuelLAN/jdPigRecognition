@@ -432,10 +432,6 @@ class FCN(base.NN):
 
         self.echo('\nepoch:')
 
-        moment = 0.975
-        self.__running_mean = None
-        self.__running_std = None
-
         for step in range(self.__steps):
             if step % self.SHOW_PROGRESS_FREQUENCY == 0:
                 epoch_progress = float(step) % self.__iter_per_epoch / self.__iter_per_epoch * 100.0
