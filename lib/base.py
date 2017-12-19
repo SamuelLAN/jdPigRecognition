@@ -169,12 +169,15 @@ class NN:
         # merge summary 时需要用到；判断是否已经初始化 summary writer
         self.__init_summary_writer = False
 
+        # 若只需训练一个网络
+        if not self.USE_MULTI:
+            self.global_step = self.get_global_step()  # 记录全局训练状态的 global step
+
         # 执行定制化的 初始化操作；每个子类都需要重载该函数
         self.init()
 
         ''' 若只需训练一个网络 '''
         if not self.USE_MULTI:
-            self.global_step = self.get_global_step()  # 记录全局训练状态的 global step
             self.sess = tf.Session()  # 初始化 sess
 
             # tensorflow 自带的保存网络的方法；目前采用了自己实现的保存网络的方法
