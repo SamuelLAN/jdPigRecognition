@@ -83,7 +83,7 @@ class NN:
 
     CONV_WEIGHT_STDDEV = 0.1  # truncated normal distribution 的 std
 
-    EPSILON = 0.00001   # 输入 做 batch normalize 时需要用到
+    EPSILON = 0.0001   # 输入 做 batch normalize 时需要用到
 
     ''' 模型的配置 '''
 
