@@ -4,7 +4,7 @@
 
 > FCN 的结构图
 
-<img src="../tmp/fcn_graph.png" alt="FCN 的结构图" height="600" width="320">
+<img src="../tmp/fcn_graph.png" alt="FCN 的结构图" height="830" width="430">
 
 > FCN 训练过程 tensorboard 的 scalar
 
