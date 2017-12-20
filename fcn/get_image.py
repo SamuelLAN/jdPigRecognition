@@ -22,7 +22,7 @@ class GetImage:
     def __init__(self):
         self.__img_list = []
         self.__img_len = 0
-        self.__o_fcn = fcn.FCN()
+        self.__o_fcn = fcn.FCN(True, '2017_12_20_00_37_52')
 
     def __get_image_list(self):
         for file_name in os.listdir(self.IMG_DIR):
