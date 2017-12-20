@@ -7,7 +7,7 @@ import numpy as np
 import tensorflow as tf
 
 # 将运行路径切换到当前文件所在路径
-cur_dir_path = os.path.split(__file__)[0]
+cur_dir_path = os.path.abspath(os.path.split(__file__)[0])
 if cur_dir_path:
     os.chdir(cur_dir_path)
     sys.path.append(cur_dir_path)
