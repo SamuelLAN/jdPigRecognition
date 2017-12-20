@@ -62,7 +62,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv1_1'][0],
             'b': VGG_MODEL['conv1_1'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -70,7 +70,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv1_2'][0],
             'b': VGG_MODEL['conv1_2'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -84,7 +84,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv2_1'][0],
             'b': VGG_MODEL['conv2_1'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -92,7 +92,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv2_2'][0],
             'b': VGG_MODEL['conv2_2'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -106,7 +106,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_1'][0],
             'b': VGG_MODEL['conv3_1'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -114,7 +114,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_2'][0],
             'b': VGG_MODEL['conv3_2'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -122,7 +122,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_3'][0],
             'b': VGG_MODEL['conv3_3'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -136,7 +136,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_1'][0],
             'b': VGG_MODEL['conv4_1'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -144,7 +144,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_2'][0],
             'b': VGG_MODEL['conv4_2'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -152,7 +152,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_3'][0],
             'b': VGG_MODEL['conv4_3'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -166,7 +166,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_1'][0],
             'b': VGG_MODEL['conv5_1'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -174,7 +174,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_2'][0],
             'b': VGG_MODEL['conv5_2'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -182,7 +182,7 @@ class VGG16(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_3'][0],
             'b': VGG_MODEL['conv5_3'][1],
-            'bn': True,
+            'bn': USE_BN,
             'trainable': False,
         },
         {
@@ -325,7 +325,7 @@ class VGG16(base.NN):
             incorrect = tf.cast(tf.not_equal(labels, predict), tf.float32)
 
             # w = correct * 1.5 + incorrect * 0.8
-            w = correct * 0.9 + incorrect * 1.2
+            w = correct * 0.9 + incorrect * 1.3
             # output = w * self.__output
 
             exp_x = tf.exp(self.__output)

@@ -83,7 +83,7 @@ class NN:
 
     CONV_WEIGHT_STDDEV = 0.01  # truncated normal distribution 的 std
 
-    EPSILON = 0.00001  # 输入 做 batch normalize 时需要用到
+    EPSILON = 0.0001  # 输入 做 batch normalize 时需要用到
 
     ''' 模型的配置 '''
 
@@ -136,15 +136,25 @@ class NN:
         self.multi_w_dict = []  # 存放多个网络的 权重矩阵的 list
         self.multi_b_dict = []  # 存放多个网络的 偏置量的 list
 
-        # batch normalize 参数存放的变量
+        ''' batch normalize 参数存放的变量 '''
         self.__beta_dict = {}
         self.__gamma_dict = {}
         self.__moving_mean_dict = {}
         self.__moving_std_dict = {}
 
-        # 给 input batch normalize 使用
+        # 只有 self.USE_MULTI == True 时才需要用到
+        self.__multi_beta_dict = []
+        self.__multi_gamma_dict = []
+        self.__multi_moving_mean_dict = []
+        self.__multi_moving_std_dict = []
+
+        ''' 给 input batch normalize 使用 '''
         self.mean_x = 0
         self.std_x = 0.0001
+
+        # 只有 self.USE_MULTI == True 时才需要用到
+        self.multi_mean_x = []
+        self.multi_std_x = []
 
         # 若 USE_MULTI 为 True 时，该值才有意义
         self.net_id = 0
@@ -357,20 +367,31 @@ class NN:
 
         # 若有使用 batch normalize
         if self.USE_BN:
+            if self.USE_MULTI:
+                self_beta_dict = self.__multi_beta_dict[self.net_id]
+                self_gamma_dict = self.__multi_gamma_dict[self.net_id]
+                self_moving_mean_dict = self.__multi_moving_mean_dict[self.net_id]
+                self_moving_std_dict = self.__multi_moving_std_dict[self.net_id]
+            else:
+                self_beta_dict = self.__beta_dict
+                self_gamma_dict = self.__gamma_dict
+                self_moving_mean_dict = self.__moving_mean_dict
+                self_moving_std_dict = self.__moving_std_dict
+
             beta_dict = {}
-            for name_scope, tensor in self.__beta_dict.items():
+            for name_scope, tensor in self_beta_dict.items():
                 beta_dict[name_scope] = self.sess.run(tensor)
 
             gamma_dict = {}
-            for name_scope, tensor in self.__gamma_dict.items():
+            for name_scope, tensor in self_gamma_dict.items():
                 gamma_dict[name_scope] = self.sess.run(tensor)
 
             moving_mean_dict = {}
-            for name_scope, tensor in self.__moving_mean_dict.items():
+            for name_scope, tensor in self_moving_mean_dict.items():
                 moving_mean_dict[name_scope] = self.sess.run(tensor)
 
             moving_std_dict = {}
-            for name_scope, tensor in self.__moving_std_dict.items():
+            for name_scope, tensor in self_moving_std_dict.items():
                 moving_std_dict[name_scope] = self.sess.run(tensor)
 
             save_dict['beta'] = beta_dict
@@ -380,8 +401,12 @@ class NN:
 
         # 若 input 有使用 batch normalize
         if self.USE_BN_INPUT:
-            save_dict['mean_x'] = self.mean_x
-            save_dict['std_x'] = self.std_x
+            if self.USE_MULTI:
+                save_dict['multi_mean_x'] = self.multi_mean_x
+                save_dict['multi_std_x'] = self.multi_std_x
+            else:
+                save_dict['mean_x'] = self.mean_x
+                save_dict['std_x'] = self.std_x
 
         with open(model_path, 'wb') as f:
             pickle.dump(save_dict, f, 2)
@@ -415,28 +440,46 @@ class NN:
             b_dict[name_scope] = tf.Variable(w_value, trainable=False, name=name)
 
         if self.USE_BN:
-            self.__beta_dict = {}
-            self.__gamma_dict = {}
-            self.__moving_mean_dict = {}
-            self.__moving_std_dict = {}
+            if self.USE_MULTI:
+                self.__multi_beta_dict = self.assign_list(self.__multi_beta_dict, self.net_id, {}, {})
+                self.__multi_gamma_dict = self.assign_list(self.__multi_gamma_dict, self.net_id, {}, {})
+                self.__multi_moving_mean_dict = self.assign_list(self.__multi_moving_mean_dict, self.net_id, {}, {})
+                self.__multi_moving_std_dict = self.assign_list(self.__multi_moving_std_dict, self.net_id, {}, {})
+                beta_dict = self.__multi_beta_dict[self.net_id]
+                gamma_dict = self.__multi_gamma_dict[self.net_id]
+                moving_mean_dict = self.__multi_moving_mean_dict[self.net_id]
+                moving_std_dict = self.__multi_moving_std_dict[self.net_id]
+            else:
+                self.__beta_dict = {}
+                self.__gamma_dict = {}
+                self.__moving_mean_dict = {}
+                self.__moving_std_dict = {}
+                beta_dict = self.__beta_dict
+                gamma_dict = self.__gamma_dict
+                moving_mean_dict = self.__moving_mean_dict
+                moving_std_dict = self.__moving_std_dict
 
             for name_scope, value in save_dict['beta'].items():
-                self.__beta_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/beta' % name_scope)
+                beta_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/beta' % name_scope)
 
             for name_scope, value in save_dict['gamma'].items():
-                self.__gamma_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/gamma' % name_scope)
+                gamma_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/gamma' % name_scope)
 
             for name_scope, value in save_dict['moving_mean'].items():
-                self.__moving_mean_dict[name_scope] = tf.Variable(value, trainable=False,
-                                                                  name='%s/moving_mean' % name_scope)
+                moving_mean_dict[name_scope] = tf.Variable(value, trainable=False,
+                                                           name='%s/moving_mean' % name_scope)
 
             for name_scope, value in save_dict['moving_std'].items():
-                self.__moving_std_dict[name_scope] = tf.Variable(value, trainable=False,
-                                                                 name='%s/moving_variance' % name_scope)
+                moving_std_dict[name_scope] = tf.Variable(value, trainable=False,
+                                                          name='%s/moving_variance' % name_scope)
 
         if self.USE_BN_INPUT:
-            self.mean_x = save_dict['mean_x']
-            self.std_x = save_dict['std_x']
+            if self.USE_MULTI:
+                self.multi_mean_x = save_dict['multi_mean_x']
+                self.multi_std_x = save_dict['multi_std_x']
+            else:
+                self.mean_x = save_dict['mean_x']
+                self.std_x = save_dict['std_x']
 
         self.echo('Finish restoring ')
 
@@ -704,6 +747,11 @@ class NN:
             w_dict = {}
             b_dict = {}
             net = {}
+
+            self.__multi_beta_dict.append({})
+            self.__multi_gamma_dict.append({})
+            self.__multi_moving_mean_dict.append({})
+            self.__multi_moving_std_dict.append({})
         else:
             w_dict = self.w_dict
             b_dict = self.b_dict
@@ -985,33 +1033,44 @@ class NN:
 
         axis = list(range(len(x_shape) - 1))
 
-        if name_scope not in self.__beta_dict:
-            self.__beta_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='beta', dtype=tf.float32)
-        if name_scope not in self.__gamma_dict:
-            self.__gamma_dict[name_scope] = tf.Variable(np.ones(params_shape), name='gamma', dtype=tf.float32)
-        if name_scope not in self.__moving_mean_dict:
-            self.__moving_mean_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='moving_mean',
-                                                              trainable=False, dtype=tf.float32)
-        if name_scope not in self.__moving_std_dict:
-            self.__moving_std_dict[name_scope] = tf.Variable(np.ones(params_shape), name='moving_variance',
-                                                             trainable=False, dtype=tf.float32)
+        if self.USE_MULTI:
+            beta_dict = self.__multi_beta_dict[self.net_id]
+            gamma_dict = self.__multi_gamma_dict[self.net_id]
+            moving_mean_dict = self.__multi_moving_mean_dict[self.net_id]
+            moving_std_dict = self.__multi_moving_std_dict[self.net_id]
+        else:
+            beta_dict = self.__beta_dict
+            gamma_dict = self.__gamma_dict
+            moving_mean_dict = self.__moving_mean_dict
+            moving_std_dict = self.__moving_std_dict
+
+        if name_scope not in beta_dict:
+            beta_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='beta', dtype=tf.float32)
+        if name_scope not in gamma_dict:
+            gamma_dict[name_scope] = tf.Variable(np.ones(params_shape), name='gamma', dtype=tf.float32)
+        if name_scope not in moving_mean_dict:
+            moving_mean_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='moving_mean',
+                                                       trainable=False, dtype=tf.float32)
+        if name_scope not in moving_std_dict:
+            moving_std_dict[name_scope] = tf.Variable(np.ones(params_shape), name='moving_variance',
+                                                      trainable=False, dtype=tf.float32)
 
         mean, variance = tf.nn.moments(x, axis)
 
-        update_moving_mean = moving_averages.assign_moving_average(self.__moving_mean_dict[name_scope],
+        update_moving_mean = moving_averages.assign_moving_average(moving_mean_dict[name_scope],
                                                                    mean, self.BN_DECAY)
-        update_moving_variance = moving_averages.assign_moving_average(self.__moving_std_dict[name_scope],
+        update_moving_variance = moving_averages.assign_moving_average(moving_std_dict[name_scope],
                                                                        variance, self.BN_DECAY)
 
         tf.add_to_collection(self.UPDATE_OPS_COLLECTION, update_moving_mean)
         tf.add_to_collection(self.UPDATE_OPS_COLLECTION, update_moving_variance)
 
         mean, variance = control_flow_ops.cond(is_train, lambda: (mean, variance),
-                                               lambda: (self.__moving_mean_dict[name_scope],
-                                                        self.__moving_std_dict[name_scope]))
+                                               lambda: (moving_mean_dict[name_scope],
+                                                        moving_std_dict[name_scope]))
 
         return tf.nn.batch_normalization(x, mean, variance,
-                                         self.__beta_dict[name_scope], self.__gamma_dict[name_scope], self.BN_EPSILON)
+                                         beta_dict[name_scope], gamma_dict[name_scope], self.BN_EPSILON)
 
     # *************************** 与 训练有关 的 常用函数 ***************************
 
@@ -1078,6 +1137,13 @@ class NN:
                 sys.stdout.flush()
             except:
                 print(msg)
+
+    @staticmethod
+    def assign_list(l, k, v, empty):
+        while len(l) - 1 < k:
+            l.append(empty)
+        l[k] = v
+        return l
 
     '''
       写错误日志到 log 文件夹，会调用 traceback 将之前错误的详细信息记录到日志
