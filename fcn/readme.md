@@ -3,23 +3,24 @@
 ##### 负责将猪从图片中切割出来，也就是去掉背景，只留下猪
 
 > FCN 的结构图
-
-![FCN 的结构图](http://lin-baobao.com/pig/fcn_cmd.png)
+<img src="../tmp/fcn_cmd.png" alt="FCN 的结构图" height="300" width="500">
 
 > FCN 训练过程 tensorboard 的 scalar
 
-![FCN 训练过程 tensorboard 的 scalar](http://lin-baobao.com/pig/fcn_scalar.png)
+![FCN 训练过程 tensorboard 的 scalar](../tmp/fcn_scalar.png)
 
 > FCN 训练过程 tensorboard 里的 image
 >> 其中 input_image 为输入图像；output_image 为切割后的图像；truth image 为 ground truth
 
-![FCN 训练过程 tensorboard 里的 image 1](http://lin-baobao.com/pig/fcn_img_1.png)
-![FCN 训练过程 tensorboard 里的 image 2](http://lin-baobao.com/pig/fcn_img_2.png)
-![FCN 训练过程 tensorboard 里的 image 3](http://lin-baobao.com/pig/fcn_img_3.png)
+![FCN 训练过程 tensorboard 里的 image 1](../tmp/fcn_img_1.png)
+
+![FCN 训练过程 tensorboard 里的 image 2](../tmp/fcn_img_2.png)
+
+![FCN 训练过程 tensorboard 里的 image 3](../tmp/fcn_img_3.png)
 
 > FCN 运行结果的 cmd 图
 
-![FCN 运行结果的 cmd 图](http://lin-baobao.com/pig/fcn_cmd.png)
+![FCN 运行结果的 cmd 图](../tmp/fcn_cmd.png)
 
 > 文档结构
 - load.py: 加载数据的基类
