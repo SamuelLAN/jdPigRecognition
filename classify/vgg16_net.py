@@ -326,16 +326,17 @@ class VGG16(base.NN):
 
             # w = correct * 1.5 + incorrect * 0.8
             w = correct * 0.9 + incorrect * 1.3
-            output = w * self.__output
+            # output = w * self.__output
 
             exp_x = tf.exp(self.__output)
             prob = exp_x / tf.reduce_sum(exp_x, axis=0)
             p = tf.maximum(tf.minimum(prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(p))), self.__size)
 
-            exp_x = tf.exp(output)
-            p = exp_x / tf.reduce_sum(exp_x, axis=0)
-            self.__ch_log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(p))), self.__size)
+            # exp_x = tf.exp(output)
+            # p = exp_x / tf.reduce_sum(exp_x, axis=0)
+            log_prob_ch = w * tf.log(prob)
+            self.__ch_log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, log_prob_ch)), self.__size)
 
     def __measure(self, data_set, max_times=None):
         times = int(math.ceil(float(data_set.get_size()) / self.BATCH_SIZE))
@@ -591,6 +592,8 @@ class VGG16(base.NN):
         self.echo('\ndone')
 
 
-o_vgg = VGG16(True, '2017_12_20_15_51_58')
-# o_vgg.run()
-o_vgg.test()
+o_vgg = VGG16()
+o_vgg.run()
+
+# o_vgg = VGG16(True, '2017_12_20_15_51_58')
+# o_vgg.test()
