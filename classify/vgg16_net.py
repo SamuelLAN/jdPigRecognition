@@ -263,7 +263,6 @@ class VGG16(base.NN):
     ''' 加载数据 '''
 
     def load(self):
-        # sort_list = load.Data.get_sort_list()
         self.__train_set = load.Data(0.0, 0.8, 'train')
         self.__val_set = load.Data(0.8, 1.0, 'validation')
         # self.__test_set = load.Data(0.8, 1.0, 'test')

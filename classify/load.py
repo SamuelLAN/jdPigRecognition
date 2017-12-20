@@ -9,19 +9,21 @@ import numpy as np
 from PIL import Image
 from six.moves.urllib.request import urlretrieve
 import threading
+
 if '2.7' in sys.version:
     import Queue as queue
 else:
     import queue
 import time
 
-
 '''
     下载数据
 '''
+
+
 class Download:
     URL = 'http://www.lin-baobao.com/pig/TrainImg.zip'
-    DATA_ROOT = r'data/TrainImg'
+    DATA_ROOT = r'../data/TrainImg'
     FILE_NAME = 'TrainImg.zip'
     EXPECTED_BYTES = 973849767
     FILE_NUM = 2986
@@ -29,28 +31,28 @@ class Download:
     def __init__(self):
         pass
 
-
     ''' 将运行路径切换到当前文件所在路径 '''
+
     @staticmethod
     def __changDir():
         cur_dir_path = os.path.split(__file__)[0]
-        if cur_dir_path and os.path.abspath( os.path.curdir ) != os.path.abspath(cur_dir_path):
+        if cur_dir_path and os.path.abspath(os.path.curdir) != os.path.abspath(cur_dir_path):
             os.chdir(cur_dir_path)
             sys.path.append(cur_dir_path)
 
         # mkdir ./data
-        if not os.path.isdir( os.path.split(Download.DATA_ROOT)[0] ):
+        if not os.path.isdir(os.path.split(Download.DATA_ROOT)[0]):
             os.mkdir(os.path.split(Download.DATA_ROOT)[0])
 
-
     ''' 下载进度 '''
+
     @staticmethod
     def __downloadProgressHook(count, block_size, total_size):
         sys.stdout.write('\r >> Downloading %.1f%%' % (float(count * block_size) / float(total_size) * 100.0))
         sys.stdout.flush()
 
-
     ''' 判断是否需要下载；若需，下载数据压缩包 '''
+
     @staticmethod
     def __maybeDownload(force=False):
         """Download a file if not present, and make sure it's the right size."""
@@ -58,16 +60,15 @@ class Download:
             os.mkdir(Download.DATA_ROOT)
         file_path = os.path.join(Download.DATA_ROOT, Download.FILE_NAME)
         if force or not os.path.exists(file_path):
-            print ('Attempting to download: %s' % Download.FILE_NAME)
+            print('Attempting to download: %s' % Download.FILE_NAME)
             filename, _ = urlretrieve(Download.URL, file_path, reporthook=Download.__downloadProgressHook)
-            print ('\nDownload Complete!')
+            print('\nDownload Complete!')
         stat_info = os.stat(file_path)
         if stat_info.st_size == Download.EXPECTED_BYTES:
-            print ('Found and verified %s' % file_path)
+            print('Found and verified %s' % file_path)
         else:
             raise Exception(
                 'Failed to verify ' + file_path + '. Can you get to it with a browser?')
-
 
     @staticmethod
     def __checkFileNum():
@@ -83,7 +84,6 @@ class Download:
             return False
         return True
 
-
     @staticmethod
     def __maybeExtract(force=False):
         file_path = os.path.join(Download.DATA_ROOT, Download.FILE_NAME)
@@ -92,46 +92,43 @@ class Download:
         for filename in zip_files.namelist():
             if '__MACOSX' in filename:
                 continue
-            print ('\t extracting %s ...' % filename)
+            print('\t extracting %s ...' % filename)
             data = zip_files.read(filename)
             with open(os.path.join(Download.DATA_ROOT, filename), 'wb') as f:
                 f.write(data)
 
-
     @staticmethod
     def run():
-        Download.__changDir()   # 将路径切换到当前路径
+        Download.__changDir()  # 将路径切换到当前路径
 
         if Download.__checkFileNum():
-            print ('data exist in %s' % Download.DATA_ROOT)
+            print('data exist in %s' % Download.DATA_ROOT)
             return
 
         Download.__maybeDownload()
 
-        print ('Extracting data ...')
+        print('Extracting data ...')
 
         Download.__maybeExtract()
 
-        print ('Finish Extracting')
+        print('Finish Extracting')
 
-        print ('done')
-
+        print('done')
 
 
 class Data:
-    DATA_ROOT = r'data/TrainImgMore'
+    DATA_ROOT = r'../data/TrainImgMore'
     RESIZE = [224, 224]
     # RESIZE = [39, 39]
     RATIO = 1.0
     NUM_CLASSES = 30
 
-    def __init__(self, start_ratio = 0.0, end_ratio = 1.0, name = '', sort_list = []):
+    def __init__(self, start_ratio=0.0, end_ratio=1.0, name=''):
         self.__chang_dir()
 
         # 初始化变量
         self.__name = name
         self.__data = []
-        self.__sort_list = sort_list
 
         # 加载全部数据
         self.__load()
@@ -148,6 +145,7 @@ class Data:
         # 根据数据的位置范围 取数据
         self.__data = self.__data[start_index: end_index]
 
+        # 取 scale 分之一的数据
         # scale = 3
         # data_list = []
         # for i, data in enumerate(self.__data):
@@ -164,7 +162,6 @@ class Data:
 
         self.__cur_index = 0
 
-
     @staticmethod
     def __chang_dir():
         # 将运行路径切换到当前文件所在路径
@@ -173,8 +170,8 @@ class Data:
             os.chdir(cur_dir_path)
             sys.path.append(cur_dir_path)
 
-
     ''' 加载数据 '''
+
     def __load(self):
         self.echo('Loading %s data ...' % self.__name)
         file_list = os.listdir(self.DATA_ROOT)
@@ -190,32 +187,9 @@ class Data:
             if split_file_name[1].lower() != '.jpg' or int(no_list[-1]) == 1:
                 continue
 
-            self.__data.append( [split_file_name[0], os.path.join(self.DATA_ROOT, file_name)] )
-            #
-            # pig_bg_file_path = os.path.join(self.DATA_ROOT, '%s_%s_1.jpg' % (no_list[0], no_list[1]))
-            # pig_file_path = os.path.join(self.DATA_ROOT, file_name)
-            #
-            # if not os.path.isfile(pig_file_path):
-            #     continue
-            #
-            # # np_pig = self.add_padding(pig_file_path)
-            # # np_pig_bg = self.add_padding(pig_bg_file_path)
-            #
-            # pig_patch_list = self.__get_three_patch(pig_file_path)
-            # pig_bg_patch_list = self.__get_three_patch(pig_bg_file_path)
-            # patch_list = pig_patch_list + pig_bg_patch_list
-            #
-            # pig_no = int(no_list[0]) - 1
-            # label = np.zeros([Data.NUM_CLASSES])
-            # label[pig_no] = 1
-            #
-            # self.__data.append([split_file_name[0], patch_list, label])
-
-        # self.echo(' sorting data ... ')
-        # self.__data.sort(self.__sort)
+            self.__data.append([split_file_name[0], os.path.join(self.DATA_ROOT, file_name)])
 
         self.echo('\nFinish Loading\n')
-
 
     def __get_data(self):
         max_q_size = min(self.__data_len, 500)
@@ -229,18 +203,16 @@ class Data:
 
             time.sleep(0.3)
 
-        self.echo('\n*************************************\n Thread "get_%s_data" stop\n***********************\n' % self.__name)
-
+        self.echo(
+            '\n*************************************\n Thread "get_%s_data" stop\n***********************\n' % self.__name)
 
     def start_thread(self):
         self.__thread = threading.Thread(target=self.__get_data, name=('get_%s_data' % self.__name))
         self.__thread.start()
         self.echo('Thread "get_%s_data" is running ... ' % self.__name)
 
-
     def stop(self):
         self.__stop_thread = True
-
 
     @staticmethod
     def __get_x_y(img_path):
@@ -251,7 +223,6 @@ class Data:
         label[pig_no] = 1
 
         return Data.add_padding(img_path), label
-
 
     # @staticmethod
     # def __read_img_list(img_list):
@@ -295,9 +266,8 @@ class Data:
 
     @staticmethod
     def __resize_np_img(np_image):
-        return np.array( Image.fromarray(np_image).resize( Data.RESIZE ), dtype=np.float32 )
+        return np.array(Image.fromarray(np_image).resize(Data.RESIZE), dtype=np.float32)
 
-    
     @staticmethod
     def add_padding(img_path):
         image = Image.open(img_path)
@@ -305,7 +275,7 @@ class Data:
         ratio = float(w) / h
 
         if abs(ratio - Data.RATIO) <= 0.1:
-            return np.array( image.resize( Data.RESIZE ) )
+            return np.array(image.resize(Data.RESIZE))
 
         np_image = np.array(image)
         h, w, c = np_image.shape
@@ -324,43 +294,8 @@ class Data:
             np_new_image = np.zeros([h, new_w, c])
             np_new_image[:, padding: padding + w, :] = np_image
 
-        new_image = Image.fromarray( np.cast['uint8'](np_new_image) )
-        return np.array( new_image.resize( Data.RESIZE ) )
-
-
-    def __sort(self, a, b):
-        if self.__sort_list:
-            index_a = self.__sort_list.index(a[0])
-            index_b = self.__sort_list.index(b[0])
-            if index_a < index_b:
-                return -1
-            elif index_a > index_b:
-                return 1
-            else:
-                return 0
-
-        if a[0] < b[0]:
-            return -1
-        elif a[0] > b[0]:
-            return 1
-        else:
-            return 0
-
-
-    @staticmethod
-    def get_sort_list():
-        img_no_set = set()
-        for i, file_name in enumerate(os.listdir(Data.DATA_ROOT)):
-            split_file_name = os.path.splitext(file_name)
-            if split_file_name[1].lower() != '.jpg' or 'pig' in split_file_name[0]:
-                continue
-
-            img_no_set.add(split_file_name[0])
-
-        img_no_list = list(img_no_set)
-        random.shuffle(img_no_list)
-        return img_no_list
-
+        new_image = Image.fromarray(np.cast['uint8'](np_new_image))
+        return np.array(new_image.resize(Data.RESIZE))
 
     def next_batch(self, batch_size):
         X = []
@@ -373,7 +308,6 @@ class Data:
                 X.append(_x)
                 y.append(_y)
         return np.array(X), np.array(y)
-
 
     # ''' 获取下个 batch '''
     # def next_batch(self, batch_size, loop = True):
@@ -412,26 +346,27 @@ class Data:
     #     self.__cur_index = end_index if end_index < self.__data_len else 0
     #     return Data.__read_img_list(path_list)
 
-
     ''' 获取数据集大小 '''
+
     def get_size(self):
         return self.__data_len
-
 
     # ''' 重置当前 index 位置 '''
     # def reset_cur_index(self):
     #     self.__cur_index = 0
 
-
     ''' 输出展示 '''
+
     @staticmethod
     def echo(msg, crlf=True):
         if crlf:
-            print (msg)
+            print(msg)
         else:
-            sys.stdout.write(msg)
-            sys.stdout.flush()
-
+            try:
+                sys.stdout.write(msg)
+                sys.stdout.flush()
+            except:
+                print (msg)
 
 # Download.run()
 
