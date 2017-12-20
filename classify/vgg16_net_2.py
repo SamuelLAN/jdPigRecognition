@@ -194,7 +194,7 @@ class VGG16(base.NN):
         {
             'name': 'fc6',
             'type': 'fc',
-            'shape': [512, 512],
+            'shape': [2048, 1024],
             'trainable': True,
         },
         {
@@ -204,7 +204,7 @@ class VGG16(base.NN):
         {
             'name': 'fc7',
             'type': 'fc',
-            'shape': [512, 256],
+            'shape': [1024, 512],
             'trainable': True,
         },
         {
@@ -214,7 +214,7 @@ class VGG16(base.NN):
         {
             'name': 'fc8',
             'type': 'fc',
-            'shape': [256, 128],
+            'shape': [512, 256],
             'trainable': True,
         },
         {
@@ -224,7 +224,7 @@ class VGG16(base.NN):
         {
             'name': 'softmax',
             'type': 'fc',
-            'shape': [128, NUM_CLASSES],
+            'shape': [256, NUM_CLASSES],
             'activate': False,
         },
     ]
@@ -431,30 +431,11 @@ class VGG16(base.NN):
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
 
-            print ('*****************')
-            print (batch_x.shape)
-            print (batch_y.shape)
-
             output = self.sess.run(self.__output, feed_dict)
-            predict = self.sess.run(self.__predict, feed_dict)
-
             print('output:')
             print(output.shape)
-            print ('predict:')
-            print(predict.shape)
-
-            _ = self.sess.run(
-                train_op, feed_dict)
-            train_loss = self.sess.run(
-                self.__loss, feed_dict)
-            train_log_loss = self.sess.run(
-                self.__log_loss, feed_dict)
-            train_ch_log_loss = self.sess.run(
-                self.__ch_log_loss, feed_dict)
-            train_accuracy = self.sess.run(
-                self.__accuracy, feed_dict)
-            # _, train_loss, train_log_loss, train_ch_log_loss, train_accuracy = self.sess.run(
-            #     [train_op, self.__loss, self.__log_loss, self.__ch_log_loss, self.__accuracy], feed_dict)
+            _, train_loss, train_log_loss, train_ch_log_loss, train_accuracy = self.sess.run(
+                [train_op, self.__loss, self.__log_loss, self.__ch_log_loss, self.__accuracy], feed_dict)
 
             mean_train_accuracy += train_accuracy
             mean_train_loss += train_loss
