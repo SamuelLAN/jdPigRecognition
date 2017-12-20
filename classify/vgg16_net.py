@@ -591,6 +591,6 @@ class VGG16(base.NN):
         self.echo('\ndone')
 
 
-o_vgg = VGG16()
-o_vgg.run()
-# o_vgg.test()
+o_vgg = VGG16(True, '2017_12_20_15_51_58')
+# o_vgg.run()
+o_vgg.test()
