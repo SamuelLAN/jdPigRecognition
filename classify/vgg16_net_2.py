@@ -420,16 +420,26 @@ class VGG16(base.NN):
             reduce_axis = tuple(range(len(batch_x.shape) - 1))
             _mean = np.mean(batch_x, axis=reduce_axis)
             _std = np.std(batch_x, axis=reduce_axis)
-            self.__running_mean = moment * self.__running_mean + (1 - moment) * _mean if type(
-                self.__running_mean) != type(None) else _mean
-            self.__running_std = moment * self.__running_std + (1 - moment) * _std if type(self.__running_std) != type(
-                None) else _std
+            self.__running_mean = moment * self.__running_mean + (1 - moment) * _mean if not isinstance(
+                self.__running_mean, type(None)) else _mean
+            self.__running_std = moment * self.__running_std + (1 - moment) * _std if not isinstance(
+                self.__running_std, type(None)) else _std
             batch_x = (batch_x - _mean) / (_std + self.EPSILON)
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
-            _, train_loss, train_log_loss, train_ch_log_loss, train_accuracy = self.sess.run(
-                [train_op, self.__loss, self.__log_loss, self.__ch_log_loss, self.__accuracy], feed_dict)
+            _ = self.sess.run(
+                train_op, feed_dict)
+            train_loss = self.sess.run(
+                self.__loss, feed_dict)
+            train_log_loss = self.sess.run(
+                self.__log_loss, feed_dict)
+            train_ch_log_loss = self.sess.run(
+                self.__ch_log_loss, feed_dict)
+            train_accuracy = self.sess.run(
+                self.__accuracy, feed_dict)
+            # _, train_loss, train_log_loss, train_ch_log_loss, train_accuracy = self.sess.run(
+            #     [train_op, self.__loss, self.__log_loss, self.__ch_log_loss, self.__accuracy], feed_dict)
 
             mean_train_accuracy += train_accuracy
             mean_train_loss += train_loss
