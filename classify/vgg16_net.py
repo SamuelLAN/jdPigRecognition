@@ -36,7 +36,7 @@ class VGG16(base.NN):
     DECAY_RATE = 0.0005  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.02  # 正则化的 beta 参数
+    REGULAR_BETA = 0.03  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
