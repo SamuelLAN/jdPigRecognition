@@ -14,9 +14,7 @@
 >> 其中 input_image 为输入图像；output_image 为切割后的图像；truth image 为 ground truth
 
 <img src="../tmp/fcn_img_1.png" alt="FCN 训练过程 tensorboard tensorboard 里的 image 1" height="210" width="420">
-<br>
 <img src="../tmp/fcn_img_2.png" alt="FCN 训练过程 tensorboard tensorboard 里的 image 2" height="210" width="420">
-<br>
 <img src="../tmp/fcn_img_3.png" alt="FCN 训练过程 tensorboard tensorboard 里的 image 3" height="210" width="420">
 
 > FCN 运行结果的 cmd 图
