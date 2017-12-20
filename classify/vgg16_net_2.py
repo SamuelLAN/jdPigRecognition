@@ -315,11 +315,6 @@ class VGG16(base.NN):
             labels = self.__label
             predict = tf.one_hot(tf.argmax(self.__output, 1), depth=self.NUM_CLASSES)
 
-            print(labels)
-            print(self.__output)
-            print(predict)
-            exit()
-
             correct = tf.cast(tf.equal(labels, predict), tf.float32)
             incorrect = tf.cast(tf.not_equal(labels, predict), tf.float32)
 
@@ -433,6 +428,11 @@ class VGG16(base.NN):
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
+
+            print ('*****************')
+            print (batch_x.shape)
+            print (batch_y.shape)
+
             _ = self.sess.run(
                 train_op, feed_dict)
             train_loss = self.sess.run(
