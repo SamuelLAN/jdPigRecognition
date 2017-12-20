@@ -435,13 +435,6 @@ class VGG16(base.NN):
             print (batch_x.shape)
             print (batch_y.shape)
 
-            _ = self.sess.run(
-                train_op, feed_dict)
-            train_loss = self.sess.run(
-                self.__loss, feed_dict)
-            train_log_loss = self.sess.run(
-                self.__log_loss, feed_dict)
-
             output = self.sess.run(self.__output, feed_dict)
             predict = self.sess.run(self.__predict, feed_dict)
 
@@ -450,6 +443,12 @@ class VGG16(base.NN):
             print ('predict:')
             print(predict.shape)
 
+            _ = self.sess.run(
+                train_op, feed_dict)
+            train_loss = self.sess.run(
+                self.__loss, feed_dict)
+            train_log_loss = self.sess.run(
+                self.__log_loss, feed_dict)
             train_ch_log_loss = self.sess.run(
                 self.__ch_log_loss, feed_dict)
             train_accuracy = self.sess.run(
