@@ -521,7 +521,6 @@ class FCN(base.NN):
 
         return self.__mask2img(output_mask[0], np_image[0])  # 将 mask 待人 image 并去掉外部的点点
 
-
     def test_model(self):
         self.restore_model_w_b()  # 恢复模型
         self.rebuild_model()  # 重建模型
@@ -556,7 +555,6 @@ class FCN(base.NN):
             o_new_image = Image.fromarray(new_image)
             o_new_image.show()
 
-
-o_fcn = FCN()
-o_fcn.run()
+# o_fcn = FCN()
+# o_fcn.run()
 # o_fcn.test_model()

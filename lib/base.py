@@ -81,9 +81,9 @@ class NN:
     KEEP_PROB = 0.5  # dropout 的 keep_prob；若 KEEP_PROB_DICT 为空，使用 KEEP_PROB
     KEEP_PROB_DICT = {}  # 若该变量不为空，则 dropout 使用该变量；否则使用 KEEP_PROB
 
-    CONV_WEIGHT_STDDEV = 0.1  # truncated normal distribution 的 std
+    CONV_WEIGHT_STDDEV = 0.01  # truncated normal distribution 的 std
 
-    EPSILON = 0.0001   # 输入 做 batch normalize 时需要用到
+    EPSILON = 0.0001  # 输入 做 batch normalize 时需要用到
 
     ''' 模型的配置 '''
 
@@ -94,6 +94,7 @@ class NN:
     USE_MULTI = False  # 是否需要训练多个网络；默认为 false
     USE_BN = False  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = False  # 输入是否使用 batch normalize
+    USE_CONV_STDDEV = False  # 使用 CONV_WEIGHT_STDDEV
 
     TENSORBOARD_SHOW_IMAGE = False  # 默认不将 image 显示到 TensorBoard，以免影响性能
     TENSORBOARD_SHOW_GRAD = False  # 默认不将 gradient 显示到 TensorBoard，以免影响性能
@@ -106,14 +107,18 @@ class NN:
 
     # ******************************** 基类默认初始化的操作 ****************************
 
-    def __init__(self):
+    def __init__(self, for_test=False, start_time=''):
+        self.__for_test = for_test
+        self.__start_time = start_time
         self.tbProcess = None  # tensorboard process
         self.__init()  # 执行基类的初始化函数
 
     ''' 析构函数 '''
 
     def __del__(self):
-        # 判断 tensorboard 是否已经结束；若无, kill it
+        if self.__for_test:
+            return
+            # 判断 tensorboard 是否已经结束；若无, kill it
         NN.kill_tensorboard_if_running()
         if not isinstance(self.tbProcess, type(None)):
             self.tbProcess.join(10)
@@ -152,16 +157,17 @@ class NN:
         self.t_is_train = tf.placeholder(tf.bool, name='is_train')
 
         # 程序运行的开始时间；用于 get_model_path 和 get_summary_path 时使用
-        self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
-        # self.__start_time = '2017_12_19_17_28_19'
+        if not self.__start_time:
+            self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
 
         # 初始化 model 路径
         self.__model_path = ''
         self.get_model_path()  # 生成存放模型的文件夹 与 路径
 
         # 初始化 tensorboard summary 的文件夹路径 并 开启 tensorboard
-        self.__summaryPath = ''
-        self.get_summary_path()
+        if not self.__for_test:
+            self.__summaryPath = ''
+            self.get_summary_path()
 
         # merge summary 时需要用到；判断是否已经初始化 summary writer
         self.__init_summary_writer = False
@@ -223,25 +229,22 @@ class NN:
 
     @staticmethod
     def init_weight(shape):
-        if len(shape) == 4:
-            input_nodes = shape[1] * shape[2]
+        if NN.USE_CONV_STDDEV:
+            std = NN.CONV_WEIGHT_STDDEV
         else:
-            input_nodes = shape[0]
+            if len(shape) == 4:
+                input_nodes = shape[1] * shape[2]
+            else:
+                input_nodes = shape[0]
+            std = 1.0 / sqrt(float(input_nodes))
 
         return tf.Variable(
             tf.truncated_normal(
                 shape,
-                stddev=1.0 / sqrt(float(input_nodes)),
+                stddev=std,
             ),
             name='weight'
         )
-        # return tf.Variable(
-        #     tf.truncated_normal(
-        #         shape,
-        #         stddev=1.0 / NN.CONV_WEIGHT_STDDEV,
-        #     ),
-        #     name='weight'
-        # )
 
     ''' 初始化权重矩阵 '''
 
@@ -424,10 +427,12 @@ class NN:
                 self.__gamma_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/gamma' % name_scope)
 
             for name_scope, value in save_dict['moving_mean'].items():
-                self.__moving_mean_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/moving_mean' % name_scope)
+                self.__moving_mean_dict[name_scope] = tf.Variable(value, trainable=False,
+                                                                  name='%s/moving_mean' % name_scope)
 
             for name_scope, value in save_dict['moving_std'].items():
-                self.__moving_std_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/moving_variance' % name_scope)
+                self.__moving_std_dict[name_scope] = tf.Variable(value, trainable=False,
+                                                                 name='%s/moving_variance' % name_scope)
 
         if self.USE_BN_INPUT:
             self.mean_x = save_dict['mean_x']
@@ -446,7 +451,7 @@ class NN:
         if self.__model_path:
             return self.__model_path
 
-        cur_dir = os.path.split(os.path.abspath(__file__))[0]
+        cur_dir = os.path.abspath(os.path.curdir)
         model_dir = os.path.join(cur_dir, 'model')
 
         if not os.path.isdir(model_dir):
@@ -529,7 +534,7 @@ class NN:
     ''' 获取 summary path '''
 
     def get_summary_path(self):
-        cur_dir = os.path.split(os.path.abspath(__file__))[0]
+        cur_dir = os.path.abspath(os.path.curdir)
         summary_dir = os.path.join(cur_dir, 'summary')
 
         if not os.path.isdir(summary_dir):
