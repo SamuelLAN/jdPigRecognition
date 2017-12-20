@@ -36,7 +36,7 @@ class VGG16(base.NN):
     DECAY_RATE = 0.0005  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.03  # 正则化的 beta 参数
+    REGULAR_BETA = 0.05  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
@@ -299,14 +299,14 @@ class VGG16(base.NN):
             self.__mean_accuracy = tf.placeholder(tf.float32, name='mean_accuracy')
             self.__mean_loss = tf.placeholder(tf.float32, name='mean_loss')
             self.__mean_log_loss = tf.placeholder(tf.float32, name='mean_log_loss')
-            self.__mean_ch_log_loss = tf.placeholder(tf.float32, name='mean_ch_log_loss')
+            # self.__mean_ch_log_loss = tf.placeholder(tf.float32, name='mean_ch_log_loss')
 
             tf.summary.scalar('learning_rate', self.__learning_rate)
             tf.summary.scalar('keep_prob', self.keep_prob)
             tf.summary.scalar('mean_accuracy', self.__mean_accuracy)
             tf.summary.scalar('mean_loss', self.__mean_loss)
             tf.summary.scalar('mean_log_loss', self.__mean_log_loss)
-            tf.summary.scalar('mean_ch_log_loss', self.__mean_ch_log_loss)
+            # tf.summary.scalar('mean_ch_log_loss', self.__mean_ch_log_loss)
 
     def __get_accuracy(self):
         with tf.name_scope('accuracy'):
@@ -318,14 +318,14 @@ class VGG16(base.NN):
 
     def __get_log_loss(self):
         with tf.name_scope('log_loss'):
-            labels = self.__label
-            predict = tf.one_hot(tf.argmax(self.__output, 1), depth=self.NUM_CLASSES)
+            # labels = self.__label
+            # predict = tf.one_hot(tf.argmax(self.__output, 1), depth=self.NUM_CLASSES)
 
-            correct = tf.cast(tf.equal(labels, predict), tf.float32)
-            incorrect = tf.cast(tf.not_equal(labels, predict), tf.float32)
+            # correct = tf.cast(tf.equal(labels, predict), tf.float32)
+            # incorrect = tf.cast(tf.not_equal(labels, predict), tf.float32)
 
             # w = correct * 1.5 + incorrect * 0.8
-            w = correct * 0.9 + incorrect * 1.3
+            # w = correct * 0.9 + incorrect * 1.3
             # output = w * self.__output
 
             exp_x = tf.exp(self.__output)
@@ -335,8 +335,8 @@ class VGG16(base.NN):
 
             # exp_x = tf.exp(output)
             # p = exp_x / tf.reduce_sum(exp_x, axis=0)
-            log_prob_ch = w * tf.log(prob)
-            self.__ch_log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, log_prob_ch)), self.__size)
+            # log_prob_ch = w * tf.log(prob)
+            # self.__ch_log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, log_prob_ch)), self.__size)
 
     def __measure(self, data_set, max_times=None):
         times = int(math.ceil(float(data_set.get_size()) / self.BATCH_SIZE))
@@ -346,7 +346,7 @@ class VGG16(base.NN):
         mean_accuracy = 0.0
         mean_loss = 0.0
         mean_log_loss = 0.0
-        mean_ch_log_loss = 0.0
+        # mean_ch_log_loss = 0.0
         for i in range(times):
             batch_x, batch_y = data_set.next_batch(self.BATCH_SIZE)
 
@@ -355,11 +355,11 @@ class VGG16(base.NN):
             feed_dict = {self.__image: batch_x, self.__label: batch_y,
                          self.__size: batch_y.shape[0], self.keep_prob: 1.0,
                          self.t_is_train: False}
-            loss, log_loss, ch_log_loss, accuracy = self.sess.run(
-                [self.__loss, self.__log_loss, self.__ch_log_loss, self.__accuracy], feed_dict)
+            loss, log_loss, accuracy = self.sess.run(
+                [self.__loss, self.__log_loss, self.__accuracy], feed_dict)
             mean_loss += loss
             mean_log_loss += log_loss
-            mean_ch_log_loss += ch_log_loss
+            # mean_ch_log_loss += ch_log_loss
             mean_accuracy += accuracy
 
             del batch_x
@@ -368,7 +368,7 @@ class VGG16(base.NN):
             progress = float(i + 1) / times * 100
             self.echo('\r >> measuring progress: %.2f%% | %d \t' % (progress, times), False)
 
-        return mean_accuracy / times, mean_loss / times, mean_log_loss / times, mean_ch_log_loss / times
+        return mean_accuracy / times, mean_loss / times, mean_log_loss / times
 
     ''' 主函数 '''
 
@@ -382,12 +382,12 @@ class VGG16(base.NN):
         self.__get_log_loss()
 
         # 正则化
-        self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA)
+        # self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA)
         # self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        # self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
+        self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
-        train_op = self.get_train_op(self.__ch_loss_regular, self.__learning_rate, self.global_step)
+        train_op = self.get_train_op(self.__log_loss_regular, self.__learning_rate, self.global_step)
 
         self.__get_accuracy()
 
@@ -402,7 +402,7 @@ class VGG16(base.NN):
 
         mean_train_loss = 0
         mean_train_log_loss = 0
-        mean_train_ch_log_loss = 0
+        # mean_train_ch_log_loss = 0
         mean_train_accuracy = 0
 
         best_val_log_loss = 999999
@@ -434,13 +434,12 @@ class VGG16(base.NN):
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
-            _, train_loss, train_log_loss, train_ch_log_loss, train_accuracy = self.sess.run(
-                [train_op, self.__loss, self.__ch_log_loss, self.__log_loss, self.__accuracy], feed_dict)
+            _, train_loss, train_log_loss, train_accuracy = self.sess.run(
+                [train_op, self.__loss, self.__log_loss, self.__accuracy], feed_dict)
 
             mean_train_accuracy += train_accuracy
             mean_train_loss += train_loss
             mean_train_log_loss += train_log_loss
-            mean_train_ch_log_loss += train_ch_log_loss
 
             if step % self.__iter_per_epoch == 0 and step != 0:
                 epoch = int(step // self.__iter_per_epoch)
@@ -450,21 +449,21 @@ class VGG16(base.NN):
                 mean_train_accuracy /= self.__iter_per_epoch
                 mean_train_loss /= self.__iter_per_epoch
                 mean_train_log_loss /= self.__iter_per_epoch
-                mean_train_ch_log_loss /= self.__iter_per_epoch
+                # mean_train_ch_log_loss /= self.__iter_per_epoch
 
                 # self.echo('\n epoch: %d  train_loss: %.6f  log_loss:    train_accuracy: %.6f \t ' % (epoch, mean_train_loss, mean_train_accuracy))
 
                 feed_dict[self.__mean_accuracy] = mean_train_accuracy
                 feed_dict[self.__mean_loss] = mean_train_loss
                 feed_dict[self.__mean_log_loss] = mean_train_log_loss
-                feed_dict[self.__mean_ch_log_loss] = mean_train_ch_log_loss
+                # feed_dict[self.__mean_ch_log_loss] = mean_train_ch_log_loss
                 self.add_summary_train(feed_dict, epoch)
 
                 del batch_x
                 del batch_y
 
                 # 测试 校验集 的 loss
-                mean_val_accuracy, mean_val_loss, mean_val_log_loss, val_ch_log_loss = self.__measure(self.__val_set,
+                mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set,
                                                                                                       100)
                 batch_val_x, batch_val_y = self.__val_set.next_batch(self.BATCH_SIZE)
 
@@ -473,7 +472,7 @@ class VGG16(base.NN):
                 feed_dict = {self.__image: batch_val_x, self.__label: batch_val_y, self.keep_prob: 1.0,
                              self.__size: batch_val_y.shape[0], self.__mean_accuracy: mean_val_accuracy,
                              self.__mean_loss: mean_val_loss, self.__mean_log_loss: mean_val_log_loss,
-                             self.__mean_ch_log_loss: val_ch_log_loss, self.t_is_train: False}
+                             self.t_is_train: False}
                 self.add_summary_val(feed_dict, epoch)
 
                 del batch_val_x
