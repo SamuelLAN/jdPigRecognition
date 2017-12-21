@@ -36,7 +36,7 @@ class VGG16(base.NN):
     DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.1  # 正则化的 beta 参数
+    REGULAR_BETA = 0.01  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
@@ -321,17 +321,18 @@ class VGG16(base.NN):
             incorrect = tf.cast(tf.not_equal(labels, predict), tf.float32)
 
             # w = correct * 1.5 + incorrect * 0.8
-            w = correct * 0.9 + incorrect * 1.3
-            # output = w * self.__output
+            w = correct * 0.9 + incorrect * 1.2
+            output = w * self.__output
 
             exp_x = tf.exp(self.__output)
             prob = exp_x / tf.reduce_sum(exp_x, axis=0)
             p = tf.maximum(tf.minimum(prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(p))), self.__size)
 
-            # exp_x = tf.exp(output)
-            # p = exp_x / tf.reduce_sum(exp_x, axis=0)
-            log_prob_ch = w * tf.log(prob)
+            exp_x = tf.exp(output)
+            p = exp_x / tf.reduce_sum(exp_x, axis=0)
+            log_prob_ch = tf.log(p)
+            # log_prob_ch = w * tf.log(prob)
             self.__ch_log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, log_prob_ch)), self.__size)
 
     def __measure(self, data_set, max_times=None):
