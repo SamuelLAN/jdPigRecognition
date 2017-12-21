@@ -909,7 +909,7 @@ class NN:
             # 卷积层
             if _type == 'conv':
                 with tf.name_scope(name):
-                    if 'trainable' not in config and not config['trainable']:
+                    if 'trainable' in config and not config['trainable']:
                         w_dict[name] = self.init_weight_w(config['W'], False)
                         b_dict[name] = self.init_bias_b(config['b'], False)
 
@@ -937,7 +937,7 @@ class NN:
             # 全连接层
             elif _type == 'fc':
                 with tf.name_scope(name):
-                    if 'trainable' not in config and not config['trainable']:
+                    if 'trainable' in config and not config['trainable']:
                         w_dict[name] = self.init_weight_w(config['W'], False)
                         b_dict[name] = self.init_bias_b(config['b'], False)
 
@@ -950,7 +950,7 @@ class NN:
             # 反卷积层(上采样层)
             elif _type == 'tr_conv':
                 with tf.name_scope(name):
-                    if 'trainable' not in config and not config['trainable']:
+                    if 'trainable' in config and not config['trainable']:
                         w_dict[name] = self.init_weight_w(config['W'], False)
                         b_dict[name] = self.init_bias_b(config['b'], False)
 
