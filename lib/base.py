@@ -593,6 +593,8 @@ class NN:
         summary_dir = os.path.join(summary_dir, self.__start_time)
         if not os.path.isdir(summary_dir):
             os.mkdir(summary_dir)
+        else:
+            self.__remove_file_recursive(summary_dir)
 
         # 若是训练多个网络
         if self.USE_MULTI:
