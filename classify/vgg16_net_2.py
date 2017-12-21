@@ -47,7 +47,7 @@ class VGG16(base.NN):
     USE_BN = True  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = True  # 输入是否使用 batch normalize
 
-    SHOW_PROGRESS_FREQUENCY = 2  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
+    SHOW_PROGRESS_FREQUENCY = 10  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 
     ''' 模型的配置；采用了 VGG16 模型的 FCN '''
 
