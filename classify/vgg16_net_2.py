@@ -58,7 +58,7 @@ class VGG16(base.NN):
 
     VGG_MODEL = vgg.VGG.load()  # 加载 VGG 模型
 
-    CONV_WEIGHT_TRAINABLE = True  # 之前为 False
+    CONV_WEIGHT_TRAINABLE = False  # 之前为 False
 
     MODEL = [
         {
