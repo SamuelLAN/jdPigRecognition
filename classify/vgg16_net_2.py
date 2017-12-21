@@ -32,11 +32,13 @@ class VGG16(base.NN):
     NUM_CLASSES = 30  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.00005  # 初始 学习率
+    # BASE_LEARNING_RATE = 0.00005  # 初始 学习率
+    BASE_LEARNING_RATE = 0.00002  # 初始 学习率
     DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.01  # 正则化的 beta 参数
+    REGULAR_BETA = 0.001  # 正则化的 beta 参数
+    # REGULAR_BETA = 0.01  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
@@ -406,8 +408,14 @@ class VGG16(base.NN):
         mean_train_ch_log_loss = 0
         mean_train_accuracy = 0
 
-        best_val_log_loss = 999999
+        mean_val_accuracy, mean_val_loss, mean_val_log_loss, mean_val_ch_log_loss = self.__measure(self.__val_set)
+
+        best_val_log_loss = mean_val_log_loss
         incr_val_log_loss_times = 0
+
+        self.echo('\n best val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (mean_val_accuracy,
+                                                                                        mean_val_loss,
+                                                                                        mean_val_log_loss))
 
         self.echo('\nepoch:')
 
