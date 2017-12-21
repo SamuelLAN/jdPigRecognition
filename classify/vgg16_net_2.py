@@ -58,6 +58,8 @@ class VGG16(base.NN):
 
     VGG_MODEL = vgg.VGG.load()  # 加载 VGG 模型
 
+    CONV_WEIGHT_TRAINABLE = True  # 之前为 False
+
     MODEL = [
         {
             'name': 'conv1_1',
@@ -65,7 +67,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv1_1'][0],
             'b': VGG_MODEL['conv1_1'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv1_2',
@@ -73,7 +75,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv1_2'][0],
             'b': VGG_MODEL['conv1_2'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'pool_1',
@@ -87,7 +89,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv2_1'][0],
             'b': VGG_MODEL['conv2_1'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv2_2',
@@ -95,7 +97,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv2_2'][0],
             'b': VGG_MODEL['conv2_2'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'pool_2',
@@ -109,7 +111,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv3_1'][0],
             'b': VGG_MODEL['conv3_1'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv3_2',
@@ -117,7 +119,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv3_2'][0],
             'b': VGG_MODEL['conv3_2'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv3_3',
@@ -125,7 +127,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv3_3'][0],
             'b': VGG_MODEL['conv3_3'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'pool_3',
@@ -139,7 +141,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv4_1'][0],
             'b': VGG_MODEL['conv4_1'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv4_2',
@@ -147,7 +149,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv4_2'][0],
             'b': VGG_MODEL['conv4_2'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv4_3',
@@ -155,7 +157,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv4_3'][0],
             'b': VGG_MODEL['conv4_3'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'pool_4',
@@ -169,7 +171,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv5_1'][0],
             'b': VGG_MODEL['conv5_1'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv5_2',
@@ -177,7 +179,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv5_2'][0],
             'b': VGG_MODEL['conv5_2'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'conv5_3',
@@ -185,7 +187,7 @@ class VGG16(base.NN):
             'W': VGG_MODEL['conv5_3'][0],
             'b': VGG_MODEL['conv5_3'][1],
             'bn': True,
-            'trainable': False,
+            'trainable': CONV_WEIGHT_TRAINABLE,
         },
         {
             'name': 'pool_5',
