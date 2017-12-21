@@ -271,7 +271,11 @@ class VGG16(base.NN):
     ''' 模型 '''
 
     def model(self):
-        self.__output = self.parse_model(self.__image)
+        if self.start_from_model:
+            self.restore_model_w_b(self.start_from_model)
+            self.rebuild_model()
+        else:
+            self.__output = self.parse_model(self.__image)
 
     ''' 重建模型 '''
 
@@ -590,7 +594,7 @@ class VGG16(base.NN):
         self.echo('\ndone')
 
 
-o_vgg = VGG16()
+o_vgg = VGG16(False, '2017_12_21_16_45_30')
 o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_20_15_51_58')

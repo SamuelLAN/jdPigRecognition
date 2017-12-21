@@ -169,6 +169,9 @@ class NN:
         # 程序运行的开始时间；用于 get_model_path 和 get_summary_path 时使用
         if not self.__start_time:
             self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
+            self.start_from_model = False
+        else:
+            self.start_from_model = True
 
         # 初始化 model 路径
         self.__model_path = ''
@@ -413,7 +416,7 @@ class NN:
 
         self.echo('Finish saving model ')
 
-    def restore_model_w_b(self):
+    def restore_model_w_b(self, trainable=False):
         if self.USE_MULTI:
             model_path = '%s_%d.pkl' % (self.get_model_path(), self.net_id)
             self.multi_w_dict[self.net_id] = {}
@@ -434,10 +437,10 @@ class NN:
             save_dict = pickle.load(f)
 
         for name_scope, (name, w_value) in save_dict['w_dict'].items():
-            w_dict[name_scope] = tf.Variable(w_value, trainable=False, name=name)
+            w_dict[name_scope] = tf.Variable(w_value, trainable=trainable, name=name)
 
         for name_scope, (name, w_value) in save_dict['b_dict'].items():
-            b_dict[name_scope] = tf.Variable(w_value, trainable=False, name=name)
+            b_dict[name_scope] = tf.Variable(w_value, trainable=trainable, name=name)
 
         if self.USE_BN:
             if self.USE_MULTI:
@@ -460,10 +463,10 @@ class NN:
                 moving_std_dict = self.__moving_std_dict
 
             for name_scope, value in save_dict['beta'].items():
-                beta_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/beta' % name_scope)
+                beta_dict[name_scope] = tf.Variable(value, trainable=trainable, name='%s/beta' % name_scope)
 
             for name_scope, value in save_dict['gamma'].items():
-                gamma_dict[name_scope] = tf.Variable(value, trainable=False, name='%s/gamma' % name_scope)
+                gamma_dict[name_scope] = tf.Variable(value, trainable=trainable, name='%s/gamma' % name_scope)
 
             for name_scope, value in save_dict['moving_mean'].items():
                 moving_mean_dict[name_scope] = tf.Variable(value, trainable=False,
@@ -906,6 +909,10 @@ class NN:
             # 卷积层
             if _type == 'conv':
                 with tf.name_scope(name):
+                    if 'trainable' not in config and not config['trainable']:
+                        w_dict[name] = self.init_weight_w(config['W'], False)
+                        b_dict[name] = self.init_bias_b(config['b'], False)
+
                     stride = config['stride'] if 'stride' in config else 1
                     padding = 'SAME' if 'padding' not in config or config['padding'] == 'SAME' else 'VALID'
 
@@ -930,6 +937,10 @@ class NN:
             # 全连接层
             elif _type == 'fc':
                 with tf.name_scope(name):
+                    if 'trainable' not in config and not config['trainable']:
+                        w_dict[name] = self.init_weight_w(config['W'], False)
+                        b_dict[name] = self.init_bias_b(config['b'], False)
+
                     x = tf.reshape(a, [-1, config['shape'][0]])
                     a = tf.add(tf.matmul(x, w_dict[name]), b_dict[name])
 
@@ -939,6 +950,10 @@ class NN:
             # 反卷积层(上采样层)
             elif _type == 'tr_conv':
                 with tf.name_scope(name):
+                    if 'trainable' not in config and not config['trainable']:
+                        w_dict[name] = self.init_weight_w(config['W'], False)
+                        b_dict[name] = self.init_bias_b(config['b'], False)
+
                     if 'output_shape' in config:
                         output_shape = config['output_shape']
                     elif 'output_shape_index' in config:
