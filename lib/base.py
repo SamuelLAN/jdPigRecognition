@@ -102,7 +102,7 @@ class NN:
 
     ''' collection 的名字 '''
 
-    VARIABLE_COLLECTION = 'variables'
+    # VARIABLE_COLLECTION = 'variables'
     UPDATE_OPS_COLLECTION = 'update_ops'
 
     # ******************************** 基类默认初始化的操作 ****************************
@@ -1079,8 +1079,9 @@ class NN:
         update_moving_variance = moving_averages.assign_moving_average(moving_std_dict[name_scope],
                                                                        variance, self.BN_DECAY)
 
-        tf.add_to_collection(self.UPDATE_OPS_COLLECTION, update_moving_mean)
-        tf.add_to_collection(self.UPDATE_OPS_COLLECTION, update_moving_variance)
+        update_collection = '%s_%d' % (self.UPDATE_OPS_COLLECTION, self.net_id)
+        tf.add_to_collection(update_collection, update_moving_mean)
+        tf.add_to_collection(update_collection, update_moving_variance)
 
         mean, variance = control_flow_ops.cond(is_train, lambda: (mean, variance),
                                                lambda: (moving_mean_dict[name_scope],
@@ -1105,7 +1106,8 @@ class NN:
             if not self.USE_BN:
                 return optimizer_op
 
-            batch_norm_updates = tf.get_collection(self.UPDATE_OPS_COLLECTION)
+            update_collection = '%s_%d' % (self.UPDATE_OPS_COLLECTION, self.net_id)
+            batch_norm_updates = tf.get_collection(update_collection)
             batch_norm_updates_op = tf.group(*batch_norm_updates)
             return tf.group(optimizer_op, batch_norm_updates_op)
 
