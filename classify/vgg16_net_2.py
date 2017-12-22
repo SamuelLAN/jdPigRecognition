@@ -34,11 +34,11 @@ class VGG16(base.NN):
     # 学习率的相关参数
     # BASE_LEARNING_RATE = 0.00005  # 初始 学习率
     # BASE_LEARNING_RATE = 0.00002  # 初始 学习率
-    BASE_LEARNING_RATE = 0.000008  # 初始 学习率
+    BASE_LEARNING_RATE = 0.000005  # 初始 学习率
     DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.003  # 正则化的 beta 参数
+    REGULAR_BETA = 0.005  # 正则化的 beta 参数
     # REGULAR_BETA = 0.01  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
@@ -480,8 +480,7 @@ class VGG16(base.NN):
                 del batch_y
 
                 # 测试 校验集 的 loss
-                mean_val_accuracy, mean_val_loss, mean_val_log_loss, val_ch_log_loss = self.__measure(self.__val_set,
-                                                                                                      100)
+                mean_val_accuracy, mean_val_loss, mean_val_log_loss, val_ch_log_loss = self.__measure(self.__val_set)
                 batch_val_x, batch_val_y = self.__val_set.next_batch(self.BATCH_SIZE)
 
                 batch_val_x = (batch_val_x - self.mean_x) / (self.std_x + self.EPSILON)
@@ -611,10 +610,10 @@ class VGG16(base.NN):
 
 
 # o_vgg = VGG16(False, '2017_12_21_16_45_30')
-o_vgg = VGG16(True, '2017_12_22_12_20_13')
-# o_vgg = VGG16(True, '2017_12_22_14_25_48')
+o_vgg = VGG16(False, '2017_12_22_12_20_13')
+# o_vgg = VGG16(True, '2017_12_22_14_25_48')    # best val_log_loss 0.53
 # o_vgg = VGG16(False, '2017_12_22_18_12_22')
-# o_vgg.run()
+o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_20_15_51_58')
-o_vgg.test()
+# o_vgg.test()
