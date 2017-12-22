@@ -17,4 +17,12 @@
 
 > vgg19_net 的结构图
 
+<br>
+
 > bi_vgg16_net 的结构图
+
+<br>
+
+> result
+>- vgg16_net_2.py:
+>- vgg16_net.py:

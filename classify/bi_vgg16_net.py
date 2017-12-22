@@ -17,7 +17,6 @@ import bi_load as load
 import lib.base as base
 import model.vgg as vgg
 
-
 ''' 全卷积神经网络 '''
 
 
@@ -33,9 +32,6 @@ class VGG16(base.NN):
     NUM_CLASSES = 2  # 输出的类别
 
     NUM_PIG = 30
-
-    IMAGE_SHAPE = [224, 224]
-    IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
 
     BASE_LEARNING_RATE = 0.0001  # 初始 学习率
     DECAY_RATE = 0.001  # 学习率 的 下降速率
@@ -54,6 +50,9 @@ class VGG16(base.NN):
     SHOW_PROGRESS_FREQUENCY = 2  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 
     ''' 模型的配置；采用了 VGG16 模型的 FCN '''
+
+    IMAGE_SHAPE = [224, 224]
+    IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
 
     VGG_MODEL = vgg.VGG.load()  # 加载 VGG 模型
 
@@ -317,15 +316,8 @@ class VGG16(base.NN):
     def get_train_op_list(self):
         self.__train_op_list = []
         for i in range(self.NUM_PIG):
-            with tf.name_scope('optimizer'):
-                optimizer = tf.train.AdamOptimizer(self.__learning_rate_list[i])
-                optimizer_op = optimizer.minimize(self.__loss_list[i], global_step=self.__global_step_list[i])
-
-                batch_norm_updates = tf.get_collection(self.UPDATE_OPS_COLLECTION)
-                batch_norm_updates_op = tf.group(*batch_norm_updates)
-                train_op = tf.group(optimizer_op, batch_norm_updates_op)
-
-                self.__train_op_list.append(train_op)
+            self.__train_op_list.append(self.get_train_op(self.__loss_list[i], self.__learning_rate_list[i],
+                                                          self.__global_step_list[i]))
 
     # ''' 将图片输出到 tensorboard '''
     # def __summary(self):
@@ -342,7 +334,6 @@ class VGG16(base.NN):
     #         tf.summary.scalar('mean_loss', self.__mean_loss)
     #         tf.summary.scalar('mean_log_loss', self.__mean_log_loss)
     #         tf.summary.scalar('mean_ch_log_loss', self.__mean_ch_log_loss)
-
 
     def __get_accuracy(self):
         self.__accuracy_list = []
@@ -443,14 +434,11 @@ class VGG16(base.NN):
         # best_val_log_loss = 999999
         # incr_val_log_loss_times = 0
 
-        # self.echo('\nepoch:')
-
         moment = 0.975
 
-        best_mean = 0
-        best_std = 0.1
-
         for i in range(self.NUM_PIG):
+
+            self.net_id = i
 
             self.echo('\nnet %d  epoch:' % (i + 1))
 
@@ -469,18 +457,18 @@ class VGG16(base.NN):
                     epoch_progress = float(step) % self.__iter_per_epoch_list[i] / self.__iter_per_epoch_list[i] * 100.0
                     step_progress = float(step) / self.__steps_list[i] * 100.0
                     self.echo('\r net: %d  step: %d (%d|%.2f%%) / %d|%.2f%% \t\t' % (
-                    i + 1, step, self.__iter_per_epoch_list[i], epoch_progress,
-                    self.__steps_list[i], step_progress), False)
+                        i + 1, step, self.__iter_per_epoch_list[i], epoch_progress,
+                        self.__steps_list[i], step_progress), False)
 
                 batch_x, batch_y = self.__train_set_list[i].next_batch(self.BATCH_SIZE)
 
                 reduce_axis = tuple(range(len(batch_x.shape) - 1))
                 _mean = np.mean(batch_x, axis=reduce_axis)
                 _std = np.std(batch_x, axis=reduce_axis)
-                self.__running_mean_list[i] = moment * self.__running_mean_list[i] + (1 - moment) * _mean if type(
-                    self.__running_mean_list[i]) != type(None) else _mean
-                self.__running_std_list[i] = moment * self.__running_std_list[i] + (1 - moment) * _std if type(
-                    self.__running_std_list[i]) != type(None) else _std
+                self.__running_mean_list[i] = moment * self.__running_mean_list[i] + (1 - moment) * _mean if not \
+                    isinstance(self.__running_mean_list[i], type(None)) else _mean
+                self.__running_std_list[i] = moment * self.__running_std_list[i] + (1 - moment) * _std if not \
+                    isinstance(self.__running_std_list[i], type(None)) else _std
                 batch_x = (batch_x - _mean) / (_std + self.EPSILON)
 
                 feed_dict = {self.__image_list[i]: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
@@ -521,12 +509,8 @@ class VGG16(base.NN):
                         best_val_log_loss = val_log_loss
                         incr_val_log_loss_times = 0
 
-                        best_mean = self.multi_mean_x[i]
-                        best_std = self.multi_std_x[i]
-
                         self.echo('%s  best  ' % echo_str, False)
                         self.save_model_w_b()
-                        # self.save_model()  # 保存模型
 
                     else:
                         incr_val_log_loss_times += 1
@@ -535,106 +519,18 @@ class VGG16(base.NN):
                         if incr_val_log_loss_times > self.MAX_VAL_ACCURACY_DECR_TIMES:
                             break
 
+            self.restore_model_w_b()  # 恢复模型
+            self.rebuild_model_i(self.net_id)
+            self.get_loss()
+            self.__get_accuracy()
+            self.__get_log_loss()
+
+            self.init_variables()
+
+
             self.__train_set_list[i].stop()
 
-        for step in range(self.__steps):
-            if step % self.SHOW_PROGRESS_FREQUENCY == 0:
-                epoch_progress = float(step) % self.__iter_per_epoch / self.__iter_per_epoch * 100.0
-                step_progress = float(step) / self.__steps * 100.0
-                self.echo('\r step: %d (%d|%.2f%%) / %d|%.2f%% \t\t' % (step, self.__iter_per_epoch, epoch_progress,
-                                                                        self.__steps, step_progress), False)
-
-            batch_x, batch_y = self.__train_set.next_batch(self.BATCH_SIZE)
-
-            reduce_axis = tuple(range(len(batch_x.shape) - 1))
-            _mean = np.mean(batch_x, axis=reduce_axis)
-            _std = np.std(batch_x, axis=reduce_axis)
-            self.__running_mean = moment * self.__running_mean + (1 - moment) * _mean if type(
-                self.__running_mean) != type(None) else _mean
-            self.__running_std = moment * self.__running_std + (1 - moment) * _std if type(self.__running_std) != type(
-                None) else _std
-            batch_x = (batch_x - _mean) / (_std + self.EPSILON)
-
-            feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
-                         self.__size: batch_y.shape[0]}
-            _, train_loss, train_log_loss, train_ch_log_loss, train_accuracy = self.sess.run(
-                [train_op, self.__loss, self.__ch_log_loss, self.__log_loss, self.__accuracy], feed_dict)
-
-            mean_train_accuracy += train_accuracy
-            mean_train_loss += train_loss
-            mean_train_log_loss += train_log_loss
-            mean_train_ch_log_loss += train_ch_log_loss
-
-            if step % self.__iter_per_epoch == 0 and step != 0:
-                epoch = int(step // self.__iter_per_epoch)
-                self.mean_x = self.__running_mean
-                self.std_x = self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1))
-
-                mean_train_accuracy /= self.__iter_per_epoch
-                mean_train_loss /= self.__iter_per_epoch
-                mean_train_log_loss /= self.__iter_per_epoch
-                mean_train_ch_log_loss /= self.__iter_per_epoch
-
-                # self.echo('\n epoch: %d  train_loss: %.6f  log_loss:    train_accuracy: %.6f \t ' % (epoch, mean_train_loss, mean_train_accuracy))
-
-                feed_dict[self.__mean_accuracy] = mean_train_accuracy
-                feed_dict[self.__mean_loss] = mean_train_loss
-                feed_dict[self.__mean_log_loss] = mean_train_log_loss
-                feed_dict[self.__mean_ch_log_loss] = mean_train_ch_log_loss
-                self.add_summary_train(feed_dict, epoch)
-
-                del batch_x
-                del batch_y
-
-                # 测试 校验集 的 loss
-                mean_val_accuracy, mean_val_loss, mean_val_log_loss, val_ch_log_loss = self.__measure(self.__val_set,
-                                                                                                      100)
-                batch_val_x, batch_val_y = self.__val_set.next_batch(self.BATCH_SIZE)
-
-                batch_val_x = (batch_val_x - self.mean_x) / (self.std_x + self.EPSILON)
-
-                feed_dict = {self.__image: batch_val_x, self.__label: batch_val_y, self.keep_prob: 1.0,
-                             self.__size: batch_val_y.shape[0], self.__mean_accuracy: mean_val_accuracy,
-                             self.__mean_loss: mean_val_loss, self.__mean_log_loss: mean_val_log_loss,
-                             self.__mean_ch_log_loss: val_ch_log_loss}
-                self.add_summary_val(feed_dict, epoch)
-
-                del batch_val_x
-                del batch_val_y
-
-                echo_str = '\n\t epoch: %d  train_loss: %.6f  train_log_loss: %.6f  train_accuracy: %.6f  ' \
-                           'val_loss: %.6f val_log_loss: %.6f  val_accuracy: %.6f' % (epoch, mean_train_loss,
-                                                                                      mean_train_log_loss,
-                                                                                      mean_train_accuracy,
-                                                                                      mean_val_loss, mean_val_log_loss,
-                                                                                      mean_val_accuracy)
-
-                mean_train_accuracy = 0
-                mean_train_loss = 0
-
-                if best_val_log_loss > mean_val_log_loss:
-                    best_val_log_loss = mean_val_log_loss
-                    incr_val_log_loss_times = 0
-
-                    best_mean = self.mean_x
-                    best_std = self.std_x
-
-                    self.echo('%s  best  ' % echo_str, False)
-                    self.save_model_w_b()
-                    # self.save_model()  # 保存模型
-
-                else:
-                    incr_val_log_loss_times += 1
-                    self.echo('%s  incr_times: %d \n' % (echo_str, incr_val_log_loss_times), False)
-
-                    if incr_val_log_loss_times > self.MAX_VAL_ACCURACY_DECR_TIMES:
-                        break
-
-            else:
-                del batch_x
-                del batch_y
-
-        self.close_summary()  # 关闭 TensorBoard
+        # self.close_summary()  # 关闭 TensorBoard
 
         # self.__test_set.start_thread()
 
