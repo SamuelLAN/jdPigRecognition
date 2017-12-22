@@ -515,6 +515,14 @@ class NN:
     def set_model_path(self, path):
         self.__model_path = path
 
+    ''' 获取新的模型 '''
+
+    def get_new_model(self):
+        self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
+        self.__model_path = ''
+        self.get_model_path()
+
+
     # ************************** TensorBoard summary ************************
 
     ''' TensorBoard merge summary '''
