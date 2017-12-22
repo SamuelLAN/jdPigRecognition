@@ -388,11 +388,11 @@ class VGG16(base.NN):
 
         # 正则化
         # self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA)
-        self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        # self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
+        # self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
+        self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
-        train_op = self.get_train_op(self.__loss_regular, self.__learning_rate, self.global_step)
+        train_op = self.get_train_op(self.__log_loss_regular, self.__learning_rate, self.global_step)
 
         self.__get_accuracy()
 
@@ -609,7 +609,8 @@ class VGG16(base.NN):
         self.echo('\ndone')
 
 
-o_vgg = VGG16(False, '2017_12_21_16_45_30')
+# o_vgg = VGG16(False, '2017_12_21_16_45_30')
+o_vgg = VGG16(False, '2017_12_22_12_20_13')
 o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_20_15_51_58')
