@@ -38,7 +38,7 @@ class VGG16(base.NN):
     DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.001  # 正则化的 beta 参数
+    REGULAR_BETA = 0.003  # 正则化的 beta 参数
     # REGULAR_BETA = 0.01  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
@@ -389,11 +389,11 @@ class VGG16(base.NN):
 
         # 正则化
         # self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA)
-        self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        # self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
+        # self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
+        self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
-        train_op = self.get_train_op(self.__loss_regular, self.__learning_rate, self.global_step)
+        train_op = self.get_train_op(self.__log_loss_regular, self.__learning_rate, self.global_step)
 
         self.__get_accuracy()
 
@@ -505,10 +505,10 @@ class VGG16(base.NN):
                 mean_train_accuracy = 0
                 mean_train_loss = 0
 
-                # if best_val_log_loss > mean_val_log_loss:
-                if best_val_accuracy < mean_val_accuracy:
-                    best_val_accuracy = mean_val_accuracy
-                    # best_val_log_loss = mean_val_log_loss
+                if best_val_log_loss > mean_val_log_loss:
+                    # if best_val_accuracy < mean_val_accuracy:
+                    #     best_val_accuracy = mean_val_accuracy
+                    best_val_log_loss = mean_val_log_loss
                     incr_val_log_loss_times = 0
 
                     self.echo('%s  best  ' % echo_str, False)
@@ -612,7 +612,8 @@ class VGG16(base.NN):
 
 # o_vgg = VGG16(False, '2017_12_21_16_45_30')
 # o_vgg = VGG16(False, '2017_12_22_12_20_13')
-o_vgg = VGG16(False, '2017_12_22_14_25_48')
+# o_vgg = VGG16(False, '2017_12_22_14_25_48')
+o_vgg = VGG16(False, '2017_12_22_18_12_22')
 o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_20_15_51_58')
