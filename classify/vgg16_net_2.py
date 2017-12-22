@@ -34,8 +34,9 @@ class VGG16(base.NN):
     # 学习率的相关参数
     # BASE_LEARNING_RATE = 0.00005  # 初始 学习率
     # BASE_LEARNING_RATE = 0.00002  # 初始 学习率
-    BASE_LEARNING_RATE = 0.000005  # 初始 学习率
-    DECAY_RATE = 0.0001  # 学习率 的 下降速率
+    BASE_LEARNING_RATE = 0.000002  # 初始 学习率
+    DECAY_RATE = 0.00005  # 学习率 的 下降速率
+    # DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
     REGULAR_BETA = 0.005  # 正则化的 beta 参数
