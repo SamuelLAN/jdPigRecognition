@@ -611,8 +611,8 @@ class VGG16(base.NN):
 
 
 # o_vgg = VGG16(False, '2017_12_21_16_45_30')
-# o_vgg = VGG16(False, '2017_12_22_12_20_13')
-o_vgg = VGG16(True, '2017_12_22_14_25_48')
+o_vgg = VGG16(True, '2017_12_22_12_20_13')
+# o_vgg = VGG16(True, '2017_12_22_14_25_48')
 # o_vgg = VGG16(False, '2017_12_22_18_12_22')
 # o_vgg.run()
 
