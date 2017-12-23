@@ -22,7 +22,7 @@ class Data:
     RATIO = 1.0
     NUM_CLASSES = 2
 
-    def __init__(self, pig_id, start_ratio=0.0, end_ratio=1.0, name=''):
+    def __init__(self, pig_id, start_ratio=0.0, end_ratio=1.0, name='', resize=None):
         self.__chang_dir()
 
         # 初始化变量
@@ -31,6 +31,7 @@ class Data:
         self.__same_data = []
         self.__diff_data = []
         self.__data = {}
+        self.__resize = resize if resize else self.RESIZE
 
         # 加载全部数据
         self.__load()
@@ -167,19 +168,16 @@ class Data:
     #
     #     return [Data.__resize_np_img(np_image_1), Data.__resize_np_img(np_image_2), Data.__resize_np_img(np_image_3)]
 
+    def __resize_np_img(self, np_image):
+        return np.array(Image.fromarray(np_image).resize(self.__resize), dtype=np.float32)
 
-    @staticmethod
-    def __resize_np_img(np_image):
-        return np.array(Image.fromarray(np_image).resize(Data.RESIZE), dtype=np.float32)
-
-    @staticmethod
-    def add_padding(img_path):
+    def add_padding(self, img_path):
         image = Image.open(img_path)
         w, h = image.size
         ratio = float(w) / h
 
         if abs(ratio - Data.RATIO) <= 0.1:
-            return np.array(image.resize(Data.RESIZE))
+            return np.array(image.resize(self.__resize))
 
         np_image = np.array(image)
         h, w, c = np_image.shape
@@ -199,7 +197,7 @@ class Data:
             np_new_image[:, padding: padding + w, :] = np_image
 
         new_image = Image.fromarray(np.cast['uint8'](np_new_image))
-        return np.array(new_image.resize(Data.RESIZE))
+        return np.array(new_image.resize(self.__resize))
 
     def next_batch(self, batch_size):
         X = []
@@ -236,13 +234,14 @@ class TestData:
     RATIO = 1.0
     NUM_CLASSES = 30
 
-    def __init__(self, start_ratio=0.0, end_ratio=1.0, name=''):
+    def __init__(self, start_ratio=0.0, end_ratio=1.0, name='', resize=None):
         self.__chang_dir()
 
         # 初始化变量
         self.__name = name
         self.__data = {}
         self.__data_list = []
+        self.__resize = resize if resize else self.RESIZE
 
         # 加载全部数据
         self.__load()
@@ -322,18 +321,16 @@ class TestData:
 
         return label
 
-    @staticmethod
-    def __resize_np_img(np_image):
-        return np.array(Image.fromarray(np_image).resize(Data.RESIZE), dtype=np.float32)
+    def __resize_np_img(self, np_image):
+        return np.array(Image.fromarray(np_image).resize(self.__resize), dtype=np.float32)
 
-    @staticmethod
-    def add_padding(img_path):
+    def add_padding(self, img_path):
         image = Image.open(img_path)
         w, h = image.size
         ratio = float(w) / h
 
         if abs(ratio - Data.RATIO) <= 0.1:
-            return np.array(image.resize(Data.RESIZE))
+            return np.array(image.resize(self.__resize))
 
         np_image = np.array(image)
         h, w, c = np_image.shape
@@ -353,7 +350,7 @@ class TestData:
             np_new_image[:, padding: padding + w, :] = np_image
 
         new_image = Image.fromarray(np.cast['uint8'](np_new_image))
-        return np.array(new_image.resize(Data.RESIZE))
+        return np.array(new_image.resize(self.__resize))
 
     def __read_img_list(self, img_list):
         X = []
@@ -436,11 +433,12 @@ class TestBData:
     RATIO = 1.0
     NUM_CLASSES = 30
 
-    def __init__(self):
+    def __init__(self, resize=None):
         self.__chang_dir()
 
         # 初始化变量
         self.__data = []
+        self.__resize = resize if resize else self.RESIZE
 
         # 加载全部数据
         self.__load()
@@ -493,18 +491,16 @@ class TestBData:
         no_list = os.path.splitext(os.path.split(img_path)[1])[0].split('_')
         return int(no_list[0])
 
-    @staticmethod
-    def __resize_np_img(np_image):
-        return np.array(Image.fromarray(np_image).resize(Data.RESIZE), dtype=np.float32)
+    def __resize_np_img(self, np_image):
+        return np.array(Image.fromarray(np_image).resize(self.__resize), dtype=np.float32)
 
-    @staticmethod
-    def add_padding(img_path):
+    def add_padding(self, img_path):
         image = Image.open(img_path)
         w, h = image.size
         ratio = float(w) / h
 
         if abs(ratio - Data.RATIO) <= 0.1:
-            return np.array(image.resize(Data.RESIZE))
+            return np.array(image.resize(self.__resize))
 
         np_image = np.array(image)
         h, w, c = np_image.shape
@@ -524,7 +520,7 @@ class TestBData:
             np_new_image[:, padding: padding + w, :] = np_image
 
         new_image = Image.fromarray(np.cast['uint8'](np_new_image))
-        return np.array(new_image.resize(Data.RESIZE))
+        return np.array(new_image.resize(self.__resize))
 
     def __read_img_list(self, img_list):
         X = []

@@ -289,8 +289,8 @@ class VGG16(base.NN):
     ''' 加载数据 '''
 
     def load(self):
-        self.__train_set_list[self.net_id] = load.Data(self.net_id, 0.0, 0.8, 'train')
-        self.__val_set_list[self.net_id] = load.Data(self.net_id, 0.8, 1.0, 'validation')
+        self.__train_set_list[self.net_id] = load.Data(self.net_id, 0.0, 0.8, 'train', self.IMAGE_SHAPE)
+        self.__val_set_list[self.net_id] = load.Data(self.net_id, 0.8, 1.0, 'validation', self.IMAGE_SHAPE)
 
         self.__train_size_list[self.net_id] = self.__train_set_list[self.net_id].get_size()
         self.__val_size_list[self.net_id] = self.__val_set_list[self.net_id].get_size()
@@ -675,7 +675,7 @@ class VGG16(base.NN):
         # self.__val_prob_list = []
         self.__prob_list = []
 
-        self.__data = load.TestBData()
+        self.__data = load.TestBData(self.IMAGE_SHAPE)
 
         # self.__train_data = load.TestData(0.0, 0.8)
         # self.__val_data = load.TestData(0.8, 1.0)
