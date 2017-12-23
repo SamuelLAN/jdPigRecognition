@@ -278,6 +278,9 @@ class VGG16(base.NN):
         # dropout 的 keep_prob
         self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
+        # tensor is_train，用于 batch_normalize; 没有用 bn 时，无需加入 feed_dict
+        self.t_is_train = tf.placeholder(tf.bool, name='is_train')
+
         self.global_step = self.get_global_step()
 
         self.__learning_rate = self.get_learning_rate(
