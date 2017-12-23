@@ -478,6 +478,8 @@ class VGG16(base.NN):
                                                                                              mean_val_loss,
                                                                                              mean_val_log_loss))
 
+        self.save_model_w_b()
+
         for step in range(self.__steps):
             if step % self.SHOW_PROGRESS_FREQUENCY == 0:
                 epoch_progress = float(step) % self.__iter_per_epoch / self.__iter_per_epoch * 100.0
