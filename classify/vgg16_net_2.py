@@ -611,10 +611,11 @@ class VGG16(base.NN):
 
 
 # o_vgg = VGG16(False, '2017_12_21_16_45_30')
-o_vgg = VGG16(False, '2017_12_22_12_20_13')
+# o_vgg = VGG16(False, '2017_12_22_12_20_13')
 # o_vgg = VGG16(True, '2017_12_22_14_25_48')    # best val_log_loss 0.53
 # o_vgg = VGG16(False, '2017_12_22_18_12_22')
-o_vgg.run()
+o_vgg = VGG16(True, '2017_12_22_22_38_44')
+# o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_20_15_51_58')
-# o_vgg.test()
+o_vgg.test()
