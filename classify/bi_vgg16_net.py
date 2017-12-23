@@ -252,14 +252,6 @@ class VGG16(base.NN):
     ''' 自定义 初始化变量 过程 '''
 
     def init(self):
-        # 输入 与 label
-        self.__image = tf.placeholder(tf.float32, self.IMAGE_PH_SHAPE, name='X')
-        self.__label = tf.placeholder(tf.float32, [None, self.NUM_CLASSES], name='y')
-        self.__size = tf.placeholder(tf.float32, name='size')
-
-        # dropout 的 keep_prob
-        self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
-
         self.__train_set_list = [None for i in range(self.NUM_PIG)]
         self.__val_set_list = [None for i in range(self.NUM_PIG)]
 
@@ -276,6 +268,16 @@ class VGG16(base.NN):
         self.__iter_per_epoch = int(self.__train_size_list[self.net_id] // self.BATCH_SIZE)
         self.__steps = self.EPOCH_TIMES * self.__iter_per_epoch
 
+        self.__has_rebuild = False
+
+        # 输入 与 label
+        self.__image = tf.placeholder(tf.float32, self.IMAGE_PH_SHAPE, name='X')
+        self.__label = tf.placeholder(tf.float32, [None, self.NUM_CLASSES], name='y')
+        self.__size = tf.placeholder(tf.float32, name='size')
+
+        # dropout 的 keep_prob
+        self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
+
         self.global_step = self.get_global_step()
 
         self.__learning_rate = self.get_learning_rate(
@@ -283,9 +285,7 @@ class VGG16(base.NN):
             staircase=False
         )
 
-        self.__has_rebuild = False
-
-        self.sess = tf.Session()
+        self.sess = tf.Session(graph=self.graph)
 
     ''' 加载数据 '''
 
@@ -610,7 +610,9 @@ class VGG16(base.NN):
         self.__result = []
 
         for i in range(self.NUM_PIG):
-            self.run_i(i)
+            self.graph = tf.Graph()
+            with self.graph.as_default():
+                self.run_i(i)
 
             for ret in self.__result:
                 pig_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss, \
