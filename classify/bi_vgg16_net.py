@@ -564,6 +564,8 @@ class VGG16(base.NN):
                     self.echo('%s  best  ' % echo_str, False)
                     self.save_model_w_b()
 
+                    break  # for test @TODO need to delete
+
                 else:
                     incr_val_log_loss_times += 1
                     self.echo('%s  incr_times: %d \n' % (echo_str, incr_val_log_loss_times), False)
