@@ -140,12 +140,11 @@ class Data:
     def stop(self):
         self.__stop_thread = True
 
-    @staticmethod
-    def __get_x_y(img_path, y):
+    def __get_x_y(self, img_path, y):
         label = np.zeros([Data.NUM_CLASSES])
         label[y] = 1
 
-        return Data.add_padding(img_path), label
+        return self.add_padding(img_path), label
 
     # @staticmethod
     # def __get_three_patch(img_path):
@@ -307,9 +306,8 @@ class TestData:
 
         self.echo('\nFinish Loading\n')
 
-    @staticmethod
-    def __get_x_y(img_path):
-        return Data.add_padding(img_path), TestData.__get_y(img_path)
+    def __get_x_y(self, img_path):
+        return self.add_padding(img_path), TestData.__get_y(img_path)
 
     @staticmethod
     def __get_y(img_path):
@@ -482,9 +480,8 @@ class TestBData:
 
         self.echo('\nFinish Loading\n')
 
-    @staticmethod
-    def __get_x_y(img_path):
-        return Data.add_padding(img_path), TestBData.__get_y(img_path)
+    def __get_x_y(self, img_path):
+        return self.add_padding(img_path), TestBData.__get_y(img_path)
 
     @staticmethod
     def __get_y(img_path):

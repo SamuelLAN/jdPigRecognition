@@ -22,7 +22,7 @@ import model.vgg as vgg
 
 
 class VGG16(base.NN):
-    MODEL_NAME = 'bi_vgg_16_2'  # 模型的名称
+    MODEL_NAME = 'bi_vgg_16'  # 模型的名称
 
     ''' 参数的配置 '''
 
