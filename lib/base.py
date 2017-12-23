@@ -1077,34 +1077,35 @@ class NN:
             moving_mean_dict = self.__moving_mean_dict
             moving_std_dict = self.__moving_std_dict
 
-        if name_scope not in beta_dict:
-            beta_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='beta', dtype=tf.float32)
-        if name_scope not in gamma_dict:
-            gamma_dict[name_scope] = tf.Variable(np.ones(params_shape), name='gamma', dtype=tf.float32)
-        if name_scope not in moving_mean_dict:
-            moving_mean_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='moving_mean',
-                                                       trainable=False, dtype=tf.float32)
-        if name_scope not in moving_std_dict:
-            moving_std_dict[name_scope] = tf.Variable(np.ones(params_shape), name='moving_variance',
-                                                      trainable=False, dtype=tf.float32)
+        with self.graph.as_default():
+            if name_scope not in beta_dict:
+                beta_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='beta', dtype=tf.float32)
+            if name_scope not in gamma_dict:
+                gamma_dict[name_scope] = tf.Variable(np.ones(params_shape), name='gamma', dtype=tf.float32)
+            if name_scope not in moving_mean_dict:
+                moving_mean_dict[name_scope] = tf.Variable(np.zeros(params_shape), name='moving_mean',
+                                                           trainable=False, dtype=tf.float32)
+            if name_scope not in moving_std_dict:
+                moving_std_dict[name_scope] = tf.Variable(np.ones(params_shape), name='moving_variance',
+                                                          trainable=False, dtype=tf.float32)
 
-        mean, variance = tf.nn.moments(x, axis)
+            mean, variance = tf.nn.moments(x, axis)
 
-        update_moving_mean = moving_averages.assign_moving_average(moving_mean_dict[name_scope],
-                                                                   mean, self.BN_DECAY)
-        update_moving_variance = moving_averages.assign_moving_average(moving_std_dict[name_scope],
-                                                                       variance, self.BN_DECAY)
+            update_moving_mean = moving_averages.assign_moving_average(moving_mean_dict[name_scope],
+                                                                       mean, self.BN_DECAY)
+            update_moving_variance = moving_averages.assign_moving_average(moving_std_dict[name_scope],
+                                                                           variance, self.BN_DECAY)
 
-        update_collection = '%s_%d' % (self.UPDATE_OPS_COLLECTION, self.net_id)
-        tf.add_to_collection(update_collection, update_moving_mean)
-        tf.add_to_collection(update_collection, update_moving_variance)
+            update_collection = '%s_%d' % (self.UPDATE_OPS_COLLECTION, self.net_id)
+            tf.add_to_collection(update_collection, update_moving_mean)
+            tf.add_to_collection(update_collection, update_moving_variance)
 
-        mean, variance = control_flow_ops.cond(is_train, lambda: (mean, variance),
-                                               lambda: (moving_mean_dict[name_scope],
-                                                        moving_std_dict[name_scope]))
+            mean, variance = control_flow_ops.cond(is_train, lambda: (mean, variance),
+                                                   lambda: (moving_mean_dict[name_scope],
+                                                            moving_std_dict[name_scope]))
 
-        return tf.nn.batch_normalization(x, mean, variance,
-                                         beta_dict[name_scope], gamma_dict[name_scope], self.BN_EPSILON)
+            return tf.nn.batch_normalization(x, mean, variance,
+                                             beta_dict[name_scope], gamma_dict[name_scope], self.BN_EPSILON)
 
     # *************************** 与 训练有关 的 常用函数 ***************************
 
