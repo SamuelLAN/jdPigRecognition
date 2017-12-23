@@ -473,6 +473,11 @@ class VGG16(base.NN):
         best_val_accuracy = mean_val_accuracy
         incr_val_log_loss_times = 0
 
+        self.echo('net: %d best val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (self.net_id,
+                                                                                             mean_val_accuracy,
+                                                                                             mean_val_loss,
+                                                                                             mean_val_log_loss))
+
         for step in range(self.__steps):
             if step % self.SHOW_PROGRESS_FREQUENCY == 0:
                 epoch_progress = float(step) % self.__iter_per_epoch / self.__iter_per_epoch * 100.0
@@ -547,8 +552,10 @@ class VGG16(base.NN):
                 mean_train_loss = 0
                 mean_train_log_loss = 0
 
-                if best_val_log_loss > mean_val_log_loss:
-                    best_val_log_loss = mean_val_log_loss
+                # if best_val_log_loss > mean_val_log_loss:
+                if best_val_accuracy < mean_val_accuracy:
+                    best_val_accuracy = mean_val_accuracy
+                    # best_val_log_loss = mean_val_log_loss
                     incr_val_log_loss_times = 0
 
                     self.echo('%s  best  ' % echo_str, False)
@@ -602,7 +609,7 @@ class VGG16(base.NN):
 
             for ret in self.__result:
                 pig_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss, \
-                    mean_val_accuracy, mean_val_loss, mean_val_log_loss = ret
+                mean_val_accuracy, mean_val_loss, mean_val_log_loss = ret
                 self.echo('\n*************************************************')
                 self.echo('net: %d  train_accuracy: %.6f  train_loss: %.6f  train_log_loss: %.6f  ' % (pig_id,
                                                                                                        mean_train_accuracy,
