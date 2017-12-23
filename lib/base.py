@@ -116,6 +116,9 @@ class NN:
     ''' 析构函数 '''
 
     def __del__(self):
+        if not isinstance(self.sess, type(None)):
+            self.sess.close()
+
         if self.__for_test:
             return
             # 判断 tensorboard 是否已经结束；若无, kill it
@@ -192,9 +195,12 @@ class NN:
         # 执行定制化的 初始化操作；每个子类都需要重载该函数
         self.init()
 
+        self.graph = None
         ''' 若只需训练一个网络 '''
         if not self.USE_MULTI:
             self.sess = tf.Session()  # 初始化 sess
+        else:
+            self.sess = None
 
             # tensorflow 自带的保存网络的方法；目前采用了自己实现的保存网络的方法
             # self.saver = tf.train.Saver()                 # 初始化 saver; 用于之后保存 网络结构
@@ -773,118 +779,115 @@ class NN:
         a = X
         model_len = len(self.MODEL)
 
-        # 新建 graph，因为当 USE_MULTI 时需要多张 Graph
-        with tf.Graph().as_default():
+;        for i, config in enumerate(self.MODEL):
+            _type = config['type'].lower()
+            name = '%s_%d' % (_type, i + 1) if 'name' not in config else config['name']
 
-            for i, config in enumerate(self.MODEL):
-                _type = config['type'].lower()
-                name = '%s_%d' % (_type, i + 1) if 'name' not in config else config['name']
+            # 卷积层
+            if _type == 'conv':
+                with tf.name_scope(name):
+                    # 初始化变量
+                    trainable = True if 'trainable' not in config or config['trainable'] else False
+                    W = self.init_weight(config['k_size'] + config['shape']) \
+                        if not 'W' in config else self.init_weight_w(config['W'], trainable)
+                    b = self.init_bias(config['shape']) \
+                        if not 'b' in config else self.init_bias_b(config['b'], trainable)
+                    w_dict[name] = W
+                    b_dict[name] = b
 
-                # 卷积层
-                if _type == 'conv':
-                    with tf.name_scope(name):
-                        # 初始化变量
-                        trainable = True if 'trainable' not in config or config['trainable'] else False
-                        W = self.init_weight(config['k_size'] + config['shape']) \
-                            if not 'W' in config else self.init_weight_w(config['W'], trainable)
-                        b = self.init_bias(config['shape']) \
-                            if not 'b' in config else self.init_bias_b(config['b'], trainable)
-                        w_dict[name] = W
-                        b_dict[name] = b
+                    # 具体操作
+                    stride = config['stride'] if 'stride' in config else 1
+                    padding = 'SAME' if 'padding' not in config or config['padding'] == 'SAME' else 'VALID'
 
-                        # 具体操作
-                        stride = config['stride'] if 'stride' in config else 1
-                        padding = 'SAME' if 'padding' not in config or config['padding'] == 'SAME' else 'VALID'
+                    a = tf.add(self.conv2d(a, W, stride, padding), b)
 
-                        a = tf.add(self.conv2d(a, W, stride, padding), b)
+                    if 'bn' in config and config['bn']:
+                        a = self.batch_normal(a, self.t_is_train, name)
 
-                        if 'bn' in config and config['bn']:
-                            a = self.batch_normal(a, self.t_is_train, name)
+                    if not 'activate' in config or config['activate']:
+                        a = self.activate(a)
 
-                        if not 'activate' in config or config['activate']:
-                            a = self.activate(a)
+                        if self.TENSORBOARD_SHOW_ACTIVATION:
+                            self.activation_summary(a)
 
-                            if self.TENSORBOARD_SHOW_ACTIVATION:
-                                self.activation_summary(a)
+                    if self.TENSORBOARD_SHOW_IMAGE:
+                        self.image_summary(a, 3, name)
 
-                        if self.TENSORBOARD_SHOW_IMAGE:
-                            self.image_summary(a, 3, name)
+            # 反卷积层 (上采样 transpose conv)
+            elif _type == 'tr_conv':
+                with tf.name_scope(name):
+                    # 初始化变量
+                    trainable = True if 'trainable' not in config or config['trainable'] else False
+                    W = self.init_weight(config['k_size'] + config['shape']) \
+                        if not 'W' in config else self.init_weight_w(config['W'], trainable)
+                    b = self.init_bias(config['shape'][:-2] + [config['shape'][-1], config['shape'][-2]]) \
+                        if not 'b' in config else self.init_bias_b(config['b'], trainable)
+                    w_dict[name] = W
+                    b_dict[name] = b
 
-                # 反卷积层 (上采样 transpose conv)
-                elif _type == 'tr_conv':
-                    with tf.name_scope(name):
-                        # 初始化变量
-                        trainable = True if 'trainable' not in config or config['trainable'] else False
-                        W = self.init_weight(config['k_size'] + config['shape']) \
-                            if not 'W' in config else self.init_weight_w(config['W'], trainable)
-                        b = self.init_bias(config['shape'][:-2] + [config['shape'][-1], config['shape'][-2]]) \
-                            if not 'b' in config else self.init_bias_b(config['b'], trainable)
-                        w_dict[name] = W
-                        b_dict[name] = b
+                    # 具体操作
+                    if 'output_shape' in config:
+                        output_shape = config['output_shape']
+                    elif 'output_shape_index' in config:
+                        output_shape = tf.shape(net[config['output_shape_index']])
+                    elif 'output_shape_x' in config:
+                        output_shape = tf.shape(X)
+                        for j, val_j in enumerate(config['output_shape_x']):
+                            if not val_j:
+                                continue
+                            tmp = tf.Variable([1 if k != j else 0 for k in range(4)], tf.int8)
+                            output_shape *= tmp
+                            tmp = tf.Variable([0 if k != j else val_j for k in range(4)], tf.int8)
+                            output_shape += tmp
+                    else:
+                        output_shape = None
 
-                        # 具体操作
-                        if 'output_shape' in config:
-                            output_shape = config['output_shape']
-                        elif 'output_shape_index' in config:
-                            output_shape = tf.shape(net[config['output_shape_index']])
-                        elif 'output_shape_x' in config:
-                            output_shape = tf.shape(X)
-                            for j, val_j in enumerate(config['output_shape_x']):
-                                if not val_j:
-                                    continue
-                                tmp = tf.Variable([1 if k != j else 0 for k in range(4)], tf.int8)
-                                output_shape *= tmp
-                                tmp = tf.Variable([0 if k != j else val_j for k in range(4)], tf.int8)
-                                output_shape += tmp
-                        else:
-                            output_shape = None
+                    stride = config['stride'] if 'stride' in config else 2
+                    a = self.conv2d_transpose_stride(a, W, b, output_shape, stride)
 
-                        stride = config['stride'] if 'stride' in config else 2
-                        a = self.conv2d_transpose_stride(a, W, b, output_shape, stride)
+                    if self.TENSORBOARD_SHOW_IMAGE:
+                        self.image_summary(a, 3, name)
 
-                        if self.TENSORBOARD_SHOW_IMAGE:
-                            self.image_summary(a, 3, name)
+            # 全连接层
+            elif _type == 'fc':
+                with tf.name_scope(name):
+                    # 初始化变量
+                    trainable = True if 'trainable' not in config or config['trainable'] else False
+                    W = self.init_weight(config['shape']) if not 'W' in config \
+                        else self.init_weight_w(config['W'], trainable)
+                    b = self.init_bias(config['shape']) if not 'b' in config \
+                        else self.init_bias_b(config['b'], trainable)
+                    w_dict[name] = W
+                    b_dict[name] = b
 
-                # 全连接层
-                elif _type == 'fc':
-                    with tf.name_scope(name):
-                        # 初始化变量
-                        trainable = True if 'trainable' not in config or config['trainable'] else False
-                        W = self.init_weight(config['shape']) if not 'W' in config \
-                            else self.init_weight_w(config['W'], trainable)
-                        b = self.init_bias(config['shape']) if not 'b' in config \
-                            else self.init_bias_b(config['b'], trainable)
-                        w_dict[name] = W
-                        b_dict[name] = b
+                    x = tf.reshape(a, [-1, config['shape'][0]])
+                    a = tf.add(tf.matmul(x, W), b)
 
-                        x = tf.reshape(a, [-1, config['shape'][0]])
-                        a = tf.add(tf.matmul(x, W), b)
+                    if ('activate' not in config and i < model_len - 1) or config['activate']:
+                        a = self.activate(a)
 
-                        if ('activate' not in config and i < model_len - 1) or config['activate']:
-                            a = self.activate(a)
+            # 池化层
+            elif _type == 'pool':
+                with tf.name_scope(name):
+                    k_size = [config['k_size'], config['k_size']]
+                    stride = config['stride'] if 'stride' in config else None
+                    if 'pool_type' not in config or config['pool_type'] == 'max':
+                        a = self.max_pool(a, k_size, stride)
+                    else:
+                        a = self.avg_pool(a, k_size, stride)
 
-                # 池化层
-                elif _type == 'pool':
-                    with tf.name_scope(name):
-                        k_size = [config['k_size'], config['k_size']]
-                        stride = config['stride'] if 'stride' in config else None
-                        if 'pool_type' not in config or config['pool_type'] == 'max':
-                            a = self.max_pool(a, k_size, stride)
-                        else:
-                            a = self.avg_pool(a, k_size, stride)
+            # 训练的 dropout
+            elif _type == 'dropout':
+                with tf.name_scope(name):
+                    t_dropout = self.keep_prob_dict[name] if name in self.keep_prob_dict else self.keep_prob
+                    a = self.dropout(a, t_dropout)
 
-                # 训练的 dropout
-                elif _type == 'dropout':
-                    with tf.name_scope(name):
-                        t_dropout = self.keep_prob_dict[name] if name in self.keep_prob_dict else self.keep_prob
-                        a = self.dropout(a, t_dropout)
+            # 将上一层的输出 与 第 layer_index 层的网络相加
+            elif _type == 'add':
+                with tf.name_scope(name):
+                    a = tf.add(a, net[config['layer_index']])
 
-                # 将上一层的输出 与 第 layer_index 层的网络相加
-                elif _type == 'add':
-                    with tf.name_scope(name):
-                        a = tf.add(a, net[config['layer_index']])
-
-                net[name] = a
+            net[name] = a
 
         if self.USE_MULTI:
             self.multi_w_dict.append(w_dict)
@@ -916,87 +919,84 @@ class NN:
 
         model_len = len(self.MODEL)
 
-        # 新建 graph，因为当 USE_MULTI 时需要多张 Graph
-        with tf.Graph().as_default():
+        for i, config in enumerate(self.MODEL):
+            _type = config['type'].lower()
+            name = '%s_%d' % (_type, i + 1) if 'name' not in config else config['name']
+            # self.echo('building %s layer ...' % name)
 
-            for i, config in enumerate(self.MODEL):
-                _type = config['type'].lower()
-                name = '%s_%d' % (_type, i + 1) if 'name' not in config else config['name']
-                # self.echo('building %s layer ...' % name)
+            # 卷积层
+            if _type == 'conv':
+                with tf.name_scope(name):
+                    if 'trainable' in config and not config['trainable']:
+                        w_dict[name] = self.init_weight_w(config['W'], False)
+                        b_dict[name] = self.init_bias_b(config['b'], False)
 
-                # 卷积层
-                if _type == 'conv':
-                    with tf.name_scope(name):
-                        if 'trainable' in config and not config['trainable']:
-                            w_dict[name] = self.init_weight_w(config['W'], False)
-                            b_dict[name] = self.init_bias_b(config['b'], False)
+                    stride = config['stride'] if 'stride' in config else 1
+                    padding = 'SAME' if 'padding' not in config or config['padding'] == 'SAME' else 'VALID'
 
-                        stride = config['stride'] if 'stride' in config else 1
-                        padding = 'SAME' if 'padding' not in config or config['padding'] == 'SAME' else 'VALID'
+                    a = tf.add(self.conv2d(a, w_dict[name], stride, padding), b_dict[name])
 
-                        a = tf.add(self.conv2d(a, w_dict[name], stride, padding), b_dict[name])
+                    if 'bn' in config and config['bn']:
+                        a = self.batch_normal(a, self.t_is_train, name)
 
-                        if 'bn' in config and config['bn']:
-                            a = self.batch_normal(a, self.t_is_train, name)
+                    if not 'activate' in config or config['activate']:
+                        a = self.activate(a)
 
-                        if not 'activate' in config or config['activate']:
-                            a = self.activate(a)
+            # 池化层
+            elif _type == 'pool':
+                with tf.name_scope(name):
+                    k_size = [config['k_size'], config['k_size']]
+                stride = config['stride'] if 'stride' in config else None
+                if 'pool_type' not in config or config['pool_type'] == 'max':
+                    a = self.max_pool(a, k_size, stride)
+                else:
+                    a = self.avg_pool(a, k_size, stride)
 
-                # 池化层
-                elif _type == 'pool':
-                    with tf.name_scope(name):
-                        k_size = [config['k_size'], config['k_size']]
-                    stride = config['stride'] if 'stride' in config else None
-                    if 'pool_type' not in config or config['pool_type'] == 'max':
-                        a = self.max_pool(a, k_size, stride)
+            # 全连接层
+            elif _type == 'fc':
+                with tf.name_scope(name):
+                    if 'trainable' in config and not config['trainable']:
+                        w_dict[name] = self.init_weight_w(config['W'], False)
+                        b_dict[name] = self.init_bias_b(config['b'], False)
+
+                    x = tf.reshape(a, [-1, config['shape'][0]])
+                    a = tf.add(tf.matmul(x, w_dict[name]), b_dict[name])
+
+                    if ('activate' not in config and i < model_len - 1) or config['activate']:
+                        a = self.activate(a)
+
+            # 反卷积层(上采样层)
+            elif _type == 'tr_conv':
+                with tf.name_scope(name):
+                    if 'trainable' in config and not config['trainable']:
+                        w_dict[name] = self.init_weight_w(config['W'], False)
+                        b_dict[name] = self.init_bias_b(config['b'], False)
+
+                    if 'output_shape' in config:
+                        output_shape = config['output_shape']
+                    elif 'output_shape_index' in config:
+                        output_shape = tf.shape(net[config['output_shape_index']])
+                    elif 'output_shape_x' in config:
+                        output_shape = tf.shape(X)
+                        for j, val_j in enumerate(config['output_shape_x']):
+                            if not val_j:
+                                continue
+                            tmp = tf.Variable([1 if k != j else 0 for k in range(4)], tf.int8)
+                            output_shape *= tmp
+                            tmp = tf.Variable([0 if k != j else val_j for k in range(4)], tf.int8)
+                            output_shape += tmp
                     else:
-                        a = self.avg_pool(a, k_size, stride)
+                        output_shape = None
 
-                # 全连接层
-                elif _type == 'fc':
-                    with tf.name_scope(name):
-                        if 'trainable' in config and not config['trainable']:
-                            w_dict[name] = self.init_weight_w(config['W'], False)
-                            b_dict[name] = self.init_bias_b(config['b'], False)
+                    stride = config['stride'] if 'stride' in config else 2
+                    a = self.conv2d_transpose_stride(a, w_dict[name], b_dict[name], output_shape, stride)
 
-                        x = tf.reshape(a, [-1, config['shape'][0]])
-                        a = tf.add(tf.matmul(x, w_dict[name]), b_dict[name])
+            # 将上一层的输出 与 第 layer_index 层的网络相加
+            elif _type == 'add':
+                with tf.name_scope(name):
+                    a = tf.add(a, net[config['layer_index']])
 
-                        if ('activate' not in config and i < model_len - 1) or config['activate']:
-                            a = self.activate(a)
-
-                # 反卷积层(上采样层)
-                elif _type == 'tr_conv':
-                    with tf.name_scope(name):
-                        if 'trainable' in config and not config['trainable']:
-                            w_dict[name] = self.init_weight_w(config['W'], False)
-                            b_dict[name] = self.init_bias_b(config['b'], False)
-
-                        if 'output_shape' in config:
-                            output_shape = config['output_shape']
-                        elif 'output_shape_index' in config:
-                            output_shape = tf.shape(net[config['output_shape_index']])
-                        elif 'output_shape_x' in config:
-                            output_shape = tf.shape(X)
-                            for j, val_j in enumerate(config['output_shape_x']):
-                                if not val_j:
-                                    continue
-                                tmp = tf.Variable([1 if k != j else 0 for k in range(4)], tf.int8)
-                                output_shape *= tmp
-                                tmp = tf.Variable([0 if k != j else val_j for k in range(4)], tf.int8)
-                                output_shape += tmp
-                        else:
-                            output_shape = None
-
-                        stride = config['stride'] if 'stride' in config else 2
-                        a = self.conv2d_transpose_stride(a, w_dict[name], b_dict[name], output_shape, stride)
-
-                # 将上一层的输出 与 第 layer_index 层的网络相加
-                elif _type == 'add':
-                    with tf.name_scope(name):
-                        a = tf.add(a, net[config['layer_index']])
-
-                net[name] = a
+            net[name] = a
 
         self.echo('Finish building model')
 
