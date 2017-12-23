@@ -44,7 +44,7 @@ class VGG16(base.NN):
                   0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001]
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = [0.1, 0.01, 0.85, 0.01, 0.01, 0.01, 0.85, 0.15, 0.15, 0.15, 0.2] \
+    REGULAR_BETA = [0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.85, 0.15, 0.15, 0.15, 0.2] \
                    + [0.01] * (NUM_PIG - 11)  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
@@ -566,8 +566,6 @@ class VGG16(base.NN):
 
                     self.echo('%s  best  ' % echo_str, False)
                     self.save_model_w_b()
-
-                    break  # for test @TODO need to delete
 
                 else:
                     incr_val_log_loss_times += 1
