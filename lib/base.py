@@ -779,7 +779,7 @@ class NN:
         a = X
         model_len = len(self.MODEL)
 
-;        for i, config in enumerate(self.MODEL):
+        for i, config in enumerate(self.MODEL):
             _type = config['type'].lower()
             name = '%s_%d' % (_type, i + 1) if 'name' not in config else config['name']
 
