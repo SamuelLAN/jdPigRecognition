@@ -32,16 +32,12 @@ class VGG16(base.NN):
     NUM_CLASSES = 30  # 输出的类别
 
     # 学习率的相关参数
-    # BASE_LEARNING_RATE = 0.00005  # 初始 学习率
+    BASE_LEARNING_RATE = 0.00005  # 初始 学习率 原参数
     # BASE_LEARNING_RATE = 0.00002  # 初始 学习率
-    BASE_LEARNING_RATE = 0.000002  # 初始 学习率
-    DECAY_RATE = 0.00005  # 学习率 的 下降速率
-    # DECAY_RATE = 0.0001  # 学习率 的 下降速率
+    DECAY_RATE = 0.0001  # 学习率 的 下降速率 原参数
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.005  # 正则化的 beta 参数
-    # REGULAR_BETA = 0.01  # 正则化的 beta 参数
-    KEEP_PROB = 0.5  # dropout 的 keep_prob
+    REGULAR_BETA = 0.01  # 正则化的 beta 参数 原参数
 
     # early stop
     MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
