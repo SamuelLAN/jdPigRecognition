@@ -406,7 +406,7 @@ class VGG16(base.NN):
 
         while True:
             batch_x, _ = data_set.next_batch(batch_size, False)
-            if not batch_x:
+            if isinstance(batch_x, type(None)):
                 break
 
             batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
