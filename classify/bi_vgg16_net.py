@@ -693,14 +693,14 @@ class VGG16(base.NN):
         self.echo('Finish testing ')
 
     def test(self):
-        # self.__train_prob_list = []
-        # self.__val_prob_list = []
-        self.__prob_list = []
+        self.__train_prob_list = []
+        self.__val_prob_list = []
+        # self.__prob_list = []
+        #
+        # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
-        self.__data = load.TestBData(self.IMAGE_SHAPE)
-
-        # self.__train_data = load.TestData(0.0, 0.8)
-        # self.__val_data = load.TestData(0.8, 1.0)
+        self.__train_data = load.TestData(0.0, 0.8)
+        self.__val_data = load.TestData(0.8, 1.0)
 
         self.echo('\nStart testing ... ')
         for i in range(self.NUM_PIG):
@@ -720,60 +720,60 @@ class VGG16(base.NN):
 
             self.init_variables()
 
-            prob_list = self.__measure_prob(self.__data)
-            self.__prob_list.append(prob_list)
+            # prob_list = self.__measure_prob(self.__data)
+            # self.__prob_list.append(prob_list)
 
-            # train_prob_list = self.__measure_prob(self.__train_data)
-            # val_prob_list = self.__measure_prob(self.__val_data)
+            train_prob_list = self.__measure_prob(self.__train_data)
+            val_prob_list = self.__measure_prob(self.__val_data)
 
-            # self.__train_prob_list.append(train_prob_list)
-            # self.__val_prob_list.append(val_prob_list)
+            self.__train_prob_list.append(train_prob_list)
+            self.__val_prob_list.append(val_prob_list)
 
             self.sess.close()
 
         self.echo('Finish testing ')
 
-        self.__prob_list = np.hstack(self.__prob_list)
-        # self.__train_prob_list = np.hstack(self.__train_prob_list)
-        # self.__val_prob_list = np.hstack(self.__val_prob_list)
+        # self.__prob_list = np.hstack(self.__prob_list)
+        self.__train_prob_list = np.hstack(self.__train_prob_list)
+        self.__val_prob_list = np.hstack(self.__val_prob_list)
 
-        self.__prob_list = self.np_softmax(self.__prob_list)
-        # self.__train_prob_list = self.np_softmax(self.__train_prob_list)
-        # self.__val_prob_list = self.np_softmax(self.__val_prob_list)
+        # self.__prob_list = self.np_softmax(self.__prob_list)
+        self.__train_prob_list = self.np_softmax(self.__train_prob_list)
+        self.__val_prob_list = self.np_softmax(self.__val_prob_list)
 
-        id_list = self.__data.get_label_list()
-        # train_label_list = self.__train_data.get_label_list()
-        # val_label_list = self.__val_data.get_label_list()
+        # id_list = self.__data.get_label_list()
+        train_label_list = self.__train_data.get_label_list()
+        val_label_list = self.__val_data.get_label_list()
 
-        data = []
-        for i, pig_id in enumerate(id_list):
-            tmp_prob_list = self.__prob_list[i]
-            for class_no, prob in enumerate(tmp_prob_list.reshape(-1)):
-                data.append([pig_id, class_no + 1, '%.10f' % prob])
+        # data = []
+        # for i, pig_id in enumerate(id_list):
+        #     tmp_prob_list = self.__prob_list[i]
+        #     for class_no, prob in enumerate(tmp_prob_list.reshape(-1)):
+        #         data.append([pig_id, class_no + 1, '%.10f' % prob])
+        #
+        # if not os.path.isdir(self.RESULT_DIR):
+        #     os.mkdir(self.RESULT_DIR)
+        #
+        # self.echo('\nSaving result to %s ... ' % self.RESULT_FILE_PATH)
+        # data_len = len(data)
+        #
+        # with open(self.RESULT_FILE_PATH, 'w') as f:
+        #     writer = csv.writer(f)
+        #
+        #     for i, line in enumerate(data):
+        #         progress = float(i + 1) / data_len * 100.0
+        #         self.echo('\r  >> progress: %.6f ' % progress, False)
+        #
+        #         writer.writerow(line)
+        #
+        # self.echo('Finish saving result ')
 
-        if not os.path.isdir(self.RESULT_DIR):
-            os.mkdir(self.RESULT_DIR)
+        train_log_loss = self.np_log_loss(self.__train_prob_list, train_label_list)
+        val_log_loss = self.np_log_loss(self.__val_prob_list, val_label_list)
 
-        self.echo('\nSaving result to %s ... ' % self.RESULT_FILE_PATH)
-        data_len = len(data)
-
-        with open(self.RESULT_FILE_PATH, 'w') as f:
-            writer = csv.writer(f)
-
-            for i, line in enumerate(data):
-                progress = float(i + 1) / data_len * 100.0
-                self.echo('\r  >> progress: %.6f ' % progress, False)
-
-                writer.writerow(line)
-
-        self.echo('Finish saving result ')
-
-        # train_log_loss = self.np_log_loss(self.__train_prob_list, train_label_list)
-        # val_log_loss = self.np_log_loss(self.__val_prob_list, val_label_list)
-
-        # self.echo('\n****************************************')
-        # self.echo('train_log_loss: %.8f' % train_log_loss)
-        # self.echo('val_log_loss: %.8f' % val_log_loss)
+        self.echo('\n****************************************')
+        self.echo('train_log_loss: %.8f' % train_log_loss)
+        self.echo('val_log_loss: %.8f' % val_log_loss)
 
     def use_model(self, np_image):
         if not self.__has_rebuild:
@@ -796,7 +796,10 @@ class VGG16(base.NN):
         return output[0]
 
 
-o_vgg = VGG16(False, '2017_12_24_01_04_52')
-o_vgg.run()
-# o_vgg.test()
+# o_vgg = VGG16(False, '2017_12_24_01_04_52')
+# o_vgg.run()
+
+o_vgg = VGG16(True, '2017_12_24_01_04_52')
+# o_vgg.run()
+o_vgg.test()
 # o_vgg.test_i(0)
