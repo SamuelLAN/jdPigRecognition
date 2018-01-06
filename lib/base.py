@@ -427,8 +427,8 @@ class NN:
     def restore_model_w_b(self, trainable=False):
         if self.USE_MULTI:
             model_path = '%s_%d.pkl' % (self.get_model_path(), self.net_id)
-            self.multi_w_dict[self.net_id] = {}
-            self.multi_b_dict[self.net_id] = {}
+            self.assign_list(self.multi_w_dict, self.net_id, {}, {})
+            self.assign_list(self.multi_b_dict, self.net_id, {}, {})
             w_dict = self.multi_w_dict[self.net_id]
             b_dict = self.multi_b_dict[self.net_id]
         else:
