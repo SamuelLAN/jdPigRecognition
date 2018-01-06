@@ -49,7 +49,7 @@ class VGG16(base.NN):
                     0.4, 0.1, 0.01, 0.03, 0.3, 1.1, 0.6, 0.7, 0.01, 0.1]  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
-    CONV_WEIGHT_STDDEV_LIST = [None, None, 0.1] + [None] * (NUM_PIG - 3)
+    CONV_WEIGHT_STDDEV_LIST = [None, None, 0.45, None, None, None, 0.3] + [None] * (NUM_PIG - 7)
 
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
                       0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
