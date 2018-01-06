@@ -167,8 +167,9 @@ class NN:
         self.keep_prob_dict = {}
 
         # 程序运行的开始时间；用于 get_model_path 和 get_summary_path 时使用
-        if not self.__start_time:
-            self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
+        self.__program_start_time = time.strftime('%Y_%m_%d_%H_%M_%S')  # 程序的开始时间
+        if not self.__start_time:  # 若没有指定 start_time，使用程序的开始时间
+            self.__start_time = self.__program_start_time
             self.start_from_model = False
         else:
             self.start_from_model = True
@@ -525,10 +526,17 @@ class NN:
     ''' 获取新的模型 '''
 
     def get_new_model(self):
-        self.__start_time = time.strftime('%Y_%m_%d_%H_%M_%S')
+        self.__tmp_start_time = self.__start_time  # 将原来的 start_time 记录下来，便于之后恢复
+        self.__start_time = self.__program_start_time
         self.__model_path = ''
         self.get_model_path()
 
+    ''' 将 model_path 改为旧的 model path '''
+
+    def reset_old_model_path(self):
+        self.__start_time = self.__tmp_start_time  # 根据 tmp_start_time 恢复之前的 start_time
+        self.__model_path = ''
+        self.get_model_path()
 
     # ************************** TensorBoard summary ************************
 

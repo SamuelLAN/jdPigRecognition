@@ -441,11 +441,11 @@ class VGG16(base.NN):
 
         # 正则化
         # self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA[pig_id])
-        self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        # self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
+        # self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
+        self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
-        train_op = self.get_train_op(self.__loss_regular, self.__learning_rate, self.global_step)
+        train_op = self.get_train_op(self.__log_loss_regular, self.__learning_rate, self.global_step)
 
         self.__get_accuracy()
 
@@ -482,6 +482,9 @@ class VGG16(base.NN):
                                                                                              mean_val_accuracy,
                                                                                              mean_val_loss,
                                                                                              mean_val_log_loss))
+
+        if self.start_from_model:
+            self.get_new_model()  # 将模型保存到新的 model
 
         self.save_model_w_b()
 
@@ -559,10 +562,10 @@ class VGG16(base.NN):
                 mean_train_loss = 0
                 mean_train_log_loss = 0
 
-                # if best_val_log_loss > mean_val_log_loss:
-                if best_val_accuracy < mean_val_accuracy:
-                    best_val_accuracy = mean_val_accuracy
-                    # best_val_log_loss = mean_val_log_loss
+                if best_val_log_loss > mean_val_log_loss:
+                    # if best_val_accuracy < mean_val_accuracy:
+                    #     best_val_accuracy = mean_val_accuracy
+                    best_val_log_loss = mean_val_log_loss
                     incr_val_log_loss_times = 0
 
                     self.echo('%s  best  ' % echo_str, False)
@@ -606,7 +609,10 @@ class VGG16(base.NN):
 
         self.sess.close()
 
-        # self.kill_tensorboard_if_runing()
+        if self.start_from_model:
+            self.reset_old_model_path()  # 恢复原来的 model_path
+
+            # self.kill_tensorboard_if_runing()
 
     def run(self):
         self.__result = []
@@ -790,7 +796,7 @@ class VGG16(base.NN):
         return output[0]
 
 
-o_vgg = VGG16(False)
+o_vgg = VGG16(False, '2017_12_24_01_04_52')
 o_vgg.run()
 # o_vgg.test()
 # o_vgg.test_i(0)
