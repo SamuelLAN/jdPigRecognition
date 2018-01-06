@@ -358,7 +358,7 @@ class VGG16(base.NN):
 
             exp_x = tf.exp(self.__output)
             self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
-            # p = tf.maximum( tf.minimum( prob, 1 - 1e-15 ), 1e-15 )
+            self.__prob = tf.maximum(tf.minimum(self.__prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(self.__prob))), self.__size)
 
             exp_x = tf.exp(output)
