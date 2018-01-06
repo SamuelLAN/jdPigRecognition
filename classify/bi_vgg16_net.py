@@ -44,12 +44,10 @@ class VGG16(base.NN):
                   0.0001, 0.00006, 0.00007, 0.0001, 0.00003, 0.0001, 0.0001, 0.0001, 0.00008, 0.00008]
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = [0.1, 0.1, 1.5, 0.1, 0.1, 0.1, 3.8, 0.6, 0.35, 0.2,
+    REGULAR_BETA = [0.1, 0.1, 8.5, 0.1, 0.1, 0.1, 3.8, 0.6, 0.35, 0.2,
                     0.5, 0.5, 0.01, 0.6, 0.1, 0.5, 0.6, 0.03, 0.03, 0.01,
                     0.4, 0.1, 0.01, 0.03, 0.3, 1.1, 0.6, 0.7, 0.01, 0.1]  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
-
-    CONV_WEIGHT_STDDEV_LIST = [None, None, 0.1] + [None] * (NUM_PIG - 3)
 
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
                       0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
@@ -66,7 +64,6 @@ class VGG16(base.NN):
     USE_MULTI = True
     USE_BN = True  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = True  # 输入是否使用 batch normalize
-    USE_CONV_STDDEV = True
 
     SHOW_PROGRESS_FREQUENCY = 2  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 

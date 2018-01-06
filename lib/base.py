@@ -82,7 +82,6 @@ class NN:
     KEEP_PROB_DICT = {}  # 若该变量不为空，则 dropout 使用该变量；否则使用 KEEP_PROB
 
     CONV_WEIGHT_STDDEV = 0.01  # truncated normal distribution 的 std
-    CONV_WEIGHT_STDDEV_LIST = []
 
     EPSILON = 0.0001  # 输入 做 batch normalize 时需要用到
 
@@ -248,12 +247,11 @@ class NN:
 
     ''' 初始化权重矩阵 '''
 
-    def init_weight(self, shape):
-        std = None
-        if self.USE_CONV_STDDEV:
-            std = self.CONV_WEIGHT_STDDEV if not self.USE_MULTI else self.CONV_WEIGHT_STDDEV_LIST[self.net_id]
-
-        if not std:
+    @staticmethod
+    def init_weight(shape):
+        if NN.USE_CONV_STDDEV:
+            std = NN.CONV_WEIGHT_STDDEV
+        else:
             if len(shape) == 4:
                 input_nodes = shape[1] * shape[2]
             else:
