@@ -891,9 +891,9 @@ class NN:
             net[name] = a
 
         if self.USE_MULTI:
-            self.multi_w_dict.append(w_dict)
-            self.multi_b_dict.append(b_dict)
-            self.multi_net.append(net)
+            self.assign_list(self.multi_w_dict, self.net_id, w_dict, {})
+            self.assign_list(self.multi_b_dict, self.net_id, b_dict, {})
+            self.assign_list(self.multi_net, self.net_id, net, {})
 
         self.echo('Finish building model ')
 
