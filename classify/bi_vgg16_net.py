@@ -699,8 +699,8 @@ class VGG16(base.NN):
         #
         # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
-        self.__train_data = load.TestData(0.0, 0.8, 'train', self.IMAGE_SHAPE)
-        self.__val_data = load.TestData(0.8, 1.0, 'validation', self.IMAGE_SHAPE)
+        self.__train_data = load.TestData(0.0, 0.01, 'train', self.IMAGE_SHAPE)
+        self.__val_data = load.TestData(0.01, 0.02, 'validation', self.IMAGE_SHAPE)
 
         self.echo('\nStart testing ... ')
         for i in range(self.NUM_PIG):
@@ -743,6 +743,9 @@ class VGG16(base.NN):
         # self.__prob_list = self.np_softmax(self.__prob_list)
         self.__train_prob_list = self.np_softmax(self.__train_prob_list)
         self.__val_prob_list = self.np_softmax(self.__val_prob_list)
+
+        print (self.__train_prob_list.shape)
+        exit()
 
         # id_list = self.__data.get_label_list()
         train_label_list = self.__train_data.get_label_list()
