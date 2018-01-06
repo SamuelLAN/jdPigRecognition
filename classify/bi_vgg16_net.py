@@ -706,30 +706,33 @@ class VGG16(base.NN):
         for i in range(self.NUM_PIG):
             self.echo('  testing %d net ... ' % i)
 
-            self.reinit(i)
+            self.graph = tf.Graph()
+            with self.graph.as_default():
 
-            self.restore_model_w_b()
+                self.reinit(i)
 
-            self.rebuild_model()
+                self.restore_model_w_b()
 
-            self.get_loss()
+                self.rebuild_model()
 
-            self.__get_accuracy()
+                self.get_loss()
 
-            self.__get_log_loss()
+                self.__get_accuracy()
 
-            self.init_variables()
+                self.__get_log_loss()
 
-            # prob_list = self.__measure_prob(self.__data)
-            # self.__prob_list.append(prob_list)
+                self.init_variables()
 
-            train_prob_list = self.__measure_prob(self.__train_data)
-            val_prob_list = self.__measure_prob(self.__val_data)
+                # prob_list = self.__measure_prob(self.__data)
+                # self.__prob_list.append(prob_list)
 
-            self.__train_prob_list.append(train_prob_list)
-            self.__val_prob_list.append(val_prob_list)
+                train_prob_list = self.__measure_prob(self.__train_data)
+                val_prob_list = self.__measure_prob(self.__val_data)
 
-            self.sess.close()
+                self.__train_prob_list.append(train_prob_list)
+                self.__val_prob_list.append(val_prob_list)
+
+                self.sess.close()
 
         self.echo('Finish testing ')
 
