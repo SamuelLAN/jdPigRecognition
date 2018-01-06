@@ -768,10 +768,10 @@ class NN:
             b_dict = {}
             net = {}
 
-            self.__multi_beta_dict.append({})
-            self.__multi_gamma_dict.append({})
-            self.__multi_moving_mean_dict.append({})
-            self.__multi_moving_std_dict.append({})
+            self.assign_list(self.__multi_beta_dict, self.net_id, {}, {})
+            self.assign_list(self.__multi_gamma_dict, self.net_id, {}, {})
+            self.assign_list(self.__multi_moving_mean_dict, self.net_id, {}, {})
+            self.assign_list(self.__multi_moving_std_dict, self.net_id, {}, {})
         else:
             w_dict = self.w_dict
             b_dict = self.b_dict
