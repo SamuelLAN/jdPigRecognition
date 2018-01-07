@@ -44,7 +44,7 @@ class VGG16(base.NN):
                   0.0001, 0.0001, 0.00007, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.00008, 0.00008]
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = [0.1, 0.1, 1.5, 0.1, 0.1, 0.1, 0.8, 0.3, 0.2, 0.2,
+    REGULAR_BETA = [0.1, 0.1, 0.8, 0.1, 0.1, 0.1, 0.8, 0.3, 0.2, 0.2,
                     0.3, 0.1, 0.01, 0.1, 0.1, 0.1, 0.1, 0.03, 0.03, 0.01,
                     0.1, 0.1, 0.01, 0.03, 0.3, 0.3, 0.1, 0.2, 0.01, 0.02]  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
@@ -648,11 +648,11 @@ class VGG16(base.NN):
     def run(self):
         self.__result = []
 
-        only_net = [2, 6]
+        # only_net = [2, 6]
 
         for i in range(self.NUM_PIG):
-            if i not in only_net:
-                continue
+            # if i not in only_net:
+            #     continue
 
             self.graph = tf.Graph()
             with self.graph.as_default():
