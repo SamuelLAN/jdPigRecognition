@@ -44,10 +44,24 @@ class VGG16(base.NN):
                   0.0001, 0.0001, 0.00007, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.00008, 0.00008]
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = [0.1, 0.1, 2.8, 0.1, 0.1, 0.1, 1.1, 0.3, 0.2, 0.2,
+    REGULAR_BETA = [0.1, 0.1, 1.8, 0.1, 0.1, 0.1, 1.1, 0.3, 0.2, 0.2,
                     0.3, 0.1, 0.01, 0.1, 0.1, 0.1, 0.1, 0.03, 0.03, 0.01,
                     0.1, 0.1, 0.01, 0.03, 0.3, 0.3, 0.1, 0.2, 0.01, 0.02]  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
+
+    # 学习率的相关参数
+    BASE_LEARNING_RATE_1 = [0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005,
+                            0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005,
+                            0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005]
+
+    DECAY_RATE_1 = [0.0001, 0.0001, 0.0001, 0.00006, 0.00006, 0.00006, 0.0001, 0.0001, 0.0001, 0.0001,
+                    0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.00006, 0.0001,
+                    0.0001, 0.0001, 0.00007, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.00008, 0.00008]
+
+    # 防止 overfitting 相关参数
+    REGULAR_BETA_1 = [0.1, 0.1, 2.8, 0.1, 0.1, 0.1, 1.1, 0.3, 0.2, 0.2,
+                      0.3, 0.1, 0.01, 0.1, 0.1, 0.1, 0.1, 0.03, 0.03, 0.01,
+                      0.1, 0.1, 0.01, 0.03, 0.3, 0.3, 0.1, 0.2, 0.01, 0.02]  # 正则化的 beta 参数
 
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
                       0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
@@ -71,6 +85,8 @@ class VGG16(base.NN):
     RESULT_FILE_PATH = r'result/test_B.csv'
 
     ''' 模型的配置；采用了 VGG16 模型的 FCN '''
+
+    LOSS_TYPE = 0  # loss type 有两种；0：使用正常的loss，1：使用log_loss
 
     IMAGE_SHAPE = [56, 56]
     IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
@@ -284,8 +300,13 @@ class VGG16(base.NN):
 
         self.global_step = self.get_global_step()
 
+        learning_rate = self.BASE_LEARNING_RATE[self.net_id] if self.LOSS_TYPE == 0 else \
+            self.BASE_LEARNING_RATE_1[self.net_id]
+        decay_rate = self.DECAY_RATE[self.net_id] if self.LOSS_TYPE == 0 else \
+            self.DECAY_RATE_1[self.net_id]
+
         self.__learning_rate = self.get_learning_rate(
-            self.BASE_LEARNING_RATE[self.net_id], self.global_step, self.__steps, self.DECAY_RATE[self.net_id],
+            learning_rate, self.global_step, self.__steps, decay_rate,
             staircase=False
         )
 
@@ -439,13 +460,16 @@ class VGG16(base.NN):
 
         self.__get_log_loss()
 
+        if self.LOSS_TYPE == 0:
+            loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA[self.net_id])
+        else:
+            loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA_1[self.net_id])
+
         # 正则化
         # self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA[pig_id])
-        # self.__loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
-        train_op = self.get_train_op(self.__log_loss_regular, self.__learning_rate, self.global_step)
+        train_op = self.get_train_op(loss_regular, self.__learning_rate, self.global_step)
 
         self.__get_accuracy()
 
@@ -562,10 +586,17 @@ class VGG16(base.NN):
                 mean_train_loss = 0
                 mean_train_log_loss = 0
 
-                if best_val_log_loss > mean_val_log_loss:
-                    # if best_val_accuracy < mean_val_accuracy:
-                    #     best_val_accuracy = mean_val_accuracy
-                    best_val_log_loss = mean_val_log_loss
+                condition_yes = False
+                if self.LOSS_TYPE == 0:
+                    if best_val_accuracy < mean_val_accuracy:
+                        best_val_accuracy = mean_val_accuracy
+                        condition_yes = True
+                else:
+                    if best_val_log_loss > mean_val_log_loss:
+                        best_val_log_loss = mean_val_log_loss
+                        condition_yes = True
+
+                if condition_yes:
                     incr_val_log_loss_times = 0
 
                     self.echo('%s  best  ' % echo_str, False)
@@ -617,7 +648,12 @@ class VGG16(base.NN):
     def run(self):
         self.__result = []
 
+        only_net = [2, 6]
+
         for i in range(self.NUM_PIG):
+            if i not in only_net:
+                continue
+
             self.graph = tf.Graph()
             with self.graph.as_default():
                 self.run_i(i)
@@ -646,7 +682,7 @@ class VGG16(base.NN):
         prob = np.minimum(np.maximum(prob, 1e-15), 1 - 1e-15)
         return - np.sum(np.multiply(label, np.log(prob))) / label.shape[0]
 
-    def test_i(self, i):
+    def __test_i(self, i):
         self.echo('\nTesting %d net ... ' % i)
 
         self.reinit(i)
@@ -661,34 +697,18 @@ class VGG16(base.NN):
 
         self.__get_log_loss()
 
-        self.echo('\nInit variables ...')
         self.init_variables()
 
-        # train_prob_list = self.__measure_prob(self.__train_data)
-        # val_prob_list = self.__measure_prob(self.__val_data)
+        # prob_list = self.__measure_prob(self.__data)
+        # self.__prob_list.append(prob_list)
 
-        self.__train_set_list[self.net_id].start_thread()
-        self.__val_set_list[self.net_id].start_thread()
+        train_prob_list = self.__measure_prob(self.__train_data)
+        val_prob_list = self.__measure_prob(self.__val_data)
 
-        self.echo('\nStart measuring ... ')
-        mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id])
-        mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set_list[self.net_id])
-
-        self.echo('\n*************************************************')
-        self.echo('net: %d  train_accuracy: %.6f  train_loss: %.6f  train_log_loss: %.6f  ' % (self.net_id,
-                                                                                               mean_train_accuracy,
-                                                                                               mean_train_loss,
-                                                                                               mean_train_log_loss))
-        self.echo('net: %d  val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (self.net_id,
-                                                                                         mean_val_accuracy,
-                                                                                         mean_val_loss,
-                                                                                         mean_val_log_loss))
-        self.echo('*********************************')
+        self.__train_prob_list.append(train_prob_list)
+        self.__val_prob_list.append(val_prob_list)
 
         self.sess.close()
-
-        self.__train_set_list[self.net_id].stop()
-        self.__val_set_list[self.net_id].stop()
 
         self.echo('Finish testing ')
 
@@ -708,31 +728,7 @@ class VGG16(base.NN):
 
             self.graph = tf.Graph()
             with self.graph.as_default():
-
-                self.reinit(i)
-
-                self.restore_model_w_b()
-
-                self.rebuild_model()
-
-                self.get_loss()
-
-                self.__get_accuracy()
-
-                self.__get_log_loss()
-
-                self.init_variables()
-
-                # prob_list = self.__measure_prob(self.__data)
-                # self.__prob_list.append(prob_list)
-
-                train_prob_list = self.__measure_prob(self.__train_data)
-                val_prob_list = self.__measure_prob(self.__val_data)
-
-                self.__train_prob_list.append(train_prob_list)
-                self.__val_prob_list.append(val_prob_list)
-
-                self.sess.close()
+                self.__test_i(i)
 
         self.echo('Finish testing ')
 
@@ -800,9 +796,9 @@ class VGG16(base.NN):
 
 
 # o_vgg = VGG16(False, '2017_12_24_01_04_52')
-# o_vgg.run()
+o_vgg = VGG16(False)
+o_vgg.run()
 
-o_vgg = VGG16(True, '2017_12_24_01_04_52')
-# o_vgg.run()
-o_vgg.test()
+# o_vgg = VGG16(True, '2017_12_24_01_04_52')
+# o_vgg.test()
 # o_vgg.test_i(0)
