@@ -50,18 +50,18 @@ class VGG16(base.NN):
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE_1 = [0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005,
-                            0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005,
-                            0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005]
+    BASE_LEARNING_RATE_1 = [0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005,
+                            0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005,
+                            0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005]
 
     DECAY_RATE_1 = [0.0001, 0.0001, 0.0001, 0.00006, 0.00006, 0.00006, 0.0001, 0.0001, 0.0001, 0.0001,
                     0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.00006, 0.0001,
                     0.0001, 0.0001, 0.00007, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.00008, 0.00008]
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA_1 = [0.1, 0.1, 2.8, 0.1, 0.1, 0.1, 1.1, 0.3, 0.2, 0.2,
-                      0.3, 0.1, 0.01, 0.1, 0.1, 0.1, 0.1, 0.03, 0.03, 0.01,
-                      0.1, 0.1, 0.01, 0.03, 0.3, 0.3, 0.1, 0.2, 0.01, 0.02]  # 正则化的 beta 参数
+    REGULAR_BETA_1 = [0.1, 0.1, 0.3, 0.1, 0.1, 0.1, 0.03, 0.2, 0.15, 0.2,
+                    0.1, 0.1, 0.01, 0.1, 0.1, 0.15, 0.1, 0.03, 0.03, 0.01,
+                    0.1, 0.1, 0.01, 0.03, 0.02, 0.3, 0.5, 0.2, 0.01, 0.04]  # 正则化的 beta 参数
 
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
                       0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
@@ -86,7 +86,7 @@ class VGG16(base.NN):
 
     ''' 模型的配置；采用了 VGG16 模型的 FCN '''
 
-    LOSS_TYPE = 0  # loss type 有两种；0：使用正常的loss，1：使用log_loss
+    LOSS_TYPE = 1  # loss type 有两种；0：使用正常的loss，1：使用log_loss
 
     IMAGE_SHAPE = [56, 56]
     IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
@@ -462,8 +462,10 @@ class VGG16(base.NN):
 
         if self.LOSS_TYPE == 0:
             loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA[self.net_id])
-        else:
+        elif self.LOSS_TYPE == 1:
             loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA_1[self.net_id])
+        else:
+            loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA_1[self.net_id])
 
         # 正则化
         # self.__ch_loss_regular = self.regularize_trainable(self.__ch_log_loss, self.REGULAR_BETA[pig_id])
@@ -795,8 +797,8 @@ class VGG16(base.NN):
         return output[0]
 
 
-# o_vgg = VGG16(False, '2017_12_24_01_04_52')
-o_vgg = VGG16(False)
+o_vgg = VGG16(False, '2018_01_09_15_23_56')
+# o_vgg = VGG16(False)
 o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_24_01_04_52')
