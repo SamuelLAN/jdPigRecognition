@@ -48,6 +48,8 @@ class Resnet(base.NN):
 
     ''' 模型的配置；采用了 Resnet 50 模型的 FCN '''
 
+    USE_BIAS = False
+
     IMAGE_SHAPE = [224, 224]
     IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
 
@@ -59,8 +61,8 @@ class Resnet(base.NN):
             'k_size': 7,  # 若有 'W'，可以没有该值
             'stride': 2,  # 默认为 1
             'trainable': True,  # 默认为 True
-            'use_bias': False,  # 默认为 False
-            'bn': True,  # batch_normalize 默认为 True
+            'use_bias': USE_BIAS,  # 默认为 True
+            'bn': USE_BN,  # batch_normalize 默认为 False
             'activate': True,  # 默认为 True
             # 'W': W,  # kernel；若没有该值，会自动根据 k_size 以及 shape 初始化
             # 'b': b,  # bias; 若没有该值，会自动根据 shape 初始化,

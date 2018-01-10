@@ -797,12 +797,22 @@ class NN:
                 with tf.name_scope(name):
                     # 初始化变量
                     trainable = True if 'trainable' not in config or config['trainable'] else False
-                    W = self.init_weight(config['k_size'] + config['shape']) \
-                        if not 'W' in config else self.init_weight_w(config['W'], trainable)
-                    b = self.init_bias(config['shape']) \
-                        if not 'b' in config else self.init_bias_b(config['b'], trainable)
+
+                    shape = []
+                    if 'shape' in config:
+                        shape = config['shape']
+                    elif 'filter_out' in config:
+                        filters_in = a.get_shape()[-1]
+                        shape = [tf.cast(filters_in, tf.int32), config['filter_out']]
+
+                    W = self.init_weight(config['k_size'] + shape) \
+                        if 'W' not in config else self.init_weight_w(config['W'], trainable)
                     w_dict[name] = W
-                    b_dict[name] = b
+
+                    if 'use_bias' not in config or config['use_bias']:
+                        b = self.init_bias(shape) \
+                            if 'b' not in config else self.init_bias_b(config['b'], trainable)
+                        b_dict[name] = b
 
                     # 具体操作
                     stride = config['stride'] if 'stride' in config else 1
@@ -813,7 +823,7 @@ class NN:
                     if 'bn' in config and config['bn']:
                         a = self.batch_normal(a, self.t_is_train, name)
 
-                    if not 'activate' in config or config['activate']:
+                    if 'activate' not in config or config['activate']:
                         a = self.activate(a)
 
                         if self.TENSORBOARD_SHOW_ACTIVATION:
@@ -828,9 +838,9 @@ class NN:
                     # 初始化变量
                     trainable = True if 'trainable' not in config or config['trainable'] else False
                     W = self.init_weight(config['k_size'] + config['shape']) \
-                        if not 'W' in config else self.init_weight_w(config['W'], trainable)
+                        if 'W' not in config else self.init_weight_w(config['W'], trainable)
                     b = self.init_bias(config['shape'][:-2] + [config['shape'][-1], config['shape'][-2]]) \
-                        if not 'b' in config else self.init_bias_b(config['b'], trainable)
+                        if 'b' not in config else self.init_bias_b(config['b'], trainable)
                     w_dict[name] = W
                     b_dict[name] = b
 
@@ -862,9 +872,9 @@ class NN:
                 with tf.name_scope(name):
                     # 初始化变量
                     trainable = True if 'trainable' not in config or config['trainable'] else False
-                    W = self.init_weight(config['shape']) if not 'W' in config \
+                    W = self.init_weight(config['shape']) if 'W' not in config \
                         else self.init_weight_w(config['W'], trainable)
-                    b = self.init_bias(config['shape']) if not 'b' in config \
+                    b = self.init_bias(config['shape']) if 'b' not in config \
                         else self.init_bias_b(config['b'], trainable)
                     w_dict[name] = W
                     b_dict[name] = b
@@ -895,6 +905,9 @@ class NN:
             elif _type == 'add':
                 with tf.name_scope(name):
                     a = tf.add(a, net[config['layer_index']])
+
+            elif _type == 'block':
+                pass
 
             net[name] = a
 
