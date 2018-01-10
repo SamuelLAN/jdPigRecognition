@@ -951,12 +951,16 @@ class NN:
                 with tf.name_scope(name):
                     if 'trainable' in config and not config['trainable']:
                         w_dict[name] = self.init_weight_w(config['W'], False)
-                        b_dict[name] = self.init_bias_b(config['b'], False)
+
+                        if 'use_bias' not in config or config['use_bias']:
+                            b_dict[name] = self.init_bias_b(config['b'], False)
 
                     stride = config['stride'] if 'stride' in config else 1
                     padding = 'SAME' if 'padding' not in config or config['padding'] == 'SAME' else 'VALID'
 
-                    a = tf.add(self.conv2d(a, w_dict[name], stride, padding), b_dict[name])
+                    a = self.conv2d(a, w_dict[name], stride, padding)
+                    if 'use_bias' not in config or config['use_bias']:
+                        a = tf.add(a, b_dict[name])
 
                     if 'bn' in config and config['bn']:
                         a = self.batch_normal(a, self.t_is_train, name)
