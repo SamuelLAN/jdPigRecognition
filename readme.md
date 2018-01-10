@@ -10,17 +10,31 @@
 
     data argument, 对所有图片进行旋转、平移、调亮度、调色度...等等，丰富训练集
 
+    具体看文件夹 [video_process](video_process) ，里面附有 [readme](video_process/readme.md)
+
 - fcn
 
     处理图片数据，将猪单独切割处理
 
     data argument，将切割后的猪的图片进行旋转、平移、调亮度、调色度...等等，丰富训练集
 
+    具体看文件夹 [fcn](fcn) ，里面附有 [readme](fcn/readme.md)
+
 - classify
 
     将每只猪识别出来
 
     根据 fcn 切割后的猪作为输入，进行识别
+
+    具体看文件夹 [classify](classify) ，里面附有 [readme](classify/readme.md)
+
+>##### 环境
+
+> 1、python 环境，该代码可兼容 python 2.7、3.5、3.6
+
+> 2、tensorflow 1.0+、numpy、six
+
+<br>
 
 >##### 比赛排名
 
