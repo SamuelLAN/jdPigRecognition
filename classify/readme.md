@@ -5,7 +5,7 @@
 >#### 目录结构
 - [img_arg.py](img_arg.py): 给 fcn 切割后的猪做数据增强，进行各种旋转、调光、调色等等
 - [load.py](load.py): 加载数据的基类；同时也是下载数据的基类 (为了加快运行速度，同时保证不超出电脑内存限制，采用了异步加载的方式，数据在后台异步按需加载，而不是一次性全部加载到内存)
-- [bi_load.py](bi_load.py): 加载数据的基类 (专门给 bi_vgg16_net.py 使用)
+- [bi_load.py](bi_load.py): 加载数据的基类 (专门给 [bi_vgg16_net.py](bi_vgg16_net.py) 使用)
 - [vgg16_net.py](vgg16_net.py): 使用 vgg16 模型识别猪 (图片输入大小跟 vgg 一样，为 224 * 224)
 - [vgg16_net_2.py](vgg16_net_2.py): 使用 vgg16 模型识别猪 (为加快速度，图片输入大小缩小为 56 * 56)
 - [vgg19_net.py](vgg19_net.py): 使用 vgg19 模型识别猪 (图片输入大小跟 vgg 一样，为 224 * 224)
