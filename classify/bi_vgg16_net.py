@@ -50,7 +50,7 @@ class VGG16(base.NN):
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE_1 = [0.0001, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005,
+    BASE_LEARNING_RATE_1 = [0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005,
                             0.000005,
                             0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005, 0.000005,
                             0.000005,
@@ -380,7 +380,8 @@ class VGG16(base.NN):
             w = correct * self.CORRECT_WEIGHT[self.net_id] + incorrect * self.INCORRECT_WEIGHT[self.net_id]
             output = w * self.__output
 
-            exp_x = tf.exp(self.__output)
+            # exp_x = tf.exp(self.__output)
+            exp_x = tf.exp(predict)  # fake log_loss
             self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
             self.__prob = tf.maximum(tf.minimum(self.__prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(self.__prob))), self.__size)
@@ -803,7 +804,8 @@ class VGG16(base.NN):
 
 
 # good accuracy result: 2018_01_09_15_23_56
-o_vgg = VGG16(False, '2018_01_09_15_23_56')
+# good accuracy and log_loss result net:[0]: 2018_01_10_15_38_17
+o_vgg = VGG16(False, '2018_01_10_15_38_17')
 # o_vgg = VGG16(False)
 o_vgg.run()
 
