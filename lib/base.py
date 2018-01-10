@@ -94,7 +94,7 @@ class NN:
     USE_MULTI = False  # 是否需要训练多个网络；默认为 false
     USE_BN = False  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = False  # 输入是否使用 batch normalize
-    USE_CONV_STDDEV = False  # 使用 CONV_WEIGHT_STDDEV
+    USE_CONV_STDDEV = False  # init_weight 是否使用 CONV_WEIGHT_STDDEV
 
     TENSORBOARD_SHOW_IMAGE = False  # 默认不将 image 显示到 TensorBoard，以免影响性能
     TENSORBOARD_SHOW_GRAD = False  # 默认不将 gradient 显示到 TensorBoard，以免影响性能

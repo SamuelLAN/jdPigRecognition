@@ -76,6 +76,10 @@ class VGG16(base.NN):
     # early stop
     MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
 
+    net_weight = {
+        0: 0.979620
+    }
+
     ''' 类的配置 '''
 
     USE_MULTI = True
@@ -380,8 +384,9 @@ class VGG16(base.NN):
             w = correct * self.CORRECT_WEIGHT[self.net_id] + incorrect * self.INCORRECT_WEIGHT[self.net_id]
             output = w * self.__output
 
-            exp_x = tf.exp(self.__output)
-            self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
+            # exp_x = tf.exp(self.__output)
+            # self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
+            self.__prob = predict
             self.__prob = tf.maximum(tf.minimum(self.__prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(self.__prob))), self.__size)
 
@@ -801,8 +806,8 @@ class VGG16(base.NN):
 
 
 # good accuracy result: 2018_01_09_15_23_56
-# good accuracy and log_loss result : 2018_01_10_17_16_47
-o_vgg = VGG16(False, '2018_01_10_17_16_47')
+# good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05
+o_vgg = VGG16(False, '2018_01_11_00_17_05')
 # o_vgg = VGG16(False)
 o_vgg.run()
 

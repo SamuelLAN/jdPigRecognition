@@ -43,6 +43,7 @@ class Resnet(base.NN):
 
     USE_BN = True  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = True  # 输入是否使用 batch normalize
+    USE_CONV_STDDEV = True  # init_weight 是否使用 CONV_WEIGHT_STDDEV
 
     SHOW_PROGRESS_FREQUENCY = 10  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 
