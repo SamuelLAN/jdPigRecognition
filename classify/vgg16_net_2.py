@@ -321,8 +321,6 @@ class VGG16(base.NN):
             labels = self.__label
             predict = tf.one_hot(tf.argmax(self.__output, 1), depth=self.NUM_CLASSES)
 
-            self.__predict = predict
-
             correct = tf.cast(tf.equal(labels, predict), tf.float32)
             incorrect = tf.cast(tf.not_equal(labels, predict), tf.float32)
 
