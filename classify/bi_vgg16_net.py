@@ -380,8 +380,7 @@ class VGG16(base.NN):
             w = correct * self.CORRECT_WEIGHT[self.net_id] + incorrect * self.INCORRECT_WEIGHT[self.net_id]
             output = w * self.__output
 
-            # exp_x = tf.exp(self.__output)
-            exp_x = tf.exp(predict)  # fake log_loss
+            exp_x = tf.exp(self.__output)
             self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
             self.__prob = tf.maximum(tf.minimum(self.__prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(self.__prob))), self.__size)
