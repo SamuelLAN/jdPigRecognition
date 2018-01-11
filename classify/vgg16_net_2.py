@@ -328,8 +328,8 @@ class VGG16(base.NN):
             w = correct * 0.9 + incorrect * 1.2
             output = w * self.__output
 
-            exp_x = tf.exp(self.__output)
-            prob = exp_x / tf.reduce_sum(exp_x, axis=0)
+            exp_x = tf.transpose(tf.exp(self.__output))
+            prob = tf.transpose(exp_x / tf.reduce_sum(exp_x, axis=0))
             p = tf.maximum(tf.minimum(prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(p))), self.__size)
 
