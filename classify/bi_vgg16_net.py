@@ -66,6 +66,20 @@ class VGG16(base.NN):
                       0.01, 0.01, 0.1, 0.01, 0.01, 0.15, 0.01, 0.03, 0.03, 0.01,
                       0.01, 0.01, 0.01, 0.03, 0.02, 0.3, 0.5, 0.2, 0.01, 0.04]  # 正则化的 beta 参数
 
+    ACCURACY_OVER_95 = [0, 19, 22]
+    OPTION_LIST = [
+        {
+            0: 0.967391,
+            19: 0.960598,
+            22: 0.970052,
+        },
+        {
+            1: 0.888393,
+            3: 0.895833,
+        },
+        [1, 3, 4, 9, 12, 14, 17, 18, 21, 23, 28, 29],
+    ]
+
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
                       0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
                       0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
@@ -384,9 +398,11 @@ class VGG16(base.NN):
             w = correct * self.CORRECT_WEIGHT[self.net_id] + incorrect * self.INCORRECT_WEIGHT[self.net_id]
             output = w * self.__output
 
-            # exp_x = tf.exp(self.__output)
-            # self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
-            self.__prob = predict
+            if self.net_id in self.ACCURACY_OVER_95:
+                self.__prob = predict
+            else:
+                exp_x = tf.exp(self.__output)
+                self.__prob = exp_x / tf.reduce_sum(exp_x, axis=0)
             self.__prob = tf.maximum(tf.minimum(self.__prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(self.__prob))), self.__size)
 
@@ -807,7 +823,7 @@ class VGG16(base.NN):
 
 # good accuracy result: 2018_01_09_15_23_56
 # good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05
-o_vgg = VGG16(False, '2018_01_11_00_17_05')
+o_vgg = VGG16(False, '2018_01_11_03_35_41')
 # o_vgg = VGG16(False)
 o_vgg.run()
 
