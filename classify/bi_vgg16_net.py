@@ -791,6 +791,9 @@ class VGG16(base.NN):
 
         self.reinit(i)
 
+        self.__train_set_list[self.net_id].start_thread()
+        self.__val_set_list[self.net_id].start_thread()
+
         self.restore_model_w_b()
 
         self.rebuild_model()
@@ -806,8 +809,8 @@ class VGG16(base.NN):
         # prob_list = self.__measure_prob(self.__data)
         # self.__prob_list.append(prob_list)
 
-        mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_data)
-        mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_data)
+        mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id], 100)
+        mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set_list[self.net_id], 100)
         # mean_test_accuracy, mean_test_loss, mean_test_log_loss = self.__measure(self.__test_set)
 
         self.__result.append([self.net_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss,
@@ -820,6 +823,9 @@ class VGG16(base.NN):
         self.__val_prob_list.append(val_prob_list)
 
         self.sess.close()
+
+        self.__train_set_list[self.net_id].stop()
+        self.__val_set_list[self.net_id].stop()
 
         self.echo('Finish testing ')
 
