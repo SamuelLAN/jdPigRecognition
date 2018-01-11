@@ -588,9 +588,9 @@ class VGG16(base.NN):
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
 
-            _test_output = self.sess.run(self.__output, feed_dict)
-            print (_test_output)
-            print (_test_output.shape)
+            _test_prob = self.sess.run(self.__prob, feed_dict)
+            print (_test_prob)
+            print (_test_prob.shape)
             exit()
 
             _, train_loss, train_log_loss, train_accuracy = self.sess.run(
