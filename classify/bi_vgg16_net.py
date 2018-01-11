@@ -68,7 +68,8 @@ class VGG16(base.NN):
 
     VAL_WEIGHT = 0.7
 
-    ACCURACY_OVER_95 = [0, 19, 22]
+    ACCURACY_OVER_95 = [0, 19, 22]  # 准确率超过 95% 的网络
+    # 30个网络的分级权重
     OPTION_LIST = [
         {
             0: 0.967391,
@@ -78,7 +79,6 @@ class VGG16(base.NN):
         {
             1: 0.888393,
             3: 0.895833,
-            # 4: 0.849734,
             9: 0.863281,
             12: 0.928385,
             14: 0.908854,
@@ -89,6 +89,28 @@ class VGG16(base.NN):
             28: 0.936111,
             29: 0.886719,
         },
+        {
+            4: 0.849734,
+            5: 0.783854,
+            7: 0.740885,
+            8: 0.761719,
+            10: 0.83333,
+            11: 0.825521,
+            13: 0.747093,
+            16: 0.808594,
+            20: 0.804348,
+        },
+        {
+            6: 0.696615,
+            15: 0.656915,
+            25: 0.622396,
+            26: 0.617188,
+            27: 0.645833,
+        },
+        {
+            2: 0.519531,
+            24: 0.492188,
+        }
     ]
 
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
@@ -100,10 +122,6 @@ class VGG16(base.NN):
 
     # early stop
     MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
-
-    net_weight = {
-        0: 0.979620
-    }
 
     ''' 类的配置 '''
 
@@ -569,6 +587,12 @@ class VGG16(base.NN):
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
+
+            _test_output = self.sess.run(self.__output, feed_dict)
+            print _test_output
+            print _test_output.shape
+            exit()
+
             _, train_loss, train_log_loss, train_accuracy = self.sess.run(
                 [train_op, self.__loss, self.__log_loss, self.__accuracy], feed_dict)
 
