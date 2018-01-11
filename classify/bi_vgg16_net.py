@@ -588,12 +588,6 @@ class VGG16(base.NN):
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
 
-            # _test_output = self.sess.run(self.__output, feed_dict)
-            _test_prob = self.sess.run(self.__prob, feed_dict)
-            print (_test_prob)
-            print (_test_prob.shape)
-            exit()
-
             _, train_loss, train_log_loss, train_accuracy = self.sess.run(
                 [train_op, self.__loss, self.__log_loss, self.__accuracy], feed_dict)
 
@@ -861,10 +855,10 @@ class VGG16(base.NN):
 
 # good accuracy result: 2018_01_09_15_23_56
 # good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05
-o_vgg = VGG16(False, '2018_01_11_03_35_41')
+# o_vgg = VGG16(False, '2018_01_11_03_35_41')
 # o_vgg = VGG16(False)
-o_vgg.run()
+# o_vgg.run()
 
-# o_vgg = VGG16(True, '2017_12_24_01_04_52')
-# o_vgg.test()
+o_vgg = VGG16(True, '2018_01_11_00_17_05')
+o_vgg.test()
 # o_vgg.test_i(0)
