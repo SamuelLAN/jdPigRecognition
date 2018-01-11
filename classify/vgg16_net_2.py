@@ -333,8 +333,8 @@ class VGG16(base.NN):
             p = tf.maximum(tf.minimum(prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(p))), self.__size)
 
-            exp_x = tf.exp(output)
-            p = exp_x / tf.reduce_sum(exp_x, axis=0)
+            exp_x = tf.transpose(tf.exp(output))
+            p = tf.transpose(exp_x / tf.reduce_sum(exp_x, axis=0))
             log_prob_ch = tf.log(p)
             # log_prob_ch = w * tf.log(prob)
             self.__ch_log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, log_prob_ch)), self.__size)
@@ -606,10 +606,10 @@ class VGG16(base.NN):
 
 # o_vgg = VGG16(False, '2017_12_21_16_45_30')
 # o_vgg = VGG16(False, '2017_12_22_12_20_13')
-o_vgg = VGG16(True, '2017_12_22_14_25_48')    # best val_log_loss 0.53
+o_vgg = VGG16(False, '2017_12_22_14_25_48')    # best val_log_loss 0.53
 # o_vgg = VGG16(False, '2017_12_22_18_12_22')
 # o_vgg = VGG16(True, '2017_12_22_22_38_44')
-# o_vgg.run()
+o_vgg.run()
 
 # o_vgg = VGG16(True, '2017_12_20_15_51_58')
-o_vgg.test()
+# o_vgg.test()
