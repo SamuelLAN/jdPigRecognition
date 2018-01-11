@@ -596,8 +596,8 @@ class VGG16(base.NN):
 
             if step % self.__iter_per_epoch == 0 and step != 0:
                 epoch = int(step // self.__iter_per_epoch)
-                self.multi_mean_x[self.net_id] = self.__running_mean
-                self.multi_std_x[self.net_id] = self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1))
+                self.assign_list(self.multi_mean_x, self.net_id, self.__running_mean, 0.0)
+                self.assign_list(self.multi_std_x, self.net_id, self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1)), 1.0)
 
                 mean_train_accuracy /= self.__iter_per_epoch
                 mean_train_loss /= self.__iter_per_epoch
