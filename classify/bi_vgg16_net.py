@@ -449,7 +449,10 @@ class VGG16(base.NN):
         for i in range(times):
             batch_x, batch_y = data_set.next_batch(self.BATCH_SIZE)
 
-            batch_x = (batch_x - self.multi_mean_x[self.net_id]) / (self.multi_std_x[self.net_id] + self.EPSILON)
+            mean_x = self.multi_mean_x[self.net_id] if len(self.multi_mean_x) > self.net_id else 0.0
+            std_x = self.multi_std_x[self.net_id] if len(self.multi_std_x) > self.net_id else 1.0
+
+            batch_x = (batch_x - mean_x) / (std_x + self.EPSILON)
             feed_dict = {self.__image: batch_x, self.__label: batch_y,
                          self.__size: batch_y.shape[0], self.keep_prob: 1.0,
                          self.t_is_train: False}
