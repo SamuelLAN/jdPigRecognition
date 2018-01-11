@@ -856,9 +856,10 @@ class VGG16(base.NN):
 # good accuracy result: 2018_01_09_15_23_56
 # good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05
 # o_vgg = VGG16(False, '2018_01_11_03_35_41')
+o_vgg = VGG16(False, '2018_01_11_00_17_05')
 # o_vgg = VGG16(False)
-# o_vgg.run()
+o_vgg.run()
 
-o_vgg = VGG16(True, '2018_01_11_00_17_05')
-o_vgg.test()
+# o_vgg = VGG16(True, '2018_01_11_00_17_05')
+# o_vgg.test()
 # o_vgg.test_i(0)
