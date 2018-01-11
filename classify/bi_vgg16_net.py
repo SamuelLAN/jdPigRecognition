@@ -69,48 +69,46 @@ class VGG16(base.NN):
     VAL_WEIGHT = 0.7
 
     ACCURACY_OVER_95 = [0, 19, 22]  # 准确率超过 95% 的网络
-    # 30个网络的分级权重
+    # 30个网络分别的权重
+    NET_WEIGHT = [
+        0.972826,
+        0.904762,
+        0.591146,
+        0.899740,
+        0.880319,
+        0.805990,
+        0.709635,
+        0.772135,
+        0.845052,
+        0.861979,
+        0.860677,
+        0.807292,
+        0.940104,
+        0.797965,
+        0.894531,
+        0.803191,
+        0.819010,
+        0.889323,
+        0.909896,
+        0.959239,
+        0.847826,
+        0.921875,
+        0.960938,
+        0.886719,
+        0.500000,
+        0.593750,
+        0.638021,
+        0.641927,
+        0.929167,
+        0.864583,
+    ]
+    # 30 个网络按等级划分
     OPTION_LIST = [
-        {
-            0: 0.967391,
-            19: 0.960598,
-            22: 0.970052,
-        },
-        {
-            1: 0.888393,
-            3: 0.895833,
-            9: 0.863281,
-            12: 0.928385,
-            14: 0.908854,
-            17: 0.875000,
-            18: 0.856771,
-            21: 0.906250,
-            23: 0.906250,
-            28: 0.936111,
-            29: 0.886719,
-        },
-        {
-            4: 0.849734,
-            5: 0.783854,
-            7: 0.740885,
-            8: 0.761719,
-            10: 0.83333,
-            11: 0.825521,
-            13: 0.747093,
-            16: 0.808594,
-            20: 0.804348,
-        },
-        {
-            6: 0.696615,
-            15: 0.656915,
-            25: 0.622396,
-            26: 0.617188,
-            27: 0.645833,
-        },
-        {
-            2: 0.519531,
-            24: 0.492188,
-        }
+        [0, 19, 22],
+        [1, 3, 4, 9, 10, 12, 14, 17, 21, 23, 28, 29],
+        [5, 7, 8, 11, 13, 15, 16, 18, 20],
+        [6, 26, 27],
+        [2, 24, 25]
     ]
 
     CORRECT_WEIGHT = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
@@ -730,15 +728,52 @@ class VGG16(base.NN):
                                                                                                  mean_val_log_loss))
                 self.echo('*********************************')
 
-    @staticmethod
-    def np_softmax(x):
-        exp_x = np.exp(x)
+    def np_softmax(self, x):
+        # x.shape = (30, 500)
+        tmp_x = []
+
+        for j in range(x.shape[1]):
+            classes = x[:, j]
+
+            correct_index = -1
+
+            for op_list in self.OPTION_LIST:
+                part_classes = classes[op_list]
+
+                correct_class = np.argwhere(part_classes > 0.5)
+                if not correct_class:
+                    continue
+
+                if len(correct_class) == 1:
+                    correct_index = op_list[correct_class[0]]
+                else:
+                    ar_prob = np.array([classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
+                    correct_index = np.argmax(ar_prob)
+
+            if correct_index == -1:
+                correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
+
+            net_weight = self.NET_WEIGHT[correct_index]
+            classes[correct_index] = classes[correct_index] / (1 - net_weight) * net_weight
+
+            tmp_x.append(classes)
+
+        tmp_x = np.array(tmp_x).transpose()
+
+        # exp_x = np.exp(x)
+        exp_x = np.exp(tmp_x)
         return exp_x / np.sum(exp_x, axis=0)
 
     @staticmethod
     def np_log_loss(prob, label):
         prob = np.minimum(np.maximum(prob, 1e-15), 1 - 1e-15)
         return - np.sum(np.multiply(label, np.log(prob))) / label.shape[0]
+
+    @staticmethod
+    def np_accuracy(prob, label):
+        prob = np.argmax(prob, axis=1)
+        label = np.argmax(label, axis=1)
+        return np.sum(np.equal(prob, label)) / label.shape[0]
 
     def __test_i(self, i):
         self.echo('\nTesting %d net ... ' % i)
@@ -794,9 +829,13 @@ class VGG16(base.NN):
         self.__train_prob_list = np.array(self.__train_prob_list)
         self.__val_prob_list = np.array(self.__val_prob_list)
 
+        self.echo('Doing softmax ...')
+
         # self.__prob_list = self.np_softmax(self.__prob_list)
         self.__train_prob_list = self.np_softmax(self.__train_prob_list).transpose()
         self.__val_prob_list = self.np_softmax(self.__val_prob_list).transpose()
+
+        self.echo('Finish softmax ')
 
         # id_list = self.__data.get_label_list()
         train_label_list = self.__train_data.get_label_list()
@@ -825,12 +864,15 @@ class VGG16(base.NN):
         #
         # self.echo('Finish saving result ')
 
+        train_accuracy = self.np_accuracy(self.__train_prob_list, train_label_list)
+        val_accuracy = self.np_accuracy(self.__val_prob_list, val_label_list)
+
         train_log_loss = self.np_log_loss(self.__train_prob_list, train_label_list)
         val_log_loss = self.np_log_loss(self.__val_prob_list, val_label_list)
 
         self.echo('\n****************************************')
-        self.echo('train_log_loss: %.8f' % train_log_loss)
-        self.echo('val_log_loss: %.8f' % val_log_loss)
+        self.echo('train_accuracy: %.6f train_log_loss: %.8f' % (train_accuracy, train_log_loss))
+        self.echo('val_accuracy: %.6f val_log_loss: %.8f' % (val_accuracy, val_log_loss))
 
     def use_model(self, np_image):
         if not self.__has_rebuild:
@@ -854,12 +896,12 @@ class VGG16(base.NN):
 
 
 # good accuracy result: 2018_01_09_15_23_56
-# good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05
+# good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05, 2018_01_11_15_18_43
 # o_vgg = VGG16(False, '2018_01_11_03_35_41')
-o_vgg = VGG16(False, '2018_01_11_00_17_05')
+# o_vgg = VGG16(False, '2018_01_11_15_18_43')
 # o_vgg = VGG16(False)
-o_vgg.run()
+# o_vgg.run()
 
-# o_vgg = VGG16(True, '2018_01_11_00_17_05')
-# o_vgg.test()
+o_vgg = VGG16(True, '2018_01_11_15_18_43')
+o_vgg.test()
 # o_vgg.test_i(0)
