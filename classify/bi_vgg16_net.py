@@ -589,8 +589,8 @@ class VGG16(base.NN):
                          self.__size: batch_y.shape[0], self.t_is_train: True}
 
             _test_output = self.sess.run(self.__output, feed_dict)
-            print _test_output
-            print _test_output.shape
+            print (_test_output)
+            print (_test_output.shape)
             exit()
 
             _, train_loss, train_log_loss, train_accuracy = self.sess.run(
