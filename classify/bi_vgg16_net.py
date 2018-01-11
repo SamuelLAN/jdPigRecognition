@@ -66,6 +66,8 @@ class VGG16(base.NN):
                       0.01, 0.01, 0.1, 0.01, 0.01, 0.15, 0.01, 0.03, 0.03, 0.01,
                       0.01, 0.01, 0.01, 0.03, 0.02, 0.3, 0.5, 0.2, 0.01, 0.04]  # 正则化的 beta 参数
 
+    VAL_WEIGHT = 0.7
+
     ACCURACY_OVER_95 = [0, 19, 22]
     OPTION_LIST = [
         {
@@ -623,12 +625,14 @@ class VGG16(base.NN):
 
                 condition_yes = False
                 if self.LOSS_TYPE == 0:
-                    if best_val_accuracy < mean_val_accuracy:
-                        best_val_accuracy = mean_val_accuracy
+                    mean_accuracy = self.VAL_WEIGHT * mean_val_accuracy + (1 - self.VAL_WEIGHT) * mean_train_accuracy
+                    if best_val_accuracy < mean_accuracy:
+                        best_val_accuracy = mean_accuracy
                         condition_yes = True
                 else:
-                    if best_val_log_loss > mean_val_log_loss:
-                        best_val_log_loss = mean_val_log_loss
+                    mean_log_loss = self.VAL_WEIGHT * mean_val_log_loss + (1 - self.VAL_WEIGHT) * mean_train_log_loss
+                    if best_val_log_loss > mean_log_loss:
+                        best_val_log_loss = mean_log_loss
                         condition_yes = True
 
                 if condition_yes:
