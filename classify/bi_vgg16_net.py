@@ -832,8 +832,8 @@ class VGG16(base.NN):
         #
         # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
-        self.__train_data = load.TestData(0.0, 0.001, 'train', self.IMAGE_SHAPE)
-        self.__val_data = load.TestData(0.001, 0.002, 'validation', self.IMAGE_SHAPE)
+        self.__train_data = load.TestData(0.0, 0.01, 'train', self.IMAGE_SHAPE)
+        self.__val_data = load.TestData(0.01, 0.02, 'validation', self.IMAGE_SHAPE)
 
         self.echo('\nStart testing ... ')
         for i in range(self.NUM_PIG):
