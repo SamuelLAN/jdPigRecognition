@@ -449,7 +449,7 @@ class VGG16(base.NN):
         for i in range(times):
             batch_x, batch_y = data_set.next_batch(self.BATCH_SIZE)
 
-            batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
+            batch_x = (batch_x - self.multi_mean_x[self.net_id]) / (self.multi_std_x[self.net_id] + self.EPSILON)
             feed_dict = {self.__image: batch_x, self.__label: batch_y,
                          self.__size: batch_y.shape[0], self.keep_prob: 1.0,
                          self.t_is_train: False}
@@ -481,7 +481,7 @@ class VGG16(base.NN):
             if isinstance(batch_x, type(None)):
                 break
 
-            batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
+            batch_x = (batch_x - self.multi_mean_x[self.net_id]) / (self.multi_std_x[self.net_id] + self.EPSILON)
             feed_dict = {self.__image: batch_x, self.keep_prob: 1.0, self.t_is_train: False}
 
             prob = self.sess.run(self.__prob, feed_dict)
@@ -596,8 +596,8 @@ class VGG16(base.NN):
 
             if step % self.__iter_per_epoch == 0 and step != 0:
                 epoch = int(step // self.__iter_per_epoch)
-                self.mean_x = self.__running_mean
-                self.std_x = self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1))
+                self.multi_mean_x[self.net_id] = self.__running_mean
+                self.multi_std_x[self.net_id] = self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1))
 
                 mean_train_accuracy /= self.__iter_per_epoch
                 mean_train_loss /= self.__iter_per_epoch
@@ -915,7 +915,7 @@ class VGG16(base.NN):
 
         np_image = np.expand_dims(np_image, axis=0)
 
-        np_image = (np_image - self.mean_x) / (self.std_x + self.EPSILON)
+        np_image = (np_image - self.multi_mean_x[self.net_id]) / (self.multi_std_x[self.net_id] + self.EPSILON)
 
         feed_dict = {self.__image: np_image, self.keep_prob: 1.0, self.t_is_train: False}
         output = self.sess.run(self.__output, feed_dict)
@@ -926,10 +926,10 @@ class VGG16(base.NN):
 # good accuracy result: 2018_01_09_15_23_56
 # good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05, 2018_01_11_15_18_43
 # o_vgg = VGG16(False, '2018_01_11_03_35_41')
-# o_vgg = VGG16(False, '2018_01_11_15_18_43')
+o_vgg = VGG16(False, '2018_01_11_15_18_43')
 # o_vgg = VGG16(False)
-# o_vgg.run()
+o_vgg.run()
 
-o_vgg = VGG16(True, '2018_01_11_15_18_43')
-o_vgg.test()
+# o_vgg = VGG16(True, '2018_01_11_15_18_43')
+# o_vgg.test()
 # o_vgg.test_i(0)
