@@ -752,13 +752,13 @@ class VGG16(base.NN):
                     continue
 
                 if len(correct_class) == 1:
-                    correct_index = op_list[correct_class[0]]
+                    correct_index = op_list[int(correct_class[0])]
                 else:
-                    ar_prob = np.array([classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
-                    correct_index = np.argmax(ar_prob)
+                    ar_prob = np.array([classes[op_list[int(k)]] * self.NET_WEIGHT[op_list[int(k)]] for k in correct_class])
+                    correct_index = int(np.argmax(ar_prob))
 
             if correct_index == -1:
-                correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
+                correct_index = int(np.argmax(classes * np.array(self.NET_WEIGHT)))
 
             net_weight = self.NET_WEIGHT[correct_index]
             classes[correct_index] = classes[correct_index] / (1 - net_weight) * net_weight
@@ -832,8 +832,8 @@ class VGG16(base.NN):
         #
         # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
-        self.__train_data = load.TestData(0.0, 0.8, 'train', self.IMAGE_SHAPE)
-        self.__val_data = load.TestData(0.8, 1.0, 'validation', self.IMAGE_SHAPE)
+        self.__train_data = load.TestData(0.0, 0.001, 'train', self.IMAGE_SHAPE)
+        self.__val_data = load.TestData(0.001, 0.002, 'validation', self.IMAGE_SHAPE)
 
         self.echo('\nStart testing ... ')
         for i in range(self.NUM_PIG):
