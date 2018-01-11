@@ -32,7 +32,8 @@ class VGG16(base.NN):
     NUM_CLASSES = 30  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.00005  # 初始 学习率 原参数
+    BASE_LEARNING_RATE = 0.0000005  # 初始 学习率 原参数
+    # BASE_LEARNING_RATE = 0.00005  # 初始 学习率 原参数
     # BASE_LEARNING_RATE = 0.00002  # 初始 学习率
     DECAY_RATE = 0.0001  # 学习率 的 下降速率 原参数
 
