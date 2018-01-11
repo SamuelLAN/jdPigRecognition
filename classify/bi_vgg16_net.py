@@ -714,19 +714,26 @@ class VGG16(base.NN):
             with self.graph.as_default():
                 self.run_i(i)
 
-            for ret in self.__result:
-                pig_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss, \
-                mean_val_accuracy, mean_val_loss, mean_val_log_loss = ret
-                self.echo('\n*************************************************')
-                self.echo('net: %d  train_accuracy: %.6f  train_loss: %.6f  train_log_loss: %.6f  ' % (pig_id,
-                                                                                                       mean_train_accuracy,
-                                                                                                       mean_train_loss,
-                                                                                                       mean_train_log_loss))
-                self.echo('net: %d  val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (pig_id,
-                                                                                                 mean_val_accuracy,
-                                                                                                 mean_val_loss,
-                                                                                                 mean_val_log_loss))
-                self.echo('*********************************')
+            self.__show_result()
+
+    ''' 展示保存的结果到 cmd '''
+
+    def __show_result(self):
+        for ret in self.__result:
+            pig_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss, \
+            mean_val_accuracy, mean_val_loss, mean_val_log_loss = ret
+            self.echo('\n*************************************************')
+            self.echo('net: %d  train_accuracy: %.6f  train_loss: %.6f  train_log_loss: %.6f  ' % (pig_id,
+                                                                                                   mean_train_accuracy,
+                                                                                                   mean_train_loss,
+                                                                                                   mean_train_log_loss))
+            self.echo('net: %d  val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (pig_id,
+                                                                                             mean_val_accuracy,
+                                                                                             mean_val_loss,
+                                                                                             mean_val_log_loss))
+            self.echo('*********************************')
+
+    ''' test 时需要进行的 softmax '''
 
     def np_softmax(self, x):
         # x.shape = (30, 500)
@@ -764,10 +771,14 @@ class VGG16(base.NN):
         exp_x = np.exp(tmp_x)
         return exp_x / np.sum(exp_x, axis=0)
 
+    ''' test 时需要计算的 log_loss '''
+
     @staticmethod
     def np_log_loss(prob, label):
         prob = np.minimum(np.maximum(prob, 1e-15), 1 - 1e-15)
         return - np.sum(np.multiply(label, np.log(prob))) / label.shape[0]
+
+    ''' test 时计算的 accuracy '''
 
     @staticmethod
     def np_accuracy(prob, label):
@@ -795,6 +806,13 @@ class VGG16(base.NN):
         # prob_list = self.__measure_prob(self.__data)
         # self.__prob_list.append(prob_list)
 
+        mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_data)
+        mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_data)
+        # mean_test_accuracy, mean_test_loss, mean_test_log_loss = self.__measure(self.__test_set)
+
+        self.__result.append([self.net_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss,
+                              mean_val_accuracy, mean_val_loss, mean_val_log_loss])
+
         train_prob_list = self.__measure_prob(self.__train_data)
         val_prob_list = self.__measure_prob(self.__val_data)
 
@@ -806,6 +824,8 @@ class VGG16(base.NN):
         self.echo('Finish testing ')
 
     def test(self):
+        self.__result = []
+
         self.__train_prob_list = []
         self.__val_prob_list = []
         # self.__prob_list = []
@@ -822,6 +842,8 @@ class VGG16(base.NN):
             self.graph = tf.Graph()
             with self.graph.as_default():
                 self.__test_i(i)
+
+            self.__show_result()
 
         self.echo('Finish testing ')
 
