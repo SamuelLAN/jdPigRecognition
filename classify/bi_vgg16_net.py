@@ -598,7 +598,7 @@ class VGG16(base.NN):
 
                 # 测试 校验集 的 loss
                 mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set_list[self.net_id],
-                                                                                     300)
+                                                                                     100)
                 # batch_val_x, batch_val_y = self.__val_set_list[pig_id].next_batch(self.BATCH_SIZE)
                 #
                 # batch_val_x = (batch_val_x - self.mean_x) / (self.std_x + self.EPSILON)
