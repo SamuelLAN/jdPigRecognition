@@ -8,7 +8,7 @@
 - [bi_load.py](bi_load.py): 加载数据的基类 (专门给 [bi_vgg16_net.py](bi_vgg16_net.py) 使用)
 - [vgg16_net.py](vgg16_net.py): 使用 vgg16 模型识别猪 (图片输入大小跟 vgg 一样，为 224 * 224)
 - [vgg16_net_2.py](vgg16_net_2.py): 使用 vgg16 模型识别猪 (为加快速度，图片输入大小缩小为 56 * 56)
-- [vgg19_net.py](vgg19_net.py): 使用 vgg19 模型识别猪 (图片输入大小跟 vgg 一样，为 224 * 224)
+- [vgg19_net.py](vgg19_net.py): 使用 vgg19 模型识别猪 (为加快速度，图片输入大小缩小为 56 * 56)
 - [bi_vgg16_net.py](bi_vgg16_net.py): 使用 vgg16 模型，但不是多分类，而是二分类；该程序共训练 30 个网络，每个网络进行二分类，分类目标为是该类猪与其他猪，最后将 30 个网络的训练结果根据准确率加权进行投票决定属于哪个分类 (为加快速度，图片输入大小缩小为 56 * 56)
 - [resnet_50.py](resnet_50.py): 使用 resnet 50 层模型 (图片输入大小为 224 * 224); resnet 还没试过运行，之后有时间会尝试运行
 - [get_test_csv.py](get_test_csv.py): 生成 data/Test_B 对应的猪的识别结果
@@ -31,9 +31,11 @@
 >
 > vgg16_net_2 比 vgg16_net 运行速度更快，因为参数较少
 >
+> 此处的 vgg 模型，加入了 batch_normalize，为了加快训练速度
+>
 >##### 结构图
 >
-> <img src="../tmp/vgg16_graph.png" alt="vgg16 的结构图" height="870" width="430">
+> <img src="../tmp/vgg16_graph.png" alt="vgg16 的结构图" height="1260" width="600">
 >
 >##### vgg16_net_2 的运行结果
 >
@@ -56,7 +58,9 @@
 
 > vgg19_net 的结构图
 >
-> 没保存，暂时略
+> 此处的 vgg 模型，加入了 batch_normalize，为了加快训练速度
+>
+> <img src="../tmp/vgg19_graph.png" alt="vgg16 的结构图" height="1300" width="600">
 
 <br>
 
