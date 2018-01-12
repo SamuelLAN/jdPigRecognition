@@ -506,7 +506,7 @@ class VGG16(base.NN):
             progress = float(count) / times * 100
             self.echo('\r >> measuring progress: %.2f%% | %d \t' % (progress, times), False)
 
-        return np.vstack(prob_list)
+        return np.hstack(prob_list)
 
     ''' 主函数 '''
 
@@ -871,8 +871,8 @@ class VGG16(base.NN):
         self.echo('Finish testing ')
 
         # self.__prob_list = np.hstack(self.__prob_list)
-        self.__train_prob_list = np.hstack(self.__train_prob_list)
-        self.__val_prob_list = np.hstack(self.__val_prob_list)
+        self.__train_prob_list = np.vstack(self.__train_prob_list)
+        self.__val_prob_list = np.vstack(self.__val_prob_list)
 
         self.echo('***************************************************')
 
