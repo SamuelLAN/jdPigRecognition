@@ -42,6 +42,9 @@ class VGG19(base.NN):
     # early stop
     MAX_VAL_ACCURACY_DECR_TIMES = 30  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
 
+    # 保存模型时 校验集准确率 与 训练集准确率的占比: accuracy = val_accuracy * VAL_WEIGHT + train_accuracy * (1 - VAL_WEIGHT)
+    VAL_WEIGHT = 0.7
+
     ''' 类的配置 '''
 
     USE_BN = True  # 网络里是否使用了 batch normalize
@@ -50,6 +53,8 @@ class VGG19(base.NN):
     SHOW_PROGRESS_FREQUENCY = 10  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 
     ''' 模型的配置；采用了 VGG19 模型的 FCN '''
+
+    LOSS_TYPE = 0  # loss type 有两种；0：使用正常的loss，1：使用log_loss
 
     IMAGE_SHAPE = [56, 56]
     IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
@@ -378,8 +383,10 @@ class VGG19(base.NN):
         self.__get_log_loss()
 
         # 正则化
-        loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        # log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
+        if self.LOSS_TYPE == 0:
+            loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
+        else:
+            loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
         train_op = self.get_train_op(loss_regular, self.__learning_rate, self.global_step)
@@ -485,8 +492,19 @@ class VGG19(base.NN):
                 mean_train_accuracy = 0
                 mean_train_loss = 0
 
-                if best_val_log_loss > mean_val_log_loss:
-                    best_val_log_loss = mean_val_log_loss
+                condition_yes = False
+                if self.LOSS_TYPE == 0:
+                    mean_accuracy = self.VAL_WEIGHT * mean_val_accuracy + (1 - self.VAL_WEIGHT) * mean_train_accuracy
+                    if best_val_accuracy < mean_accuracy:
+                        best_val_accuracy = mean_accuracy
+                        condition_yes = True
+                else:
+                    mean_log_loss = self.VAL_WEIGHT * mean_val_log_loss + (1 - self.VAL_WEIGHT) * mean_train_log_loss
+                    if best_val_log_loss > mean_log_loss:
+                        best_val_log_loss = mean_log_loss
+                        condition_yes = True
+
+                if condition_yes:
                     incr_val_log_loss_times = 0
 
                     self.echo('%s  best  ' % echo_str, False)
