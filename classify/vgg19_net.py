@@ -47,7 +47,7 @@ class VGG19(base.NN):
     USE_BN = True  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = True  # 输入是否使用 batch normalize
 
-    SHOW_PROGRESS_FREQUENCY = 2  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
+    SHOW_PROGRESS_FREQUENCY = 10  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 
     ''' 模型的配置；采用了 VGG19 模型的 FCN '''
 
@@ -218,7 +218,8 @@ class VGG19(base.NN):
         {
             'name': 'fc6',
             'type': 'fc',
-            'filter_out': 1024,
+            'shape': [2048, 1024],
+            # 'filter_out': 1024,
             'trainable': True,
         },
         {
@@ -228,7 +229,8 @@ class VGG19(base.NN):
         {
             'name': 'fc7',
             'type': 'fc',
-            'filter_out': 512,
+            'shape': [1024, 512],
+            # 'filter_out': 512,
             'trainable': True,
         },
         {
@@ -238,13 +240,15 @@ class VGG19(base.NN):
         {
             'name': 'fc8',
             'type': 'fc',
-            'filter_out': 256,
+            'shape': [512, 256],
+            # 'filter_out': 256,
             'trainable': True,
         },
         {
             'name': 'softmax',
             'type': 'fc',
-            'filter_out': NUM_CLASSES,
+            'shape': [256, NUM_CLASSES],
+            # 'filter_out': NUM_CLASSES,
             'activate': False,
         },
     ]
@@ -347,13 +351,8 @@ class VGG19(base.NN):
 
             batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
 
-            self.echo('batch_x.shape')
-            self.echo(batch_x.shape)
-            self.echo('batch_y.shape')
-            self.echo(batch_y.shape)
-
             feed_dict = {self.__image: batch_x, self.__label: batch_y,
-                         self.__size: batch_y.shape[0], self.keep_prob: 1.0}
+                         self.__size: batch_y.shape[0], self.keep_prob: 1.0, self.t_is_train: False}
             loss, log_loss, accuracy = self.sess.run([self.__loss, self.__log_loss, self.__accuracy], feed_dict)
             mean_accuracy += accuracy
             mean_loss += loss
