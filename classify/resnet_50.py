@@ -466,7 +466,6 @@ class Resnet(base.NN):
 
         self.echo('\ndone')
 
-
         # def use_model(self, np_image):
         #     if not self.__has_rebuild:
         #         self.restore_model_w_b()    # 恢复模型
