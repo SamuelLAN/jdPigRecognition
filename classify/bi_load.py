@@ -600,18 +600,9 @@ while True:
     batch_x, batch_y = o_test.next_batch(16, False)
     if isinstance(batch_x, type(None)):
         break
+    batch_y_list.append(batch_y)
 
-    print (batch_y.shape)
-
-    batch_y_list.append(list(batch_y))
-
-
-print (len(batch_y_list))
-print ('***************************')
-print (batch_y_list[0])
-exit()
-
-batch_y_list = np.hstack(batch_y_list)
+batch_y_list = np.vstack(batch_y_list)
 
 label_list = o_test.get_label_list()
 
