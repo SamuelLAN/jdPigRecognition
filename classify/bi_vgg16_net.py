@@ -34,6 +34,13 @@ class VGG16(base.NN):
 
     NUM_PIG = 30
 
+    # early stop
+    MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
+
+    # 数据集的配置
+    TRAIN_DATA_RATIO = 0.01  # 训练集占数据量的百分比
+    VAL_DATA_END_RATIO = 0.02  # 校验集 + 训练集 占数据量的百分比
+
     # 学习率的相关参数
     BASE_LEARNING_RATE = [0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00003, 0.00005, 0.00005, 0.00005,
                           0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005,
@@ -118,13 +125,6 @@ class VGG16(base.NN):
     INCORRECT_WEIGHT = [1.3, 1.3, 1.1, 1.3, 1.3, 1.3, 1.3, 1.2, 1.3, 1.3,
                         1.1, 1.3, 1.2, 1.3, 1.3, 1.3, 1.3, 1.2, 1.3, 1.3,
                         1.3, 1.3, 1.2, 1.3, 1.3, 1.3, 1.3, 1.2, 1.3, 1.3]
-
-    # early stop
-    MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
-
-    # 数据集的配置
-    TRAIN_DATA_RATIO = 0.1  # 训练集占数据量的百分比
-    VAL_DATA_END_RATIO = 0.2  # 校验集 + 训练集 占数据量的百分比
 
     ''' 类的配置 '''
 
