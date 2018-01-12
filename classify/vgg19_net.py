@@ -395,7 +395,10 @@ class VGG19(base.NN):
         mean_train_log_loss = 0
         mean_train_accuracy = 0
 
-        best_val_log_loss = 999999
+        mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set)
+
+        best_val_log_loss = mean_val_log_loss
+        best_val_accuracy = mean_val_accuracy
         incr_val_log_loss_times = 0
 
         self.echo('\nepoch:')
@@ -416,14 +419,15 @@ class VGG19(base.NN):
             reduce_axis = tuple(range(len(batch_x.shape) - 1))
             _mean = np.mean(batch_x, axis=reduce_axis)
             _std = np.std(batch_x, axis=reduce_axis)
-            self.__running_mean = moment * self.__running_mean + (1 - moment) * _mean if type(
-                self.__running_mean) != type(None) else _mean
-            self.__running_std = moment * self.__running_std + (1 - moment) * _std if type(self.__running_std) != type(
-                None) else _std
+            self.__running_mean = moment * self.__running_mean + (1 - moment) * _mean if not isinstance(
+                self.__running_mean, type(None)) else _mean
+            self.__running_std = moment * self.__running_std + (1 - moment) * _std if not isinstance(
+                self.__running_std, type(None)) else _std
             batch_x = (batch_x - _mean) / (_std + self.EPSILON)
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
                          self.__size: batch_y.shape[0], self.t_is_train: True}
+
             _, train_loss, train_log_loss, train_accuracy = self.sess.run(
                 [train_op, self.__loss, self.__log_loss, self.__accuracy], feed_dict)
 
