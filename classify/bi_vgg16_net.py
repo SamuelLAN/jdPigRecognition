@@ -66,41 +66,42 @@ class VGG16(base.NN):
                       0.01, 0.01, 0.1, 0.01, 0.01, 0.15, 0.01, 0.03, 0.03, 0.01,
                       0.01, 0.01, 0.01, 0.03, 0.02, 0.3, 0.5, 0.2, 0.01, 0.04]  # 正则化的 beta 参数
 
+    # 保存模型时 校验集准确率 与 训练集准确率的占比: accuracy = val_accuracy * VAL_WEIGHT + train_accuracy * (1 - VAL_WEIGHT)
     VAL_WEIGHT = 0.7
 
     ACCURACY_OVER_95 = [0, 19, 22]  # 准确率超过 95% 的网络
     # 30个网络分别的权重
     NET_WEIGHT = [
-        0.972826,
-        0.904762,
-        0.591146,
-        0.899740,
-        0.880319,
-        0.805990,
-        0.709635,
-        0.772135,
-        0.845052,
-        0.861979,
-        0.860677,
-        0.807292,
-        0.940104,
-        0.797965,
-        0.894531,
-        0.803191,
-        0.819010,
-        0.889323,
-        0.909896,
-        0.959239,
-        0.847826,
-        0.921875,
-        0.960938,
-        0.886719,
-        0.500000,
-        0.593750,
-        0.638021,
-        0.641927,
-        0.929167,
-        0.864583,
+        0.972826,  # net 0
+        0.904762,  # net 1
+        0.591146,  # net 2
+        0.899740,  # net 3
+        0.880319,  # net 4
+        0.805990,  # net 5
+        0.709635,  # net 6
+        0.772135,  # net 7
+        0.845052,  # net 8
+        0.861979,  # net 9
+        0.860677,  # net 10
+        0.807292,  # net 11
+        0.940104,  # net 12
+        0.797965,  # net 13
+        0.894531,  # net 14
+        0.803191,  # net 15
+        0.819010,  # net 16
+        0.889323,  # net 17
+        0.909896,  # net 18
+        0.959239,  # net 19
+        0.847826,  # net 20
+        0.921875,  # net 21
+        0.960938,  # net 22
+        0.886719,  # net 23
+        0.500000,  # net 24
+        0.593750,  # net 25
+        0.638021,  # net 26
+        0.641927,  # net 27
+        0.929167,  # net 28
+        0.864583,  # net 29
     ]
     # 30 个网络按等级划分
     OPTION_LIST = [
@@ -120,6 +121,10 @@ class VGG16(base.NN):
 
     # early stop
     MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
+
+    # 数据集的配置
+    TRAIN_DATA_RATIO = 0.1  # 训练集占数据量的百分比
+    VAL_DATA_END_RATIO = 0.2  # 校验集 + 训练集 占数据量的百分比
 
     ''' 类的配置 '''
 
@@ -363,8 +368,10 @@ class VGG16(base.NN):
     ''' 加载数据 '''
 
     def load(self):
-        self.__train_set_list[self.net_id] = load.Data(self.net_id, 0.0, 0.8, 'train', self.IMAGE_SHAPE)
-        self.__val_set_list[self.net_id] = load.Data(self.net_id, 0.8, 1.0, 'validation', self.IMAGE_SHAPE)
+        self.__train_set_list[self.net_id] = load.Data(self.net_id, 0.0, self.TRAIN_DATA_RATIO, 'train',
+                                                       self.IMAGE_SHAPE)
+        self.__val_set_list[self.net_id] = load.Data(self.net_id, self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO, 'validation',
+                                                     self.IMAGE_SHAPE)
 
         self.__train_size_list[self.net_id] = self.__train_set_list[self.net_id].get_size()
         self.__val_size_list[self.net_id] = self.__val_set_list[self.net_id].get_size()
@@ -600,7 +607,8 @@ class VGG16(base.NN):
             if step % self.__iter_per_epoch == 0 and step != 0:
                 epoch = int(step // self.__iter_per_epoch)
                 self.assign_list(self.multi_mean_x, self.net_id, self.__running_mean, 0.0)
-                self.assign_list(self.multi_std_x, self.net_id, self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1)), 1.0)
+                self.assign_list(self.multi_std_x, self.net_id,
+                                 self.__running_std * (self.BATCH_SIZE / float(self.BATCH_SIZE - 1)), 1.0)
 
                 mean_train_accuracy /= self.__iter_per_epoch
                 mean_train_loss /= self.__iter_per_epoch
@@ -757,7 +765,8 @@ class VGG16(base.NN):
                 if len(correct_class) == 1:
                     correct_index = op_list[int(correct_class[0])]
                 else:
-                    ar_prob = np.array([classes[op_list[int(k)]] * self.NET_WEIGHT[op_list[int(k)]] for k in correct_class])
+                    ar_prob = np.array(
+                        [classes[op_list[int(k)]] * self.NET_WEIGHT[op_list[int(k)]] for k in correct_class])
                     correct_index = int(np.argmax(ar_prob))
 
             if correct_index == -1:
@@ -812,7 +821,8 @@ class VGG16(base.NN):
         # prob_list = self.__measure_prob(self.__data)
         # self.__prob_list.append(prob_list)
 
-        mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id], 100)
+        mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id],
+                                                                                   100)
         mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set_list[self.net_id], 100)
         # mean_test_accuracy, mean_test_loss, mean_test_log_loss = self.__measure(self.__test_set)
 
@@ -841,8 +851,8 @@ class VGG16(base.NN):
         #
         # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
-        self.__train_data = load.TestData(0, 0.8, 'train', self.IMAGE_SHAPE)
-        self.__val_data = load.TestData(0.8, 1.0, 'validation', self.IMAGE_SHAPE)
+        self.__train_data = load.TestData(0, self.TRAIN_DATA_RATIO, 'train', self.IMAGE_SHAPE)
+        self.__val_data = load.TestData(self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO, 'validation', self.IMAGE_SHAPE)
 
         self.echo('\nStart testing ... ')
         for i in range(self.NUM_PIG):
@@ -928,11 +938,12 @@ class VGG16(base.NN):
 
 # good accuracy result: 2018_01_09_15_23_56
 # good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05, 2018_01_11_15_18_43
+#   2018_01_12_01_38_40
 # o_vgg = VGG16(False, '2018_01_11_03_35_41')
-o_vgg = VGG16(False, '2018_01_11_15_18_43')
+# o_vgg = VGG16(False, '2018_01_12_01_38_40')
 # o_vgg = VGG16(False)
-o_vgg.run()
+# o_vgg.run()
 
-# o_vgg = VGG16(True, '2018_01_11_15_18_43')
-# o_vgg.test()
+o_vgg = VGG16(True, '2018_01_12_01_38_40')
+o_vgg.test()
 # o_vgg.test_i(0)
