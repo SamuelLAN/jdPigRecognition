@@ -772,10 +772,12 @@ class VGG16(base.NN):
 
                 if len(correct_class) == 1:
                     correct_index = op_list[correct_class[0]]
+                    break
                 else:
                     ar_prob = np.array(
                         [classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
                     correct_index = op_list[correct_class[np.argmax(ar_prob)]]
+                    break
 
             if correct_index == -1:
                 correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
