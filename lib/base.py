@@ -872,9 +872,17 @@ class NN:
                 with tf.name_scope(name):
                     # 初始化变量
                     trainable = True if 'trainable' not in config or config['trainable'] else False
-                    W = self.init_weight(config['shape']) if 'W' not in config \
+
+                    shape = []
+                    if 'shape' in config:
+                        shape = config['shape']
+                    elif 'filter_out' in config:
+                        filters_in = a.get_shape()[-1]
+                        shape = [tf.cast(filters_in, tf.int32), config['filter_out']]
+
+                    W = self.init_weight(shape) if 'W' not in config \
                         else self.init_weight_w(config['W'], trainable)
-                    b = self.init_bias(config['shape']) if 'b' not in config \
+                    b = self.init_bias(shape) if 'b' not in config \
                         else self.init_bias_b(config['b'], trainable)
                     w_dict[name] = W
                     b_dict[name] = b
