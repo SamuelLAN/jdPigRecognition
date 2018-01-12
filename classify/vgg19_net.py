@@ -218,9 +218,7 @@ class VGG19(base.NN):
         {
             'name': 'fc6',
             'type': 'fc',
-            'W': VGG_MODEL['fc6'][0],
-            'b': VGG_MODEL['fc6'][1],
-            'shape': VGG_MODEL['fc6'][0].shape,
+            'filter_out': 1024,
             'trainable': True,
         },
         {
@@ -230,9 +228,7 @@ class VGG19(base.NN):
         {
             'name': 'fc7',
             'type': 'fc',
-            'W': VGG_MODEL['fc7'][0],
-            'b': VGG_MODEL['fc7'][1],
-            'shape': VGG_MODEL['fc7'][0].shape,
+            'filter_out': 512,
             'trainable': True,
         },
         {
@@ -242,15 +238,13 @@ class VGG19(base.NN):
         {
             'name': 'fc8',
             'type': 'fc',
-            'W': VGG_MODEL['fc8'][0],
-            'b': VGG_MODEL['fc8'][1],
-            'shape': VGG_MODEL['fc8'][0].shape,
+            'filter_out': 256,
             'trainable': True,
         },
         {
             'name': 'softmax',
             'type': 'fc',
-            'shape': [1000, NUM_CLASSES],
+            'filter_out': NUM_CLASSES,
             'activate': False,
         },
     ]
