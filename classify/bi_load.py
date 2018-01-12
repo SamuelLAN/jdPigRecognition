@@ -590,6 +590,7 @@ class TestBData:
             sys.stdout.write(msg)
             sys.stdout.flush()
 
+
 o_test = TestData(0.0, 0.1)
 
 batch_y_list = []
@@ -601,15 +602,17 @@ while True:
         break
 
     batch_y_list.append(batch_y)
-batch_y_list = np.array(batch_y_list)
+batch_y_list = np.hstack(batch_y_list)
 
 label_list = o_test.get_label_list()
 
 print ('batch_y_list')
 print (batch_y_list)
+print (batch_y_list.shape)
 
 print ('label_list')
 print (label_list)
+print (label_list.shape)
 
 print ('equal')
 print (np.equal(batch_y_list, label_list))
