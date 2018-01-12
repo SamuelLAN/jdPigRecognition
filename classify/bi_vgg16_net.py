@@ -876,12 +876,12 @@ class VGG16(base.NN):
 
         self.echo('***************************************************')
         self.echo('__train_prob_list')
-        self.echo(self.__train_prob_list[:3, :])
+        self.echo(self.__train_prob_list[:, :3])
         self.echo(self.__train_prob_list.shape)
 
         self.echo('\n**************************************************')
         self.echo('__val_prob_list')
-        self.echo(self.__val_prob_list[:3, :])
+        self.echo(self.__val_prob_list[:, :3])
         self.echo(self.__val_prob_list.shape)
         self.echo('')
 
@@ -892,6 +892,23 @@ class VGG16(base.NN):
         self.__val_prob_list = self.np_softmax(self.__val_prob_list).transpose()
 
         self.echo('Finish softmax ')
+
+        self.echo('##########################################')
+        self.echo('__train_prob_list')
+        self.echo(self.__train_prob_list[:3, :])
+        self.echo(np.sum(self.__train_prob_list[:, 0]))
+        self.echo(np.sum(self.__train_prob_list[:, 1]))
+        self.echo(np.sum(self.__train_prob_list[:, 2]))
+        self.echo(self.__train_prob_list.shape)
+
+        self.echo('\n##########################################')
+        self.echo('__val_prob_list')
+        self.echo(self.__val_prob_list[:3, :])
+        self.echo(np.sum(self.__val_prob_list[:, 0]))
+        self.echo(np.sum(self.__val_prob_list[:, 1]))
+        self.echo(np.sum(self.__val_prob_list[:, 2]))
+        self.echo(self.__val_prob_list.shape)
+        self.echo('')
 
         # id_list = self.__data.get_label_list()
         train_label_list = self.__train_data.get_label_list()
