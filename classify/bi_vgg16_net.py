@@ -792,7 +792,7 @@ class VGG16(base.NN):
     @staticmethod
     def np_log_loss(prob, label):
         prob = np.minimum(np.maximum(prob, 1e-15), 1 - 1e-15)
-        return - np.sum(np.multiply(label, np.log(prob))) / label.shape[0]
+        return - np.sum(np.multiply(label, np.log(prob))) / float(label.shape[0])
 
     ''' test 时计算的 accuracy '''
 
@@ -800,7 +800,7 @@ class VGG16(base.NN):
     def np_accuracy(prob, label):
         prob = np.argmax(prob, axis=1)
         label = np.argmax(label, axis=1)
-        return np.sum(np.equal(prob, label)) / label.shape[0]
+        return np.cast['float32'](np.sum(np.equal(prob, label))) / float(label.shape[0])
 
     def __test_i(self, i):
         self.echo('\nTesting %d net ... ' % i)
@@ -855,7 +855,7 @@ class VGG16(base.NN):
         #
         # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
-        self.__train_data = load.TestData(0, self.TRAIN_DATA_RATIO, 'train', self.IMAGE_SHAPE)
+        self.__train_data = load.TestData(0.0, self.TRAIN_DATA_RATIO, 'train', self.IMAGE_SHAPE)
         self.__val_data = load.TestData(self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO, 'validation', self.IMAGE_SHAPE)
 
         self.echo('\nStart testing ... ')
@@ -875,14 +875,13 @@ class VGG16(base.NN):
         self.__val_prob_list = np.vstack(self.__val_prob_list)
 
         self.echo('***************************************************')
-
         self.echo('__train_prob_list')
-        self.echo(self.__train_prob_list)
+        self.echo(self.__train_prob_list[:3, :])
         self.echo(self.__train_prob_list.shape)
-        self.echo('\n**************************************************')
 
+        self.echo('\n**************************************************')
         self.echo('__val_prob_list')
-        self.echo(self.__val_prob_list)
+        self.echo(self.__val_prob_list[:3, :])
         self.echo(self.__val_prob_list.shape)
         self.echo('')
 
@@ -897,6 +896,12 @@ class VGG16(base.NN):
         # id_list = self.__data.get_label_list()
         train_label_list = self.__train_data.get_label_list()
         val_label_list = self.__val_data.get_label_list()
+
+        self.echo('train_label_list')
+        self.echo(train_label_list[:3, :])
+
+        self.echo('val_label_list')
+        self.echo(train_label_list[:3, :])
 
         # data = []
         # for i, pig_id in enumerate(id_list):
