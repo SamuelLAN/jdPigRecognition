@@ -617,6 +617,9 @@ print (label_list.shape)
 print ('equal')
 print (np.equal(batch_y_list, label_list))
 
+print ('equal_size')
+print (np.sum( np.equal(batch_y_list, label_list) ))
+print (label_list.size)
 
 
 # Download.run()
