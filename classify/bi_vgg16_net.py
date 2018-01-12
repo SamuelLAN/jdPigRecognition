@@ -38,8 +38,8 @@ class VGG16(base.NN):
     MAX_VAL_ACCURACY_DECR_TIMES = 15  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
 
     # 数据集的配置
-    TRAIN_DATA_RATIO = 0.8  # 训练集占数据量的百分比
-    VAL_DATA_END_RATIO = 1.0  # 校验集 + 训练集 占数据量的百分比
+    TRAIN_DATA_RATIO = 0.01  # 训练集占数据量的百分比
+    VAL_DATA_END_RATIO = 0.02  # 校验集 + 训练集 占数据量的百分比
 
     # 学习率的相关参数
     BASE_LEARNING_RATE = [0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00005, 0.00003, 0.00005, 0.00005, 0.00005,
@@ -370,8 +370,7 @@ class VGG16(base.NN):
     def load(self):
         self.__train_set_list[self.net_id] = load.Data(self.net_id, 0.0, self.TRAIN_DATA_RATIO, 'train',
                                                        self.IMAGE_SHAPE)
-        self.__val_set_list[self.net_id] = load.Data(self.net_id, self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO,
-                                                     'validation',
+        self.__val_set_list[self.net_id] = load.Data(self.net_id, self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO, 'validation',
                                                      self.IMAGE_SHAPE)
 
         self.__train_size_list[self.net_id] = self.__train_set_list[self.net_id].get_size()
@@ -752,39 +751,40 @@ class VGG16(base.NN):
 
     def np_softmax(self, x):
         # x.shape = (30, 500)
-        tmp_x = []
-
-        for j in range(x.shape[1]):
-            classes = x[:, j]
-
-            correct_index = -1
-
-            for op_list in self.OPTION_LIST:
-                part_classes = classes[op_list]
-
-                correct_class = np.argwhere(part_classes > 0.5)
-                if len(correct_class) == 0:
-                    continue
-
-                if len(correct_class) == 1:
-                    correct_index = op_list[int(correct_class[0])]
-                else:
-                    ar_prob = np.array(
-                        [classes[op_list[int(k)]] * self.NET_WEIGHT[op_list[int(k)]] for k in correct_class])
-                    correct_index = int(np.argmax(ar_prob))
-
-            if correct_index == -1:
-                correct_index = int(np.argmax(classes * np.array(self.NET_WEIGHT)))
-
-            net_weight = self.NET_WEIGHT[correct_index]
-            classes[correct_index] = classes[correct_index] / (1 - net_weight) * net_weight
-
-            tmp_x.append(classes)
-
-        tmp_x = np.array(tmp_x).transpose()
+        # tmp_x = []
+        #
+        # for j in range(x.shape[1]):
+        #     classes = x[:, j]
+        #
+        #     correct_index = -1
+        #
+        #     for op_list in self.OPTION_LIST:
+        #         part_classes = classes[op_list]
+        #
+        #         correct_class = np.argwhere(part_classes > 0.5)
+        #         if len(correct_class) == 0:
+        #             continue
+        #
+        #         if len(correct_class) == 1:
+        #             correct_index = op_list[int(correct_class[0])]
+        #         else:
+        #             ar_prob = np.array(
+        #                 [classes[op_list[int(k)]] * self.NET_WEIGHT[op_list[int(k)]] for k in correct_class])
+        #             correct_index = int(np.argmax(ar_prob))
+        #
+        #     if correct_index == -1:
+        #         correct_index = int(np.argmax(classes * np.array(self.NET_WEIGHT)))
+        #
+        #     net_weight = self.NET_WEIGHT[correct_index]
+        #     classes[correct_index] = classes[correct_index] / (1 - net_weight) * net_weight
+        #
+        #     tmp_x.append(classes)
+        #
+        # tmp_x = np.array(tmp_x).transpose()
 
         # exp_x = np.exp(x)
-        exp_x = np.exp(tmp_x)
+        exp_x = np.exp(x.transpose() * np.array(self.NET_WEIGHT)).transpose()
+        # exp_x = np.exp(tmp_x)
         return exp_x / np.sum(exp_x, axis=0)
 
     ''' test 时需要计算的 log_loss '''
