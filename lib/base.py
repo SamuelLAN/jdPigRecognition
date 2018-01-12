@@ -887,7 +887,7 @@ class NN:
                     w_dict[name] = W
                     b_dict[name] = b
 
-                    x = tf.reshape(a, [-1, config['shape'][0]])
+                    x = tf.reshape(a, [-1, tf.cast(shape[0], tf.int32)])
                     a = tf.add(tf.matmul(x, W), b)
 
                     if ('activate' not in config and i < model_len - 1) or config['activate']:
