@@ -76,7 +76,7 @@ class VGG19(base.NN):
         {
             'name': 'pool_1',
             'type': 'pool',
-            'k_size': [2, 2],
+            'k_size': 2,
             'pool_type': 'avg',
         },
         {
