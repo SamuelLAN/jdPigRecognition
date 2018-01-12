@@ -39,7 +39,7 @@
 
 >##### 比赛排名
 > 虽然这次比赛排名不理想，总共1386支队伍参加，B榜排名101 ／ 1386 名；<br>
-但以 classify 得到的结果，校验集的 <strong style="color: red; font-weight: normal;">log_loss</strong> 只有 <strong style="color: red; font-weight: normal;">0.53</strong>，是能排在前 30 名的；<br>可惜之前 save 模型没做好，导致 restore 的时候出错，没法 restore 出训练的结果；<br>当发现该问题时再重新跑程序已经不够时间提交了，以致排名只有 101 名
+但以 classify 得到的结果，校验集的 <strong style="color: red; font-weight: normal;">log_loss</strong> 只有 <strong style="color: red; font-weight: normal;">0.32</strong>，是在前 20 名并能进决赛的；<br>可惜之前 save 模型没做好，导致 restore 的时候出错，没法 restore 出训练的结果；<br>当发现该问题时再重新跑程序已经不够时间提交了，以致排名只有 101 名
 
 <br>
 
