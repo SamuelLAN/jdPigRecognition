@@ -98,7 +98,7 @@ class VGG19(base.NN):
         {
             'name': 'pool_2',
             'type': 'pool',
-            'k_size': [2, 2],
+            'k_size': 2,
             'pool_type': 'avg',
         },
         {
@@ -136,7 +136,7 @@ class VGG19(base.NN):
         {
             'name': 'pool_3',
             'type': 'pool',
-            'k_size': [2, 2],
+            'k_size': 2,
             'pool_type': 'avg',
         },
         {
@@ -174,7 +174,7 @@ class VGG19(base.NN):
         {
             'name': 'pool_4',
             'type': 'pool',
-            'k_size': [2, 2],
+            'k_size': 2,
             'pool_type': 'avg',
         },
         {
@@ -212,7 +212,7 @@ class VGG19(base.NN):
         {
             'name': 'pool_5',
             'type': 'pool',
-            'k_size': [2, 2],
+            'k_size': 2,
             'pool_type': 'max',
         },
         {
