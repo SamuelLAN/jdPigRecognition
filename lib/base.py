@@ -257,7 +257,7 @@ class NN:
                 input_nodes = shape[1] * shape[2]
             else:
                 input_nodes = shape[0]
-            std = 1.0 / sqrt(float(input_nodes))
+            std = 1.0 / tf.sqrt(tf.cast(input_nodes, tf.float32))
 
         return tf.Variable(
             tf.truncated_normal(
