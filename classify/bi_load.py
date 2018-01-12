@@ -591,7 +591,7 @@ class TestBData:
             sys.stdout.flush()
 
 
-o_test = TestData(0.0, 0.1)
+o_test = TestData(0.0, 0.01)
 
 batch_y_list = []
 o_test.reset_cur_index()
@@ -605,7 +605,9 @@ while True:
 
     batch_y_list.append(list(batch_y))
 
-print (batch_y_list)
+
+print (len(batch_y_list))
+print ('***************************')
 print (batch_y_list[0])
 exit()
 
