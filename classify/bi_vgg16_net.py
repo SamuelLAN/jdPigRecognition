@@ -821,6 +821,12 @@ class VGG16(base.NN):
         # prob_list = self.__measure_prob(self.__data)
         # self.__prob_list.append(prob_list)
 
+        self.echo('multi_mean_x')
+        self.echo(self.multi_mean_x)
+        self.echo('multi_std_x')
+        self.echo(self.multi_std_x)
+        exit()
+
         mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id],
                                                                                    100)
         mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set_list[self.net_id], 100)
