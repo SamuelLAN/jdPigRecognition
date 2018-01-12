@@ -347,8 +347,13 @@ class VGG19(base.NN):
 
             batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
 
+            self.echo('batch_x.shape')
+            self.echo(batch_x.shape)
+            self.echo('batch_y.shape')
+            self.echo(batch_y.shape)
+
             feed_dict = {self.__image: batch_x, self.__label: batch_y,
-                         self.__size: batch_y.shape[0], self.keep_prob: 1.0, self.t_is_train: False}
+                         self.__size: batch_y.shape[0], self.keep_prob: 1.0}
             loss, log_loss, accuracy = self.sess.run([self.__loss, self.__log_loss, self.__accuracy], feed_dict)
             mean_accuracy += accuracy
             mean_loss += loss
