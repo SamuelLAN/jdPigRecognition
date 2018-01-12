@@ -761,26 +761,26 @@ class VGG16(base.NN):
                 self.echo('************* classes ****************')
                 self.echo(classes)
 
-            correct_index = -1
+            # correct_index = -1
+            #
+            # for op_list in self.OPTION_LIST:
+            #     part_classes = classes[op_list]
+            #
+            #     correct_class = np.argwhere(part_classes > 0.5).reshape(-1)
+            #     if len(correct_class) == 0:
+            #         continue
+            #
+            #     if len(correct_class) == 1:
+            #         correct_index = op_list[correct_class[0]]
+            #         break
+            #     else:
+            #         ar_prob = np.array(
+            #             [classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
+            #         correct_index = op_list[correct_class[np.argmax(ar_prob)]]
+            #         break
 
-            for op_list in self.OPTION_LIST:
-                part_classes = classes[op_list]
-
-                correct_class = np.argwhere(part_classes > 0.5).reshape(-1)
-                if len(correct_class) == 0:
-                    continue
-
-                if len(correct_class) == 1:
-                    correct_index = op_list[correct_class[0]]
-                    break
-                else:
-                    ar_prob = np.array(
-                        [classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
-                    correct_index = op_list[correct_class[np.argmax(ar_prob)]]
-                    break
-
-            if correct_index == -1:
-                correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
+            # if correct_index == -1:
+            correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
 
             if j <= 2:
                 self.echo('correct_index:')
