@@ -593,9 +593,10 @@ class TestBData:
 o_test = TestData(0.0, 0.1)
 
 batch_y_list = []
+o_test.reset_cur_index()
 
 while True:
-    batch_x, batch_y = o_test.next_batch(16)
+    batch_x, batch_y = o_test.next_batch(16, False)
     if isinstance(batch_x, type(None)):
         break
 
