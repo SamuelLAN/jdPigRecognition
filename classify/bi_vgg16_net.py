@@ -491,7 +491,10 @@ class VGG16(base.NN):
             if isinstance(batch_x, type(None)):
                 break
 
-            batch_x = (batch_x - self.multi_mean_x[self.net_id]) / (self.multi_std_x[self.net_id] + self.EPSILON)
+            mean_x = self.multi_mean_x[self.net_id] if len(self.multi_mean_x) > self.net_id else 0.0
+            std_x = self.multi_std_x[self.net_id] if len(self.multi_std_x) > self.net_id else 1.0
+
+            batch_x = (batch_x - mean_x) / (std_x + self.EPSILON)
             feed_dict = {self.__image: batch_x, self.keep_prob: 1.0, self.t_is_train: False}
 
             prob = self.sess.run(self.__prob, feed_dict)
@@ -820,15 +823,6 @@ class VGG16(base.NN):
 
         # prob_list = self.__measure_prob(self.__data)
         # self.__prob_list.append(prob_list)
-
-        self.echo('*****************************************')
-        self.echo('net_id')
-        self.echo(self.net_id)
-        self.echo('multi_mean_x')
-        self.echo(self.multi_mean_x)
-        self.echo('multi_std_x')
-        self.echo(self.multi_std_x)
-        self.echo('')
 
         mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id],
                                                                                    100)
