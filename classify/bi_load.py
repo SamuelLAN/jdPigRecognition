@@ -601,7 +601,7 @@ while True:
     if isinstance(batch_x, type(None)):
         break
 
-    batch_y_list.append(batch_y)
+    batch_y_list.append(list(batch_y))
 batch_y_list = np.hstack(batch_y_list)
 
 label_list = o_test.get_label_list()
