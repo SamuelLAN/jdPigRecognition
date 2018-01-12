@@ -755,6 +755,12 @@ class VGG16(base.NN):
         for j in range(x.shape[1]):
             classes = x[:, j]
 
+            if j <= 2:
+                self.echo('j:')
+                self.echo(j)
+                self.echo('************* classes ****************')
+                self.echo(classes)
+
             correct_index = -1
 
             for op_list in self.OPTION_LIST:
@@ -774,8 +780,18 @@ class VGG16(base.NN):
             if correct_index == -1:
                 correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
 
+            if j <= 2:
+                self.echo('correct_index:')
+                self.echo(correct_index)
+
             net_weight = self.NET_WEIGHT[correct_index]
-            classes[correct_index] = classes[correct_index] / (1.0 - net_weight) * net_weight
+            classes[correct_index] = classes[correct_index] / pow(1.0 - net_weight, 1.2) * net_weight
+
+            if j <= 2:
+                self.echo('update class:')
+                self.echo(classes[correct_index])
+
+            x[:, j] = classes
 
         exp_x = np.exp(x)
         # exp_x = np.exp(x.transpose() * np.array(self.NET_WEIGHT)).transpose()
