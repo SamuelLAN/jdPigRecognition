@@ -590,6 +590,31 @@ class TestBData:
             sys.stdout.write(msg)
             sys.stdout.flush()
 
+o_test = TestData(0.0, 0.1)
+
+batch_y_list = []
+
+while True:
+    batch_x, batch_y = o_test.next_batch(16)
+    if isinstance(batch_x, type(None)):
+        break
+
+    batch_y_list.append(batch_y)
+batch_y_list = np.array(batch_y_list)
+
+label_list = o_test.get_label_list()
+
+print ('batch_y_list')
+print (batch_y_list)
+
+print ('label_list')
+print (label_list)
+
+print ('equal')
+print (np.equal(batch_y_list, label_list))
+
+
+
 # Download.run()
 
 # train_data = Data(0.0, 0.64, 'train')
