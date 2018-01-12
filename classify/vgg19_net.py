@@ -31,12 +31,9 @@ class VGG19(base.NN):
     NUM_CHANNEL = 3  # 输入图片为 3 通道，彩色
     NUM_CLASSES = 30  # 输出的类别
 
-    IMAGE_SHAPE = [224, 224]
-    IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
-
     # 学习率的相关参数
     BASE_LEARNING_RATE = 0.0001  # 初始 学习率
-    DECAY_RATE = 0.001  # 学习率 的 下降速率
+    DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
     REGULAR_BETA = 0.1  # 正则化的 beta 参数
@@ -47,11 +44,15 @@ class VGG19(base.NN):
 
     ''' 类的配置 '''
 
+    USE_BN = True  # 网络里是否使用了 batch normalize
     USE_BN_INPUT = True  # 输入是否使用 batch normalize
 
     SHOW_PROGRESS_FREQUENCY = 2  # 每 SHOW_PROGRESS_FREQUENCY 个 step show 一次进度 progress
 
     ''' 模型的配置；采用了 VGG19 模型的 FCN '''
+
+    IMAGE_SHAPE = [56, 56]
+    IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
 
     VGG_MODEL = vgg.VGG.load(True)  # 加载 VGG 模型
 
@@ -61,6 +62,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv1_1'][0],
             'b': VGG_MODEL['conv1_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -68,6 +70,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv1_2'][0],
             'b': VGG_MODEL['conv1_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -81,6 +84,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv2_1'][0],
             'b': VGG_MODEL['conv2_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -88,6 +92,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv2_2'][0],
             'b': VGG_MODEL['conv2_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -101,6 +106,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_1'][0],
             'b': VGG_MODEL['conv3_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -108,6 +114,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_2'][0],
             'b': VGG_MODEL['conv3_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -115,6 +122,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_3'][0],
             'b': VGG_MODEL['conv3_3'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -122,6 +130,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv3_4'][0],
             'b': VGG_MODEL['conv3_4'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -135,6 +144,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_1'][0],
             'b': VGG_MODEL['conv4_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -142,6 +152,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_2'][0],
             'b': VGG_MODEL['conv4_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -149,6 +160,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_3'][0],
             'b': VGG_MODEL['conv4_3'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -156,6 +168,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv4_4'][0],
             'b': VGG_MODEL['conv4_4'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -169,6 +182,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_1'][0],
             'b': VGG_MODEL['conv5_1'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -176,6 +190,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_2'][0],
             'b': VGG_MODEL['conv5_2'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -183,6 +198,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_3'][0],
             'b': VGG_MODEL['conv5_3'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -190,6 +206,7 @@ class VGG19(base.NN):
             'type': 'conv',
             'W': VGG_MODEL['conv5_4'][0],
             'b': VGG_MODEL['conv5_4'][1],
+            'bn': True,
             'trainable': False,
         },
         {
@@ -266,8 +283,8 @@ class VGG19(base.NN):
     ''' 加载数据 '''
 
     def load(self):
-        self.__train_set = load.Data(0.0, 0.8, 'train')
-        self.__val_set = load.Data(0.8, 1.0, 'validation')
+        self.__train_set = load.Data(0.0, 0.8, 'train', self.IMAGE_SHAPE)
+        self.__val_set = load.Data(0.8, 1.0, 'validation', self.IMAGE_SHAPE)
         # self.__test_set = load.Data(0.8, 1.0, 'test')
 
         self.__train_set.start_thread()
@@ -304,7 +321,6 @@ class VGG19(base.NN):
             self.__mean_log_loss = tf.placeholder(tf.float32, name='mean_log_loss')
 
             tf.summary.scalar('learning_rate', self.__learning_rate)
-            tf.summary.scalar('keep_prob', self.keep_prob)
             tf.summary.scalar('mean_accuracy', self.__mean_accuracy)
             tf.summary.scalar('mean_loss', self.__mean_loss)
             tf.summary.scalar('mean_log_loss', self.__mean_log_loss)
@@ -319,8 +335,8 @@ class VGG19(base.NN):
 
     def __get_log_loss(self):
         with tf.name_scope('log_loss'):
-            exp_x = tf.exp(self.__output)
-            prob = exp_x / tf.reduce_sum(exp_x)
+            exp_x = tf.transpose(tf.exp(self.__output))
+            prob = tf.transpose(exp_x / tf.reduce_sum(exp_x, axis=0))
             p = tf.maximum(tf.minimum(prob, 1 - 1e-15), 1e-15)
             self.__log_loss = - tf.divide(tf.reduce_sum(tf.multiply(self.__label, tf.log(p))), self.__size)
 
@@ -338,7 +354,7 @@ class VGG19(base.NN):
             batch_x = (batch_x - self.mean_x) / (self.std_x + self.EPSILON)
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y,
-                         self.__size: batch_y.shape[0], self.keep_prob: 1.0}
+                         self.__size: batch_y.shape[0], self.keep_prob: 1.0, self.t_is_train: False}
             loss, log_loss, accuracy = self.sess.run([self.__loss, self.__log_loss, self.__accuracy], feed_dict)
             mean_accuracy += accuracy
             mean_loss += loss
@@ -413,7 +429,7 @@ class VGG19(base.NN):
             batch_x = (batch_x - _mean) / (_std + self.EPSILON)
 
             feed_dict = {self.__image: batch_x, self.__label: batch_y, self.keep_prob: self.KEEP_PROB,
-                         self.__size: batch_y.shape[0]}
+                         self.__size: batch_y.shape[0], self.t_is_train: True}
             _, train_loss, train_log_loss, train_accuracy = self.sess.run(
                 [train_op, self.__loss, self.__log_loss, self.__accuracy], feed_dict)
 
@@ -446,7 +462,8 @@ class VGG19(base.NN):
 
                 feed_dict = {self.__image: batch_val_x, self.__label: batch_val_y, self.keep_prob: 1.0,
                              self.__size: batch_val_y.shape[0], self.__mean_accuracy: mean_val_accuracy,
-                             self.__mean_loss: mean_val_loss, self.__mean_log_loss: mean_val_log_loss}
+                             self.__mean_loss: mean_val_loss, self.__mean_log_loss: mean_val_log_loss,
+                             self.t_is_train: False}
                 self.add_summary_val(feed_dict, epoch)
 
                 del batch_val_x
@@ -525,7 +542,7 @@ class VGG19(base.NN):
 
         np_image = (np_image - self.mean_x) / (self.std_x + self.EPSILON)
 
-        feed_dict = {self.__image: np_image, self.keep_prob: 1.0}
+        feed_dict = {self.__image: np_image, self.keep_prob: 1.0, self.t_is_train: False}
         output = self.sess.run(self.__output, feed_dict)
 
         return output[0]
