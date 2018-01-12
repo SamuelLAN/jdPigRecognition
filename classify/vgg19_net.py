@@ -218,8 +218,8 @@ class VGG19(base.NN):
         {
             'name': 'fc6',
             'type': 'fc',
-            'shape': [2048, 1024],
-            # 'filter_out': 1024,
+            # 'shape': [2048, 1024],
+            'filter_out': 1024,
             'trainable': True,
         },
         {
@@ -229,8 +229,8 @@ class VGG19(base.NN):
         {
             'name': 'fc7',
             'type': 'fc',
-            'shape': [1024, 512],
-            # 'filter_out': 512,
+            # 'shape': [1024, 512],
+            'filter_out': 512,
             'trainable': True,
         },
         {
@@ -240,15 +240,15 @@ class VGG19(base.NN):
         {
             'name': 'fc8',
             'type': 'fc',
-            'shape': [512, 256],
-            # 'filter_out': 256,
+            # 'shape': [512, 256],
+            'filter_out': 256,
             'trainable': True,
         },
         {
             'name': 'softmax',
             'type': 'fc',
-            'shape': [256, NUM_CLASSES],
-            # 'filter_out': NUM_CLASSES,
+            # 'shape': [256, NUM_CLASSES],
+            'filter_out': NUM_CLASSES,
             'activate': False,
         },
     ]
@@ -404,6 +404,10 @@ class VGG19(base.NN):
         best_val_log_loss = mean_val_log_loss
         best_val_accuracy = mean_val_accuracy
         incr_val_log_loss_times = 0
+
+        self.echo('\n best val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (mean_val_accuracy,
+                                                                                        mean_val_loss,
+                                                                                        mean_val_log_loss))
 
         self.echo('\nepoch:')
 

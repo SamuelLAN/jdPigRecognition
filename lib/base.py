@@ -11,6 +11,7 @@ import time
 import platform
 import traceback
 import numpy as np
+from functools import reduce
 from multiprocessing import Process
 from six.moves import cPickle as pickle
 from tensorflow.python.ops import control_flow_ops
@@ -254,10 +255,10 @@ class NN:
             std = NN.CONV_WEIGHT_STDDEV
         else:
             if len(shape) == 4:
-                input_nodes = shape[1] * shape[2]
+                input_nodes = tf.multiply(shape[1], shape[2])
             else:
-                input_nodes = shape[0]
-            std = 1.0 / tf.sqrt(tf.cast(input_nodes, tf.float32))
+                input_nodes = tf.cast(shape[0], tf.float32)
+            std = 1.0 / tf.sqrt(input_nodes)
 
         return tf.Variable(
             tf.truncated_normal(
@@ -877,7 +878,8 @@ class NN:
                     if 'shape' in config:
                         shape = config['shape']
                     elif 'filter_out' in config:
-                        filters_in = a.get_shape()[-1]
+                        shape = [s for s in a.get_shape()]
+                        filters_in = reduce((lambda x0, x1: x0 * x1), shape[1:])
                         shape = [tf.cast(filters_in, tf.int32), config['filter_out']]
 
                     W = self.init_weight(shape) if 'W' not in config \
