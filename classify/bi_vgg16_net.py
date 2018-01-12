@@ -498,7 +498,7 @@ class VGG16(base.NN):
             feed_dict = {self.__image: batch_x, self.keep_prob: 1.0, self.t_is_train: False}
 
             prob = self.sess.run(self.__prob, feed_dict)
-            prob_list.append(prob[:, 1].transpose())
+            prob_list.append(prob[:, 1])
 
             del batch_x
 
@@ -506,7 +506,7 @@ class VGG16(base.NN):
             progress = float(count) / times * 100
             self.echo('\r >> measuring progress: %.2f%% | %d \t' % (progress, times), False)
 
-        return np.hstack(prob_list).transpose()
+        return np.vstack(prob_list)
 
     ''' 主函数 '''
 
@@ -871,8 +871,20 @@ class VGG16(base.NN):
         self.echo('Finish testing ')
 
         # self.__prob_list = np.hstack(self.__prob_list)
-        self.__train_prob_list = np.array(self.__train_prob_list)
-        self.__val_prob_list = np.array(self.__val_prob_list)
+        self.__train_prob_list = np.hstack(self.__train_prob_list)
+        self.__val_prob_list = np.hstack(self.__val_prob_list)
+
+        self.echo('***************************************************')
+
+        self.echo('__train_prob_list')
+        self.echo(self.__train_prob_list)
+        self.echo(self.__train_prob_list.shape)
+        self.echo('\n**************************************************')
+
+        self.echo('__val_prob_list')
+        self.echo(self.__val_prob_list)
+        self.echo(self.__val_prob_list.shape)
+        self.echo('')
 
         self.echo('Doing softmax ...')
 
