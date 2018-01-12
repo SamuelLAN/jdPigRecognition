@@ -18,7 +18,18 @@ import bi_load as load
 import lib.base as base
 import model.vgg as vgg
 
-''' 全卷积神经网络 '''
+''' 
+ 全卷积神经网络 
+ 该方法将 30 分类 转化为 30 个 二分类问题，需要训练 30 个网络，最后根据各个网络的准确率作为权重，加权投票作为输出
+ 
+ 优点：
+    可扩展性，当新增分类时，无需重新训练全部数据，只需针对新分类训练一个新的网络即可
+    
+ 致命缺点：
+    尽管单个网络的准确率能高达 90+%，但当需要整合 30 个网络时，能保证不出错的概率就变成 0.9 ^ 30 = 0.0424 ，这是
+    一个非常小的数字，意味着当综合考虑时，总会有一些网络会出错出现干扰，导致准确率无法提升
+ 
+'''
 
 
 class VGG16(base.NN):
@@ -370,7 +381,8 @@ class VGG16(base.NN):
     def load(self):
         self.__train_set_list[self.net_id] = load.Data(self.net_id, 0.0, self.TRAIN_DATA_RATIO, 'train',
                                                        self.IMAGE_SHAPE)
-        self.__val_set_list[self.net_id] = load.Data(self.net_id, self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO, 'validation',
+        self.__val_set_list[self.net_id] = load.Data(self.net_id, self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO,
+                                                     'validation',
                                                      self.IMAGE_SHAPE)
 
         self.__train_size_list[self.net_id] = self.__train_set_list[self.net_id].get_size()
@@ -413,6 +425,8 @@ class VGG16(base.NN):
             tf.summary.scalar('mean_log_loss', self.__mean_log_loss)
             # tf.summary.scalar('mean_ch_log_loss', self.__mean_ch_log_loss)
 
+    ''' 计算准确率 '''
+
     def __get_accuracy(self):
         with tf.name_scope('accuracy'):
             labels = tf.argmax(self.__label, 1)
@@ -420,6 +434,8 @@ class VGG16(base.NN):
             correct = tf.equal(labels, predict)  # 返回 predict 与 labels 相匹配的结果
 
             self.__accuracy = tf.divide(tf.reduce_sum(tf.cast(correct, tf.float32)), self.__size)  # 计算准确率
+
+    ''' 计算 log_loss '''
 
     def __get_log_loss(self):
         with tf.name_scope('log_loss'):
@@ -749,71 +765,36 @@ class VGG16(base.NN):
 
     ''' test 时需要进行的 softmax '''
 
-    def np_softmax(self, x):
-        # x.shape = (30, 500)
-
+    def __np_softmax(self, x):
         for j in range(x.shape[1]):
             classes = x[:, j]
+            # 根据网络的权重加权，并取加权后概率最大的类别
+            correct_index = int(np.argmax(classes * np.array(self.NET_WEIGHT)))
 
-            if j <= 2:
-                self.echo('j:')
-                self.echo(j)
-                self.echo('************* classes ****************')
-                self.echo(classes)
-
-            # correct_index = -1
-            #
-            # for op_list in self.OPTION_LIST:
-            #     part_classes = classes[op_list]
-            #
-            #     correct_class = np.argwhere(part_classes > 0.5).reshape(-1)
-            #     if len(correct_class) == 0:
-            #         continue
-            #
-            #     if len(correct_class) == 1:
-            #         correct_index = op_list[correct_class[0]]
-            #         break
-            #     else:
-            #         ar_prob = np.array(
-            #             [classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
-            #         correct_index = op_list[correct_class[np.argmax(ar_prob)]]
-            #         break
-
-            # if correct_index == -1:
-            correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
-
-            if j <= 2:
-                self.echo('correct_index:')
-                self.echo(correct_index)
-
+            # 将正确的那个概率的权重加大
             net_weight = self.NET_WEIGHT[correct_index]
             classes[correct_index] = classes[correct_index] / pow(1.0 - net_weight, 1.2) * net_weight
-
-            if j <= 2:
-                self.echo('update class:')
-                self.echo(classes[correct_index])
-
             x[:, j] = classes
 
         exp_x = np.exp(x)
-        # exp_x = np.exp(x.transpose() * np.array(self.NET_WEIGHT)).transpose()
-        # exp_x = np.exp(tmp_x)
         return exp_x / np.sum(exp_x, axis=0)
 
     ''' test 时需要计算的 log_loss '''
 
     @staticmethod
-    def np_log_loss(prob, label):
+    def __np_log_loss(prob, label):
         prob = np.minimum(np.maximum(prob, 1e-15), 1 - 1e-15)
         return - np.sum(np.multiply(label, np.log(prob))) / float(label.shape[0])
 
     ''' test 时计算的 accuracy '''
 
     @staticmethod
-    def np_accuracy(prob, label):
+    def __np_accuracy(prob, label):
         prob = np.argmax(prob, axis=1)
         label = np.argmax(label, axis=1)
         return np.cast['float32'](np.sum(np.equal(prob, label))) / float(label.shape[0])
+
+    ''' 测试第 i 个网络 '''
 
     def __test_i(self, i):
         self.echo('\nTesting %d net ... ' % i)
@@ -835,13 +816,9 @@ class VGG16(base.NN):
 
         self.init_variables()
 
-        # prob_list = self.__measure_prob(self.__data)
-        # self.__prob_list.append(prob_list)
-
         mean_train_accuracy, mean_train_loss, mean_train_log_loss = self.__measure(self.__train_set_list[self.net_id],
                                                                                    100)
         mean_val_accuracy, mean_val_loss, mean_val_log_loss = self.__measure(self.__val_set_list[self.net_id], 100)
-        # mean_test_accuracy, mean_test_loss, mean_test_log_loss = self.__measure(self.__test_set)
 
         self.__result.append([self.net_id, mean_train_accuracy, mean_train_loss, mean_train_log_loss,
                               mean_val_accuracy, mean_val_loss, mean_val_log_loss])
@@ -859,14 +836,13 @@ class VGG16(base.NN):
 
         self.echo('Finish testing ')
 
+    ''' 测试 '''
+
     def test(self):
         self.__result = []
 
         self.__train_prob_list = []
         self.__val_prob_list = []
-        # self.__prob_list = []
-        #
-        # self.__data = load.TestBData(self.IMAGE_SHAPE)
 
         self.__train_data = load.TestData(0.0, self.TRAIN_DATA_RATIO, 'train', self.IMAGE_SHAPE)
         self.__val_data = load.TestData(self.TRAIN_DATA_RATIO, self.VAL_DATA_END_RATIO, 'validation', self.IMAGE_SHAPE)
@@ -883,118 +859,28 @@ class VGG16(base.NN):
 
         self.echo('Finish testing ')
 
-        # self.__prob_list = np.hstack(self.__prob_list)
         self.__train_prob_list = np.vstack(self.__train_prob_list)
         self.__val_prob_list = np.vstack(self.__val_prob_list)
 
-        self.echo('***************************************************')
-        self.echo('__train_prob_list')
-        self.echo(self.__train_prob_list[:, :3])
-        self.echo(self.__train_prob_list.shape)
+        self.__train_prob_list = self.__np_softmax(self.__train_prob_list).transpose()
+        self.__val_prob_list = self.__np_softmax(self.__val_prob_list).transpose()
 
-        self.echo('\n**************************************************')
-        self.echo('__val_prob_list')
-        self.echo(self.__val_prob_list[:, :3])
-        self.echo(self.__val_prob_list.shape)
-        self.echo('')
-
-        self.echo('Doing softmax ...')
-
-        # self.__prob_list = self.np_softmax(self.__prob_list)
-        self.__train_prob_list = self.np_softmax(self.__train_prob_list).transpose()
-        self.__val_prob_list = self.np_softmax(self.__val_prob_list).transpose()
-
-        self.echo('Finish softmax ')
-
-        self.echo('##########################################')
-        self.echo('__train_prob_list')
-        self.echo(self.__train_prob_list[:3, :])
-        self.echo(np.sum(self.__train_prob_list[0, :]))
-        self.echo(np.sum(self.__train_prob_list[1, :]))
-        self.echo(np.sum(self.__train_prob_list[2, :]))
-        self.echo(self.__train_prob_list.shape)
-
-        self.echo('\n##########################################')
-        self.echo('__val_prob_list')
-        self.echo(self.__val_prob_list[:3, :])
-        self.echo(np.sum(self.__val_prob_list[0, :]))
-        self.echo(np.sum(self.__val_prob_list[1, :]))
-        self.echo(np.sum(self.__val_prob_list[2, :]))
-        self.echo(self.__val_prob_list.shape)
-        self.echo('')
-
-        # id_list = self.__data.get_label_list()
         train_label_list = self.__train_data.get_label_list()
         val_label_list = self.__val_data.get_label_list()
 
-        self.echo('train_label_list')
-        self.echo(train_label_list[:3, :])
+        train_accuracy = self.__np_accuracy(self.__train_prob_list, train_label_list)
+        val_accuracy = self.__np_accuracy(self.__val_prob_list, val_label_list)
 
-        self.echo('val_label_list')
-        self.echo(train_label_list[:3, :])
-
-        # data = []
-        # for i, pig_id in enumerate(id_list):
-        #     tmp_prob_list = self.__prob_list[i]
-        #     for class_no, prob in enumerate(tmp_prob_list.reshape(-1)):
-        #         data.append([pig_id, class_no + 1, '%.10f' % prob])
-        #
-        # if not os.path.isdir(self.RESULT_DIR):
-        #     os.mkdir(self.RESULT_DIR)
-        #
-        # self.echo('\nSaving result to %s ... ' % self.RESULT_FILE_PATH)
-        # data_len = len(data)
-        #
-        # with open(self.RESULT_FILE_PATH, 'w') as f:
-        #     writer = csv.writer(f)
-        #
-        #     for i, line in enumerate(data):
-        #         progress = float(i + 1) / data_len * 100.0
-        #         self.echo('\r  >> progress: %.6f ' % progress, False)
-        #
-        #         writer.writerow(line)
-        #
-        # self.echo('Finish saving result ')
-
-        train_accuracy = self.np_accuracy(self.__train_prob_list, train_label_list)
-        val_accuracy = self.np_accuracy(self.__val_prob_list, val_label_list)
-
-        train_log_loss = self.np_log_loss(self.__train_prob_list, train_label_list)
-        val_log_loss = self.np_log_loss(self.__val_prob_list, val_label_list)
+        train_log_loss = self.__np_log_loss(self.__train_prob_list, train_label_list)
+        val_log_loss = self.__np_log_loss(self.__val_prob_list, val_label_list)
 
         self.echo('\n****************************************')
         self.echo('train_accuracy: %.6f train_log_loss: %.8f' % (train_accuracy, train_log_loss))
         self.echo('val_accuracy: %.6f val_log_loss: %.8f' % (val_accuracy, val_log_loss))
 
-    def use_model(self, np_image):
-        if not self.__has_rebuild:
-            self.restore_model_w_b()  # 恢复模型
-            self.rebuild_model()  # 重建模型
-            self.get_loss()  # 重新 get loss
-            self.__get_accuracy()
-            self.__get_log_loss()
 
-            self.init_variables()  # 初始化所有变量
-            self.__has_rebuild = True
-
-        np_image = np.expand_dims(np_image, axis=0)
-
-        np_image = (np_image - self.multi_mean_x[self.net_id]) / (self.multi_std_x[self.net_id] + self.EPSILON)
-
-        feed_dict = {self.__image: np_image, self.keep_prob: 1.0, self.t_is_train: False}
-        output = self.sess.run(self.__output, feed_dict)
-
-        return output[0]
-
-
-# good accuracy result: 2018_01_09_15_23_56
-# good accuracy and log_loss result : 2018_01_10_17_16_47, 2018_01_11_00_17_05, 2018_01_11_15_18_43
-#   2018_01_12_01_38_40
-# o_vgg = VGG16(False, '2018_01_11_03_35_41')
 # o_vgg = VGG16(False, '2018_01_12_01_38_40')
-# o_vgg = VGG16(False)
 # o_vgg.run()
 
 o_vgg = VGG16(True, '2018_01_12_01_38_40')
 o_vgg.test()
-# o_vgg.test_i(0)
