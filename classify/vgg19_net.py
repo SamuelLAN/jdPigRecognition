@@ -32,11 +32,11 @@ class VGG19(base.NN):
     NUM_CLASSES = 30  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.0001  # 初始 学习率
+    BASE_LEARNING_RATE = 0.00005  # 初始 学习率
     DECAY_RATE = 0.0001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.1  # 正则化的 beta 参数
+    REGULAR_BETA = 0.01  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
@@ -378,11 +378,11 @@ class VGG19(base.NN):
         self.__get_log_loss()
 
         # 正则化
-        # self.__loss = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
-        self.__log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
+        loss_regular = self.regularize_trainable(self.__loss, self.REGULAR_BETA)
+        # log_loss_regular = self.regularize_trainable(self.__log_loss, self.REGULAR_BETA)
 
         # 生成训练的 op
-        train_op = self.get_train_op(self.__log_loss_regular, self.__learning_rate, self.global_step)
+        train_op = self.get_train_op(loss_regular, self.__learning_rate, self.global_step)
 
         self.__get_accuracy()
 
