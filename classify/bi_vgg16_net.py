@@ -762,7 +762,7 @@ class VGG16(base.NN):
                 part_classes = classes[op_list]
 
                 correct_class = np.argwhere(part_classes > 0.5)
-                if not correct_class:
+                if len(correct_class) == 0:
                     continue
 
                 if len(correct_class) == 1:
