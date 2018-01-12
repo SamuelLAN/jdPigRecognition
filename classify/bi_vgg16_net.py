@@ -751,39 +751,34 @@ class VGG16(base.NN):
 
     def np_softmax(self, x):
         # x.shape = (30, 500)
-        # tmp_x = []
-        #
-        # for j in range(x.shape[1]):
-        #     classes = x[:, j]
-        #
-        #     correct_index = -1
-        #
-        #     for op_list in self.OPTION_LIST:
-        #         part_classes = classes[op_list]
-        #
-        #         correct_class = np.argwhere(part_classes > 0.5)
-        #         if len(correct_class) == 0:
-        #             continue
-        #
-        #         if len(correct_class) == 1:
-        #             correct_index = op_list[int(correct_class[0])]
-        #         else:
-        #             ar_prob = np.array(
-        #                 [classes[op_list[int(k)]] * self.NET_WEIGHT[op_list[int(k)]] for k in correct_class])
-        #             correct_index = int(np.argmax(ar_prob))
-        #
-        #     if correct_index == -1:
-        #         correct_index = int(np.argmax(classes * np.array(self.NET_WEIGHT)))
-        #
-        #     net_weight = self.NET_WEIGHT[correct_index]
-        #     classes[correct_index] = classes[correct_index] / (1 - net_weight) * net_weight
-        #
-        #     tmp_x.append(classes)
-        #
-        # tmp_x = np.array(tmp_x).transpose()
 
-        # exp_x = np.exp(x)
-        exp_x = np.exp(x.transpose() * np.array(self.NET_WEIGHT)).transpose()
+        for j in range(x.shape[1]):
+            classes = x[:, j]
+
+            correct_index = -1
+
+            for op_list in self.OPTION_LIST:
+                part_classes = classes[op_list]
+
+                correct_class = np.argwhere(part_classes > 0.5).reshape(-1)
+                if len(correct_class) == 0:
+                    continue
+
+                if len(correct_class) == 1:
+                    correct_index = op_list[correct_class[0]]
+                else:
+                    ar_prob = np.array(
+                        [classes[op_list[k]] * self.NET_WEIGHT[op_list[k]] for k in correct_class])
+                    correct_index = op_list[correct_class[np.argmax(ar_prob)]]
+
+            if correct_index == -1:
+                correct_index = np.argmax(classes * np.array(self.NET_WEIGHT))
+
+            net_weight = self.NET_WEIGHT[correct_index]
+            classes[correct_index] = classes[correct_index] / (1.0 - net_weight) * net_weight
+
+        exp_x = np.exp(x)
+        # exp_x = np.exp(x.transpose() * np.array(self.NET_WEIGHT)).transpose()
         # exp_x = np.exp(tmp_x)
         return exp_x / np.sum(exp_x, axis=0)
 
@@ -896,17 +891,17 @@ class VGG16(base.NN):
         self.echo('##########################################')
         self.echo('__train_prob_list')
         self.echo(self.__train_prob_list[:3, :])
-        self.echo(np.sum(self.__train_prob_list[:, 0]))
-        self.echo(np.sum(self.__train_prob_list[:, 1]))
-        self.echo(np.sum(self.__train_prob_list[:, 2]))
+        self.echo(np.sum(self.__train_prob_list[0, :]))
+        self.echo(np.sum(self.__train_prob_list[1, :]))
+        self.echo(np.sum(self.__train_prob_list[2, :]))
         self.echo(self.__train_prob_list.shape)
 
         self.echo('\n##########################################')
         self.echo('__val_prob_list')
         self.echo(self.__val_prob_list[:3, :])
-        self.echo(np.sum(self.__val_prob_list[:, 0]))
-        self.echo(np.sum(self.__val_prob_list[:, 1]))
-        self.echo(np.sum(self.__val_prob_list[:, 2]))
+        self.echo(np.sum(self.__val_prob_list[0, :]))
+        self.echo(np.sum(self.__val_prob_list[1, :]))
+        self.echo(np.sum(self.__val_prob_list[2, :]))
         self.echo(self.__val_prob_list.shape)
         self.echo('')
 
