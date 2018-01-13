@@ -40,7 +40,7 @@ class VGG19(base.NN):
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
-    MAX_VAL_ACCURACY_DECR_TIMES = 30  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
+    MAX_VAL_ACCURACY_DECR_TIMES = 20  # 校验集 val_accuracy 连续 100 次没有降低，则 early stop
 
     # 保存模型时 校验集准确率 与 训练集准确率的占比: accuracy = val_accuracy * VAL_WEIGHT + train_accuracy * (1 - VAL_WEIGHT)
     VAL_WEIGHT = 0.7
