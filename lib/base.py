@@ -999,7 +999,7 @@ class NN:
                         filters_in = config['shape'][0]
                     else:
                         shape = [s for s in a.get_shape()]
-                        filters_in = reduce((lambda x0, x1: x0 * x1), shape[1:])
+                        filters_in = tf.cast(reduce((lambda x0, x1: x0 * x1), shape[1:]), tf.int32)
 
                     x = tf.reshape(a, [-1, filters_in])
                     a = tf.add(tf.matmul(x, w_dict[name]), b_dict[name])
