@@ -995,7 +995,13 @@ class NN:
                         w_dict[name] = self.init_weight_w(config['W'], False)
                         b_dict[name] = self.init_bias_b(config['b'], False)
 
-                    x = tf.reshape(a, [-1, config['shape'][0]])
+                    if 'shape' in config:
+                        filters_in = config['shape'][0]
+                    else:
+                        shape = [s for s in a.get_shape()]
+                        filters_in = reduce((lambda x0, x1: x0 * x1), shape[1:])
+
+                    x = tf.reshape(a, [-1, filters_in])
                     a = tf.add(tf.matmul(x, w_dict[name]), b_dict[name])
 
                     if ('activate' not in config and i < model_len - 1) or config['activate']:
