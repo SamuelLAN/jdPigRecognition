@@ -32,8 +32,8 @@ class VGG19(base.NN):
     NUM_CLASSES = 30  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.00002  # 初始 学习率
-    DECAY_RATE = 0.00005  # 学习率 的 下降速率
+    BASE_LEARNING_RATE = 0.000002  # 初始 学习率
+    DECAY_RATE = 0.0005  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
     REGULAR_BETA = 0.02  # 正则化的 beta 参数
@@ -300,7 +300,11 @@ class VGG19(base.NN):
     ''' 模型 '''
 
     def model(self):
-        self.__output = self.parse_model(self.__image)
+        if self.start_from_model:
+            self.restore_model_w_b(self.start_from_model)
+            self.rebuild_model()
+        else:
+            self.__output = self.parse_model(self.__image)
 
     ''' 重建模型 '''
 
@@ -415,6 +419,11 @@ class VGG19(base.NN):
         self.echo('\n best val_accuracy: %.6f  val_loss: %.6f  val_log_loss: %.6f  ' % (mean_val_accuracy,
                                                                                         mean_val_loss,
                                                                                         mean_val_log_loss))
+
+        if self.start_from_model:
+            self.get_new_model()  # 将模型保存到新的 model
+
+        self.save_model_w_b()
 
         self.echo('\nepoch:')
 
@@ -600,6 +609,6 @@ class VGG19(base.NN):
         self.echo('\ndone')
 
 
-o_vgg = VGG19()
+o_vgg = VGG19(False, '2018_01_12_20_58_18')
 o_vgg.run()
 # o_vgg.test()
