@@ -32,11 +32,11 @@ class VGG19(base.NN):
     NUM_CLASSES = 30  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.00005  # 初始 学习率
-    DECAY_RATE = 0.0001  # 学习率 的 下降速率
+    BASE_LEARNING_RATE = 0.000005  # 初始 学习率
+    DECAY_RATE = 0.0002  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
-    REGULAR_BETA = 0.05  # 正则化的 beta 参数
+    REGULAR_BETA = 0.03  # 正则化的 beta 参数
     KEEP_PROB = 0.5  # dropout 的 keep_prob
 
     # early stop
@@ -54,7 +54,7 @@ class VGG19(base.NN):
 
     ''' 模型的配置；采用了 VGG19 模型的 FCN '''
 
-    LOSS_TYPE = 1  # loss type 有两种；0：使用正常的loss，1：使用log_loss
+    LOSS_TYPE = 0  # loss type 有两种；0：使用正常的loss，1：使用log_loss
 
     IMAGE_SHAPE = [56, 56]
     IMAGE_PH_SHAPE = [None, IMAGE_SHAPE[0], IMAGE_SHAPE[1], NUM_CHANNEL]  # image 的 placeholder 的 shape
