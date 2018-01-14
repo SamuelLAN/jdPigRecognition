@@ -54,10 +54,6 @@
 >
 > 由于该模型存在致命缺点，这里就不展示它的结构图了，准确率只有 60% 多
 >
-> tensorboard 的截图
->
-> <img src="../tmp/classify_bi_vgg_tensorboard.png" alt="bi_vgg16的运行结果图" height="540" width="460">
->
 > 其中 30 个网络的准确率以及 log_loss
 >
 > <img src="../tmp/classify_bi_vgg_result_1.png" alt="bi_vgg16的运行结果图" height="700" width="660">
@@ -77,6 +73,12 @@
 > 此处的 vgg 模型，加入了 batch_normalize，为了加快训练速度
 >
 > <img src="../tmp/vgg19_graph.png" alt="vgg16 的结构图" height="1300" width="600">
+>
+> tensorboard 的截图
+>
+> <img src="../tmp/classify_vgg19_tensorboard.png" alt="bi_vgg16的运行结果图" height="540" width="460">
+>
+> 还没仔细地调参数，目前准确率就 60+%，跟 bi_vgg16 的效果差不多，运行结果图忘记截图了
 
 <br>
 
