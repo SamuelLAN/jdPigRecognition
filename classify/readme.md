@@ -53,6 +53,22 @@
 > <strong>致命缺点</strong>：尽管单个网络的准确率能高达 90+%，但当需要整合 30 个网络时，能保证不出错的概率就变成 0.9 ^ 30 = 0.0424 ，这是一个非常小的数字，意味着当综合考虑时，总会有一些网络会出错出现干扰，导致准确率无法提升
 >
 > 由于该模型存在致命缺点，这里就不展示它的结构图了，准确率只有 60% 多
+>
+> tensorboard 的截图
+>
+> <img src="../tmp/classify_bi_vgg_tensorboard.png" alt="bi_vgg16的运行结果图" height="540" width="460">
+>
+> 其中 30 个网络的准确率以及 log_loss
+>
+> <img src="../tmp/classify_bi_vgg_result_1.png" alt="bi_vgg16的运行结果图" height="700" width="660">
+>
+> <img src="../tmp/classify_bi_vgg_result_2.png" alt="bi_vgg16的运行结果图" height="700" width="660">
+>
+> <img src="../tmp/classify_bi_vgg_result_3.png" alt="bi_vgg16的运行结果图" height="700" width="660">
+>
+> 可见单个网络的准确率可以很高，最高 97% - 98%，若给每个网络调一下参数，平均准确率应该能高于 90%；但是关键就在于上面所说的致命弱点
+>
+> 这里就不展示最终合并在一起的准确率的运行结果图了，之前忘记截图，准确率就 60+%
 
 <br>
 
