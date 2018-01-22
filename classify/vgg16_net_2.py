@@ -499,6 +499,8 @@ class VGG16(base.NN):
 
                 mean_train_accuracy = 0
                 mean_train_loss = 0
+                mean_train_log_loss = 0
+                mean_train_ch_log_loss = 0
 
                 if best_val_log_loss > mean_val_log_loss:
                     # if best_val_accuracy < mean_val_accuracy:

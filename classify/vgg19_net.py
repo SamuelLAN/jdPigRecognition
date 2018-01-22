@@ -500,6 +500,7 @@ class VGG19(base.NN):
 
                 mean_train_accuracy = 0
                 mean_train_loss = 0
+                mean_train_log_loss = 0
 
                 condition_yes = False
                 if self.LOSS_TYPE == 0:
