@@ -1180,7 +1180,7 @@ class NN:
             for name, W in w_dict.items():
                 if len(W.shape) != 2:  # 若不是全连接层的权重矩阵，则不进行正则化
                     continue
-                regularizer = tf.add(regularizer, tf.nn.l2_loss(W))
+                regularizer += tf.add(regularizer, tf.nn.l2_loss(W))
             return tf.reduce_mean(loss + beta * regularizer)
 
     ''' 正则化，默认采用 l2_loss 正则化 '''
@@ -1190,9 +1190,7 @@ class NN:
         with tf.name_scope('regularize'):
             regularizer = 0.0
             for i, var in enumerate(trainable_var):
-                # if i == 0:
-                #     continue
-                regularizer = tf.add(regularizer, tf.nn.l2_loss(tf.cast(var, tf.float32)))
+                regularizer += tf.add(regularizer, tf.nn.l2_loss(tf.cast(var, tf.float32)))
         return tf.reduce_mean(loss + beta * regularizer)
 
     ''' dropout '''
