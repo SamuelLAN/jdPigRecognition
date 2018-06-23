@@ -20,7 +20,7 @@ from PIL import Image
 class Data:
     CUR_DIR = os.path.abspath(os.path.split(__file__)[0])
     PRJ_DIR = os.path.split(CUR_DIR)[0]
-    DATA_ROOT = os.path.join(PRJ_DIR, 'cells')
+    DATA_ROOT = os.path.join(PRJ_DIR, 'data', 'cells')
     IMAGE_SCALE = 2
     RESIZE_SIZE = [360, 360]
 
