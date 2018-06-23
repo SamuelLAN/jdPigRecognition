@@ -490,6 +490,11 @@ class FCN(base.NN):
 
         self.echo('\ndone')
 
+        import matplotlib.pyplot as plt
+        plt.imshow(np.cast['uint8'](batch_y[0, :, :, 1] * 255))
+        plt.show()
+        exit()
+
         # show some val image result
         batch_x, batch_y = self.__val_set.next_batch(self.BATCH_SIZE)
         feed_dict = {self.__image: batch_x, self.keep_prob: 1.0}
