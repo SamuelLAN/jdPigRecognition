@@ -440,6 +440,12 @@ class FCN(base.NN):
                                                                        self.__steps, step_progress), False)
 
             batch_x, batch_y = self.__train_set.next_batch(self.BATCH_SIZE)
+
+            import matplotlib.pyplot as plt
+            plt.imshow(np.cast['uint8'](batch_y[0, :, :, 1] * 255))
+            plt.show()
+            exit()
+
             feed_dict = {self.__image: batch_x, self.__mask: batch_y,
                          self.keep_prob: self.KEEP_PROB}
             _, train_loss = self.sess.run([train_op, self.__loss], feed_dict)
@@ -489,11 +495,6 @@ class FCN(base.NN):
         # self.echo('test mean loss: %.6f' % test_loss)
 
         self.echo('\ndone')
-
-        import matplotlib.pyplot as plt
-        plt.imshow(np.cast['uint8'](batch_y[0, :, :, 1] * 255))
-        plt.show()
-        exit()
 
         # show some val image result
         batch_x, batch_y = self.__val_set.next_batch(self.BATCH_SIZE)
