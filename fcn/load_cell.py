@@ -77,7 +77,7 @@ class Data:
                 self.__y[file_name] = self.__get_mask(file_name)
 
             if 'mask' not in file_name:
-                img_no = file_name.split('_')[0]
+                img_no = os.path.splitext(file_name)[0]
                 y_file_name = img_no + '_mask.png'
 
                 if y_file_name not in self.__y:
