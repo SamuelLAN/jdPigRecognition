@@ -89,6 +89,7 @@ class Data:
                 # self.__data.append([image, self.__y[y_file_name]])
 
                 np_image = np.array([tmp_np_image, tmp_np_image, tmp_np_image])
+                np_image = np_image.transpose([1, 2, 0])
 
                 self.__total_size += 1
 
