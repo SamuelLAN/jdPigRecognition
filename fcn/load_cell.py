@@ -192,7 +192,7 @@ class Data:
             if os.path.splitext(file_name)[1].lower() != '.png':
                 continue
 
-            img_no = int(file_name.split('_')[0])
+            img_no = os.path.splitext(file_name)[0]
             img_no_set.add(img_no)
 
         img_no_list = list(img_no_set)
