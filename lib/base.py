@@ -255,7 +255,7 @@ class NN:
             std = NN.CONV_WEIGHT_STDDEV
         else:
             if len(shape) == 4:
-                input_nodes = tf.multiply(shape[1], shape[2])
+                input_nodes = tf.cast(tf.multiply(shape[1], shape[2]), tf.float32)
             else:
                 input_nodes = tf.cast(shape[0], tf.float32)
             std = 1.0 / tf.sqrt(input_nodes)
