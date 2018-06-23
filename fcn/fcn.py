@@ -20,7 +20,7 @@ if cur_dir_path:
     sys.path.append(os.path.split(cur_dir_path)[0])
 
 import lib.base as base
-import load
+import load_cell as load
 import model.vgg as vgg
 
 ''' 全卷积神经网络 '''
@@ -555,6 +555,6 @@ class FCN(base.NN):
             o_new_image = Image.fromarray(new_image)
             o_new_image.show()
 
-# o_fcn = FCN()
-# o_fcn.run()
+o_fcn = FCN()
+o_fcn.run()
 # o_fcn.test_model()
