@@ -95,7 +95,7 @@ class Data:
                 self.__data_dict[img_no].append([np_image, self.__get_same_size_mask(image, y_file_name)])
 
         for img_no, data_list in self.__data_dict.items():
-            self.__data_list.append([int(img_no), data_list])
+            self.__data_list.append([img_no, data_list])
 
         self.__data_list.sort(key=lambda x: self.__sort_list.index(x[0]) if self.__sort_list else x[0])
 
