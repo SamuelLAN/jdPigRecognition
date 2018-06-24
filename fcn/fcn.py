@@ -60,6 +60,8 @@ class FCN(base.NN):
         {
             'name': 'conv1_1',
             'type': 'conv',
+            # 'shape': VGG_MODEL['conv1_1'][0].shape,
+            # 'k_size': [1, 1],
             'W': VGG_MODEL['conv1_1'][0],
             'b': VGG_MODEL['conv1_1'][1],
             'trainable': True,
