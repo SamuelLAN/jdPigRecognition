@@ -441,10 +441,11 @@ class FCN(base.NN):
 
             batch_x, batch_y = self.__train_set.next_batch(self.BATCH_SIZE)
 
-            import matplotlib.pyplot as plt
-            plt.imshow(np.cast['uint8'](batch_y[0, :, :, 1] * 255))
-            plt.show()
-            exit()
+            # import matplotlib.pyplot as plt
+            # plt.imshow(np.cast['uint8'](batch_y[0, :, :, 1] * 255))
+            # plt.show()
+            # break
+            # exit()
 
             feed_dict = {self.__image: batch_x, self.__mask: batch_y,
                          self.keep_prob: self.KEEP_PROB}

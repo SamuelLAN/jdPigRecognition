@@ -119,11 +119,11 @@ class Data:
         mask = np.array(mask.resize(np.array(Data.RESIZE_SIZE)))
 
         background = copy.deepcopy(mask)
-        background[background != 255] = 0
         background[background == 255] = 1
 
+        mask[mask == 0] = 1
         mask[mask == 255] = 0
-        mask[mask > 0] = 1
+
         return np.array([background, mask]).transpose([1, 2, 0])
 
     ''' 获取下个 batch '''
