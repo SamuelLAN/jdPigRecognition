@@ -20,7 +20,7 @@ if cur_dir_path:
     sys.path.append(os.path.split(cur_dir_path)[0])
 
 import lib.base as base
-import load_cell as load
+import load2 as load
 import model.vgg as vgg
 
 ''' 全卷积神经网络 '''
@@ -38,8 +38,8 @@ class FCN(base.NN):
     NUM_CLASSES = 2  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.002  # 初始 学习率
-    DECAY_RATE = 0.001  # 学习率 的 下降速率
+    BASE_LEARNING_RATE = 0.01  # 初始 学习率
+    DECAY_RATE = 0.05  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
     REGULAR_BETA = 0.01  # 正则化的 beta 参数
@@ -60,8 +60,6 @@ class FCN(base.NN):
         {
             'name': 'conv1_1',
             'type': 'conv',
-            # 'shape': VGG_MODEL['conv1_1'][0].shape,
-            # 'k_size': [1, 1],
             'W': VGG_MODEL['conv1_1'][0],
             'b': VGG_MODEL['conv1_1'][1],
             'trainable': True,
@@ -442,13 +440,6 @@ class FCN(base.NN):
                                                                        self.__steps, step_progress), False)
 
             batch_x, batch_y = self.__train_set.next_batch(self.BATCH_SIZE)
-
-            # import matplotlib.pyplot as plt
-            # plt.imshow(np.cast['uint8'](batch_y[0, :, :, 1] * 255))
-            # plt.show()
-            # break
-            # exit()
-
             feed_dict = {self.__image: batch_x, self.__mask: batch_y,
                          self.keep_prob: self.KEEP_PROB}
             _, train_loss = self.sess.run([train_op, self.__loss], feed_dict)
@@ -563,6 +554,7 @@ class FCN(base.NN):
 
             o_new_image = Image.fromarray(new_image)
             o_new_image.show()
+
 
 o_fcn = FCN()
 o_fcn.run()
