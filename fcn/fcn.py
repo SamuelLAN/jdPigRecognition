@@ -38,8 +38,8 @@ class FCN(base.NN):
     NUM_CLASSES = 2  # 输出的类别
 
     # 学习率的相关参数
-    BASE_LEARNING_RATE = 0.01  # 初始 学习率
-    DECAY_RATE = 0.05  # 学习率 的 下降速率
+    BASE_LEARNING_RATE = 0.002  # 初始 学习率
+    DECAY_RATE = 0.001  # 学习率 的 下降速率
 
     # 防止 overfitting 相关参数
     REGULAR_BETA = 0.01  # 正则化的 beta 参数
