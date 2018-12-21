@@ -1,6 +1,6 @@
 # Pig Face Recognition of JDD-2017 Competition
 
-> link: http://jddjr.jd.com/item/4
+> link: https://jdder.jd.com/index/jddDetail?matchId=55e7bf6ee82844e88172874c6dd1b499
 
 ### This project includes three processes.
 
