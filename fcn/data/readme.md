@@ -1,5 +1,5 @@
 ## Store the image data required for the training of FCN.
 
-##### 该文件夹里的图片，为 video_process 里生成的图片
+##### The images in this folder are the images generated in video_process.
 
-##### 且数据经过 data argument (旋转、翻转、调光、调色等等) 丰富数据集
+##### And the data set is enriched via data augmentation (rotation, flipping, translation, scaling, random cropping, adjusting brightness and chroma, and etc).

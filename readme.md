@@ -8,7 +8,7 @@
 
     Convert the videos into image data.
 
-    Use data augmentation to enrich training set. It includes rotation, translation, scaling, random cropping, adjusting brightness and chroma, and etc.
+    Use data augmentation to enrich training set. It includes rotation, flipping, translation, scaling, random cropping, adjusting brightness and chroma, and etc.
 
     ( Please see the folder [video_process](video_process) and [readme](video_process/readme.md) for details.)
 
@@ -16,7 +16,7 @@
 
     Process image data and segment the pigs individually.
 
-    Use data augmentation to enrich training set. The pigs segmented would be rotated, translated, adjusted brightness and chroma, and etc.
+    Use data augmentation to enrich training set. The pigs segmented would be rotated, flipped, translated, adjusted brightness and chroma, and etc.
 
     ( Please see the folder [fcn](fcn) and [readme](fcn/readme.md) for details.)
 

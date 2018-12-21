@@ -3,7 +3,7 @@
 ##### Use the pigs segmented by FCN as input to the classification model.
 
 >#### File Structure
-- [img_arg.py](img_arg.py): Apply data augmentation to the images of the segmented pigs. The augmentation includes rotation, translation, scaling, random cropping, adjusting brightness and chroma, and etc.
+- [img_arg.py](img_arg.py): Apply data augmentation to the images of the segmented pigs. The augmentation includes rotation, flipping, translation, scaling, random cropping, adjusting brightness and chroma, and etc.
 - [load.py](load.py): It is the base class for loading data and for downloading data. (In order to speed up the program and ensure that the limit of the memory storage is not exceeded, the asynchronous loading method is adopted. It means that the data is loaded asynchronously on demand in the background instead of being loaded into the memory all at once.)
 - [bi_load.py](bi_load.py): The basic class for loading data. (specially for [bi_vgg16_net.py](bi_vgg16_net.py))
 - [vgg16_net.py](vgg16_net.py): Apply the VGG16 model to identify the pigs. (The image input size is the same as VGG model's, which is 224 * 224.)
