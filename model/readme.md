@@ -1,1 +1,1 @@
-## 存放 vgg 的 model
+## To store VGG models.
