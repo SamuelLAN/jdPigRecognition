@@ -1,30 +1,30 @@
-# FCN 全卷积神经网络
+# FCN: Fully Convolutional Networks for Pigs Segmentation
 
-##### 负责将猪从图片中切割出来，也就是去掉背景，只留下猪
+##### Responsible for segmenting the pigs out of the pictures, that is, removing the background and leaving only the pigs individually.
 
-> FCN 的结构图
+> The structure diagram of FCN.
 >
-> <img src="../tmp/fcn_graph.png" alt="FCN 的结构图" height="830" width="430">
+> <img src="../tmp/fcn_graph.png" alt="The structure diagram of FCN" height="830" width="430">
 
-> FCN 训练过程 tensorboard 的 scalar
+> The scalar of Tensorboard of the training process of FCN.
 >
-> <img src="../tmp/fcn_scalar.png" alt="FCN 训练过程 tensorboard 的 scalar" height="210" width="420">
+> <img src="../tmp/fcn_scalar.png" alt="The scalar of Tensorboard of the training process of FCN" height="210" width="420">
 
-> FCN 训练过程 tensorboard 里的 image
->> 其中 input_image 为输入图像；output_image 为切割后的图像；truth mask 为 ground truth
+> The image of Tensorboard of the training process of FCN.
+>> Among them, the "input_image" is the input image, the "output_image" is the image of pigs after segmentation and the "truth mask" is the image of ground truth.
 >
-> <img src="../tmp/fcn_img_1.png" alt="FCN 训练过程 tensorboard tensorboard 里的 image 1" height="381" width="431">
+> <img src="../tmp/fcn_img_1.png" alt="The image 1 of Tensorboard of the training process of FCN" height="381" width="431">
 >
-> <img src="../tmp/fcn_img_2.png" alt="FCN 训练过程 tensorboard tensorboard 里的 image 2" height="381" width="431">
+> <img src="../tmp/fcn_img_2.png" alt="The image 2 of Tensorboard of the training process of FCN" height="381" width="431">
 >
-> <img src="../tmp/fcn_img_3.png" alt="FCN 训练过程 tensorboard tensorboard 里的 image 3" height="381" width="431">
+> <img src="../tmp/fcn_img_3.png" alt="The image 3 of Tensorboard of the training process of FCN" height="381" width="431">
 
->#### FCN 运行结果的 cmd 图
+>#### The screenshot of the CMD of the training process of FCN.
 >
-> <img src="../tmp/fcn_cmd.png" alt="FCN 运行结果的 cmd 图" height="100" width="210">
+> <img src="../tmp/fcn_cmd.png" alt="The screenshot of the CMD of the training process of FCN" height="100" width="210">
 
->#### 文档结构
-- [load.py](load.py): 加载数据的基类
-- [fcn.py](fcn.py): fcn 的模型；继承于 lib/base，运行里面的 FCN.run 即可训练模型
-- [get_image.py](get_image.py): 引用 fcn.py 将 data/TrainImg 里的猪切割出来
-- [get_test_image.py](get_test_image.py): 引用 fcn.py 将 data/Test_B 里的猪切割出来
+>#### File structure.
+- [load.py](load.py): The base class for loading data.
+- [fcn.py](fcn.py): Fcn model. It inherits from "lib/base". You can train the model by running the function FCN.run.
+- [get_image.py](get_image.py): It applies fcn.py to segment the pigs of data/TrainImg individually.
+- [get_test_image.py](get_test_image.py): It applies fcn.py to segment the pigs of data/TestB individually.
