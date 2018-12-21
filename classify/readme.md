@@ -50,11 +50,11 @@
 >
 > <strong>Advantages</strong>：The extensibility. When adding new categories, it is not necessary to retrain all the data. It only needs to train a new network for the new category, which is fast and convenient.
 >
-> <strong>Fatal Disadvantages</strong>：尽管单个网络的准确率能高达 90+%，但当需要整合 30 个网络时，能保证不出错的概率就变成 0.9 ^ 30 = 0.0424 ，这是一个非常小的数字，意味着当综合考虑时，总会有一些网络会出错出现干扰，导致准确率无法提升
+> <strong>Fatal Disadvantages</strong>：Although the accuracy of a single network can be as high as 90+%, when integrating the 30 networks, the probability of no error becomes 0.9 ^ 30 = 0.0424, which is a very small number. It means there always would be some networks which made mistakes and influence the whole, leading to the inability to improve the accuracy.
 >
-> 由于该模型存在致命缺点，这里就不展示它的结构图了，准确率只有 60% 多
+> Due to the fatal shortcomings and the complexity of this model, its structure diagram would not be shown here. And the accuracy of this model is only approximately 60%.
 >
-> 其中 30 个网络的准确率以及 log_loss
+> The accuracy of the 30 networks and their log_loss:
 >
 > <img src="../tmp/classify_bi_vgg_result_1.png" alt="bi_vgg16的运行结果图" height="700" width="660">
 >
@@ -62,15 +62,15 @@
 >
 > <img src="../tmp/classify_bi_vgg_result_3.png" alt="bi_vgg16的运行结果图" height="700" width="660">
 >
-> 可见单个网络的准确率可以很高，最高 97% - 98%，若给每个网络调一下参数，平均准确率应该能高于 90%；但是关键就在于上面所说的致命弱点
+> It can be seen that the accuracy of a single network can be very high, up to 97% - 98%. And the average accuracy of all networks could reach over 90% if their parameters are adjusted respectively. However, the key lies in the above-mentioned fatal problem.
 >
-> 这里就不展示最终合并在一起的准确率的运行结果图了，之前忘记截图，准确率就 60+%
+> The final result of the integration of each network would not be provided here for I forgot to capture a screenshot. The accuracy is approximately 60+%.
 
 <br>
 
 > The structure diagram of the vgg19_net model
 >
-> 此处的 vgg 模型，加入了 batch_normalize，为了加快训练速度
+> The VGG model here added batch normalization in order to speed up the training process.
 >
 > <img src="../tmp/vgg19_graph.png" alt="vgg16 的结构图" height="1300" width="600">
 >
@@ -78,7 +78,7 @@
 >
 > <img src="../tmp/classify_vgg19_tensorboard.png" alt="bi_vgg16的运行结果图" height="540" width="460">
 >
-> 还没仔细地调参数，目前准确率就 60+%，跟 bi_vgg16 的效果差不多，运行结果图忘记截图了
+> I haven't adjusted the parameters of this model yet. The current accuracy of this model is 60+%, which is similar to the result of bi_vgg16.
 
 <br>
 
