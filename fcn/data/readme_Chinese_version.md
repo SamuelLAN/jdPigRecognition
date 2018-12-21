@@ -1,4 +1,4 @@
-## Store the image data required for the training of FCN.
+## 存放 fcn 训练所需的数据图片
 
 ##### 该文件夹里的图片，为 video_process 里生成的图片
 

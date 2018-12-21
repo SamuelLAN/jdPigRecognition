@@ -23,7 +23,7 @@
 >
 > <img src="../tmp/fcn_cmd.png" alt="The screenshot of the CMD of the training process of FCN" height="100" width="210">
 
->#### File structure.
+>#### File Structure.
 - [load.py](load.py): The base class for loading data.
 - [fcn.py](fcn.py): Fcn model. It inherits from "lib/base". You can train the model by running the function FCN.run.
 - [get_image.py](get_image.py): It applies fcn.py to segment the pigs of data/TrainImg individually.

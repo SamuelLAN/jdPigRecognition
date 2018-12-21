@@ -22,7 +22,7 @@
 
 - classify
 
-    To classify each pigs out of images.
+    To classify each pigs out of the images.
 
     Use the pigs segmented by FCN as input to the classification model.
 
@@ -42,12 +42,12 @@
 
 <br>
 
->##### Competition ranking
+>##### Competition Ranking
 > But the <strong style="color: red; font-weight: normal;">log_loss</strong> of the test set, the result of classify, can reach <strong style="color: red; font-weight: normal;">0.32</strong>, which was in the top 20 and eligible to enter the finals. <br><br>Unfortunately, I made mistakes in saving the model and handed in a wrong model, leading to the result of ranking 101. After I found out this problem, it was too late to submit the correct model.
 
 <br>
 
->#### Feelings and thoughts
+>#### Feelings and Thoughts
 > When I signed up for this competition, half of the time had already passed. Plus, due to the inappropriate allocation of time in the former phase, there was no enough time left for me to train the model and debug problems.
 >
 > In general, there were several problems.
