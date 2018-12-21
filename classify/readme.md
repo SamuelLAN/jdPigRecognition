@@ -3,35 +3,35 @@
 ##### Use the pigs segmented by FCN as input to the classification model.
 
 >#### File Structure
-- [img_arg.py](img_arg.py): 给 fcn 切割后的猪做数据增强，进行各种旋转、调光、调色等等
-- [load.py](load.py): 加载数据的基类；同时也是下载数据的基类 (为了加快运行速度，同时保证不超出电脑内存限制，采用了异步加载的方式，数据在后台异步按需加载，而不是一次性全部加载到内存)
-- [bi_load.py](bi_load.py): 加载数据的基类 (专门给 [bi_vgg16_net.py](bi_vgg16_net.py) 使用)
-- [vgg16_net.py](vgg16_net.py): 使用 vgg16 模型识别猪 (图片输入大小跟 vgg 一样，为 224 * 224)
-- [vgg16_net_2.py](vgg16_net_2.py): 使用 vgg16 模型识别猪 (为加快速度，图片输入大小缩小为 56 * 56)
-- [vgg19_net.py](vgg19_net.py): 使用 vgg19 模型识别猪 (为加快速度，图片输入大小缩小为 56 * 56)
-- [bi_vgg16_net.py](bi_vgg16_net.py): 使用 vgg16 模型，但不是多分类，而是二分类；该程序共训练 30 个网络，每个网络进行二分类，分类目标为是该类猪与其他猪，最后将 30 个网络的训练结果根据准确率加权进行投票决定属于哪个分类 (为加快速度，图片输入大小缩小为 56 * 56)
-- [resnet_50.py](resnet_50.py): 使用 resnet 50 层模型 (图片输入大小为 224 * 224); resnet 还没试过运行，之后有时间会尝试运行
-- [get_test_csv.py](get_test_csv.py): 生成 data/Test_B 对应的猪的识别结果
+- [img_arg.py](img_arg.py): Apply data augmentation to the images of the segmented pigs. The augmentation includes rotation, translation, scaling, random cropping, adjusting brightness and chroma, and etc.
+- [load.py](load.py): It is the base class for loading data and for downloading data. (In order to speed up the program and ensure that the limit of the memory storage is not exceeded, the asynchronous loading method is adopted. It means that the data is loaded asynchronously on demand in the background instead of being loaded into the memory all at once.)
+- [bi_load.py](bi_load.py): The basic class for loading data. (specially for [bi_vgg16_net.py](bi_vgg16_net.py))
+- [vgg16_net.py](vgg16_net.py): Apply the VGG16 model to identify the pigs. (The image input size is the same as VGG model's, which is 224 * 224.)
+- [vgg16_net_2.py](vgg16_net_2.py): Apply the VGG16 model to identify the pigs. (To speed up the program, the image input size is reduced to 56 * 56.)
+- [vgg19_net.py](vgg19_net.py): Apply the VGG19 model to identify the pigs. (To speed up the program, the image input size is reduced to 56 * 56.)
+- [bi_vgg16_net.py](bi_vgg16_net.py): Apply the bi-VGG16 model, which is a two-class classification model instead of a multi-class classification model, to identify pigs. There would be 30 networks in this model and each network performs a two-class classification. The classification targets are a pig and the other pigs. Finally, the accuracy of 30 networks are weighted and the results would be used to decide which category to belong to. (To speed up the program, the image input size is reduced to 56 * 56.)
+- [resnet_50.py](resnet_50.py): Apply the 50-layers Residual Neural Networks to identify the pigs. (the image input size is 224 * 224.) The Resnet model has not been tried to run yet, but I would try to run it when I am free.
+- [get_test_csv.py](get_test_csv.py): Generate the classification result of pigs of the data "data/Test_B".
 
 <br>
 
 >#### The training method
-> 由于比赛评分标准为 log_loss (具体自己参考比赛官网的公式)，因此训练模型时，使用了普通的 loss 与 log_loss 交互训练的方法
+> Since the scoring standard of the competition is based on log_loss (Please see the details in the official website of the competition.), I adopted the general loss and the log_loss back and forth during the training process.
 >
->> 1、先使用普通的 loss 进行训练，调整参数，训练过程将校验集准确率最高的结果保存下来，直到停止或 early_stop 为止；
+>> 1、First I used the general loss to train the model and adjust the parameters. And then I saved the best result of the training process until it stops or triggers the early stop.
 >>
->> 2、在 1 训练好的模型的基础上，将 loss function 改成 log_loss 进行训练，调整参数，训练过程将检验集 log_loss 最低的结果保存下来，直到停止或 early_stop 为止；
+>> 2、On the basis of the trained model in step 1, the loss function is changed to log_loss for training, and the parameters are adjusted. Again saved the lowest result of the log_loss of the test set of the training process until it stops or triggers the early stop.
 >>
->> 3、重复 1 与 2 的过程，直到达到理想效果
+>> 3、Repeat steps 1 and 2 until the ideal effect is achieved.
 
 <br>
 
 >### vgg16_net、vgg16_net_2
-> vgg16_net 与 vgg16_net_2 的区别在与输入大小的不同，导致网络全连接层参数数量不一样
+> The difference between vgg16_net and vgg16_net_2 is the input size, resulting in different number of the parameters of the fully connected layer.
 >
-> vgg16_net_2 比 vgg16_net 运行速度更快，因为参数较少
+> The vgg16_net_2 runs faster than the vgg16_net because of fewer parameters.
 >
-> 此处的 vgg 模型，加入了 batch_normalize，为了加快训练速度
+> The VGG model here adds batch normalization in order to speed up the training process.
 >
 >##### The Structure Diagram
 >
@@ -41,16 +41,16 @@
 >
 > <img src="../tmp/classify_vgg16_2_cmd.png" alt="vgg16的运行结果图" height="150" width="660">
 >
-> 由于 vgg16_net 与 vgg16_net_2 运行效果差不多，而 vgg16_net 运行较慢，所以没有等 vgg16_net 运行完，这里暂不提供运行结果
+> As the result of the vgg16_net is similar to the result of vgg16_net_2, I did not wait for the completion of the training process of vgg16_net. Therefore, no results of vgg16_net is provided here.
 
 <br>
 
 >#### bi_vgg16_net
-> 该方法将 30 分类 转化为 30 个 二分类问题，需要训练 30 个网络，最后根据各个网络的准确率作为权重，加权投票作为输出
+> There would be 30 networks in this model and each network performs a two-class classification. The classification targets are a pig and the other pigs. Finally, the accuracy of 30 networks are weighted and the results would be used to decide which category to belong to.
 >
-> <strong>优点</strong>：可扩展性，当新增分类时，无需重新训练全部数据，只需针对新分类训练一个新的网络即可
+> <strong>Advantages</strong>：The extensibility. When adding new categories, it is not necessary to retrain all the data. It only needs to train a new network for the new category, which is fast and convenient.
 >
-> <strong>致命缺点</strong>：尽管单个网络的准确率能高达 90+%，但当需要整合 30 个网络时，能保证不出错的概率就变成 0.9 ^ 30 = 0.0424 ，这是一个非常小的数字，意味着当综合考虑时，总会有一些网络会出错出现干扰，导致准确率无法提升
+> <strong>Fatal Disadvantages</strong>：尽管单个网络的准确率能高达 90+%，但当需要整合 30 个网络时，能保证不出错的概率就变成 0.9 ^ 30 = 0.0424 ，这是一个非常小的数字，意味着当综合考虑时，总会有一些网络会出错出现干扰，导致准确率无法提升
 >
 > 由于该模型存在致命缺点，这里就不展示它的结构图了，准确率只有 60% 多
 >
@@ -68,13 +68,13 @@
 
 <br>
 
-> vgg19_net 的结构图
+> The structure diagram of the vgg19_net model
 >
 > 此处的 vgg 模型，加入了 batch_normalize，为了加快训练速度
 >
 > <img src="../tmp/vgg19_graph.png" alt="vgg16 的结构图" height="1300" width="600">
 >
-> tensorboard 的截图
+> The screenshot of Tensorboard
 >
 > <img src="../tmp/classify_vgg19_tensorboard.png" alt="bi_vgg16的运行结果图" height="540" width="460">
 >
@@ -82,6 +82,6 @@
 
 <br>
 
-> resnet_50 的结构图
+> The structure diagram of the 50-layers Residual Neural Networks
 >
-> 没保存，暂时略
+> The result is forgot to save and would not be provided here.
