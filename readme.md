@@ -6,7 +6,7 @@
 
 - video_process
 
-    convert the videos into image data.
+    Convert the videos into image data.
 
     Use data augmentation to enrich training set. It includes rotatation, translation, scaling, adjusting brightness and chroma, and etc.
 
