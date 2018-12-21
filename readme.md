@@ -8,7 +8,7 @@
 
     Convert the videos into image data.
 
-    Use data augmentation to enrich training set. It includes rotatation, translation, scaling, adjusting brightness and chroma, and etc.
+    Use data augmentation to enrich training set. It includes rotation, translation, scaling, random cropping, adjusting brightness and chroma, and etc.
 
     ( Please see the folder [video_process](video_process) and [readme](video_process/readme.md) for details.)
 
